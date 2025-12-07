@@ -1,0 +1,122 @@
+site_name: AgentECS
+site_description: Entity Component System for AI Agent Orchestration
+site_author: ExtensiveLabs
+site_url: https://extensivelabs.github.io/agentecs
+
+repo_name: extensivelabs/agentecs
+repo_url: https://github.com/extensivelabs/agentecs
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            inherited_members: false
+            filters:
+              - "!^_"
+            heading_level: 2
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.snippets:
+      auto_append:
+        - includes/mkdocs.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+nav:
+  - Home: index.md
+  - Start Up:
+      - Installation: start-up/installation.md
+      - First Steps: start-up/first-steps.md
+      - Core Concepts: start-up/core-concepts.md
+  - Cookbook:
+      - Overview: cookbook/index.md
+  - System:
+      - Overview: system/index.md
+      - Design Philosophy: system/design-philosophy.md
+      - Architecture: system/architecture.md
+      - Components: system/components.md
+      - Systems: system/systems.md
+      - Queries: system/queries.md
+      - World Management: system/world_management.md
+      - Scheduling: system/scheduling.md
+      - Storage: system/storage.md
+      - Roadmap: system/roadmap.md
+  - API Reference:
+      - Overview: api/index.md
+      - Core API: api/core.md
+      - World API: api/world.md
+      - Storage API: api/storage.md
+      - Scheduling API: api/scheduling.md
+      - Adapters API: api/adapters.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/extensivelabs/agentecs

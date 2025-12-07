@@ -1,0 +1,191 @@
+version: '3'
+
+vars:
+  PYTHON: python3
+  UV: uv
+  SRC_DIR: src
+  TEST_DIR: tests
+  EXAMPLES_DIR: examples
+
+tasks:
+
+  setup:
+    desc: Initialize development environment (run this first)
+    cmds:
+      - task: _check-tools
+      - task: _create-venv
+      - task: install
+      - task: _install-hooks
+      - echo "✓ Development environment ready!"
+      - echo "Run 'task --list' to see available commands"
+
+  _check-tools:
+    internal: true
+    desc: Check required tools are installed
+    cmds:
+      - |
+        command -v {{.UV}} >/dev/null 2>&1 || { echo "Error: uv not found. Run scripts/bootstrap.sh first"; exit 1; }
+      - |
+        command -v git >/dev/null 2>&1 || { echo "Error: git not found"; exit 1; }
+    silent: true
+
+  _create-venv:
+    internal: true
+    desc: Create virtual environment with uv
+    cmds:
+      - '{{.UV}} venv --python {{.PYTHON}}'
+    status:
+      - test -d .venv
+
+  install:
+    desc: Install dependencies with uv
+    cmds:
+      - '{{.UV}} pip install -e ".[dev,pydantic,docs]"'
+    sources:
+      - pyproject.toml
+
+  install-prod:
+    desc: Install production dependencies only
+    cmds:
+      - '{{.UV}} pip install -e ".[pydantic]"'
+
+  _install-hooks:
+    internal: true
+    desc: Install pre-commit hooks
+    cmds:
+      - '{{.UV}} run pre-commit install'
+    status:
+      - test -f .git/hooks/pre-commit
+
+  test:
+    desc: Run all tests
+    cmds:
+      - '{{.UV}} run pytest {{.CLI_ARGS}}'
+
+  test-unit:
+    desc: Run unit tests only
+    cmds:
+      - '{{.UV}} run pytest tests/core tests/world tests/storage tests/scheduling {{.CLI_ARGS}}'
+
+  test-integration:
+    desc: Run integration tests only
+    cmds:
+      - '{{.UV}} run pytest tests/integration {{.CLI_ARGS}}'
+
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - '{{.UV}} run pytest --cov={{.SRC_DIR}}/agentecs --cov-report=term-missing --cov-report=html --cov-branch {{.CLI_ARGS}}'
+      - echo "Coverage report generated in htmlcov/index.html"
+  test-parallel:
+    desc: Run tests in parallel with pytest-xdist
+    cmds:
+      - '{{.UV}} run pytest -n auto {{.CLI_ARGS}}'
+
+  lint:
+    desc: Run ruff linting
+    cmds:
+      - '{{.UV}} run ruff check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  lint-fix:
+    desc: Run ruff linting and auto-fix issues
+    cmds:
+      - '{{.UV}} run ruff check --fix {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  format:
+    desc: Auto-format code with ruff
+    cmds:
+      - '{{.UV}} run ruff format {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  format-check:
+    desc: Check code formatting without changes
+    cmds:
+      - '{{.UV}} run ruff format --check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  type-check:
+    desc: Run mypy type checking
+    cmds:
+      - '{{.UV}} run mypy {{.SRC_DIR}}'
+
+  check:
+    desc: Run all checks (lint, format, type-check, test)
+    cmds:
+      - task: format-check
+      - task: lint
+      - task: type-check
+      - task: test
+      - echo "✓ All checks passed!"
+
+  run:
+    desc: "Run an example script (usage: task run -- examples/simple_agents.py)"
+    cmds:
+      - '{{.UV}} run {{.PYTHON}} {{.CLI_ARGS}}'
+
+  notebook:
+    desc: "Run Jupyter Lab for interactive notebooks (usage: task notebook -- examples/task_dispatch/interactive_demo.ipynb)"
+    cmds:
+      - '{{.UV}} run jupyter notebook {{.CLI_ARGS}}'
+
+  clean:
+    desc: Remove build artifacts and caches
+    cmds:
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf *.egg-info
+      - rm -rf .pytest_cache/
+      - rm -rf .mypy_cache/
+      - rm -rf .ruff_cache/
+      - rm -rf htmlcov/
+      - rm -rf .coverage
+      - rm -rf site/
+      - find . -type d -name __pycache__ -exec rm -rf {} +
+      - find . -type f -name "*.pyc" -delete
+      - echo "✓ Cleaned build artifacts and caches"
+
+  clean-venv:
+    desc: Remove virtual environment (use before full reinstall)
+    cmds:
+      - rm -rf .venv/
+      - echo "✓ Removed virtual environment"
+      - echo "Run 'task setup' to recreate"
+
+  docs:
+    desc: Build documentation with MkDocs
+    cmds:
+      - '{{.UV}} run mkdocs build'
+      - echo "✓ Documentation built in site/"
+
+  docs-serve:
+    desc: Serve documentation locally with live reload
+    cmds:
+      - '{{.UV}} run mkdocs serve'
+
+  docs-clean:
+    desc: Remove built documentation
+    cmds:
+      - rm -rf site/
+      - echo "✓ Removed documentation build artifacts"
+
+  info:
+    desc: Show development environment info
+    cmds:
+      - echo "=== AgentECS Development Environment ==="
+      - |
+        echo "Python: $({{.PYTHON}} --version)"
+        echo "UV: $({{.UV}} --version)"
+        echo "Git: $(git --version)"
+        echo "Virtual environment: $VIRTUAL_ENV"
+        echo ""
+        echo "Source directory: {{.SRC_DIR}}"
+        echo "Test directory: {{.TEST_DIR}}"
+        echo "Examples directory: {{.EXAMPLES_DIR}}"
+
+  activate:
+    desc: Show how to activate the virtual environment
+    cmds:
+      - echo "Manual activation:"
+      - echo "  source .venv/bin/activate"
+      - echo ""
+      - echo "Automatic activation with direnv (recommended):"
+      - echo "  direnv allow   "
+      - echo "  cd .  "
