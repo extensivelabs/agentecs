@@ -1,0 +1,2508 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Entity Component System for AI Agent Orchestration">
+      
+      
+        <meta name="author" content="ExtensiveLabs">
+      
+      
+        <link rel="canonical" href="https://extensivelabs.github.io/agentecs/system/systems/">
+      
+      
+        <link rel="prev" href="../components/">
+      
+      
+        <link rel="next" href="../queries/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Systems - AgentECS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#systems" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="AgentECS" class="md-header__button md-logo" aria-label="AgentECS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AgentECS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Systems
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/extensivelabs/agentecs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    extensivelabs/agentecs
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../start-up/installation/" class="md-tabs__link">
+          
+  
+  
+  Start Up
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cookbook/" class="md-tabs__link">
+          
+  
+  
+  Cookbook
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="AgentECS" class="md-nav__button md-logo" aria-label="AgentECS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    AgentECS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/extensivelabs/agentecs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    extensivelabs/agentecs
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start Up
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Start Up
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start-up/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start-up/first-steps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Steps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../start-up/core-concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookbook
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cookbook
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Systems
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Declaration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Declaration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-function-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Function Signature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-pattern-declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Pattern Declaration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#querying-entities-and-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Querying Entities and Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Querying Entities and Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-reads-return-copies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All Reads Return Copies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-multiple-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Multiple Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-via-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating via Return Values
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-execution-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding Execution Behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding Execution Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#access-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frequency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#typical-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Typical Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-match-and-execute-per-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern-Match and execute per entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identify-and-operate-on-groups-of-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identify and operate on groups of entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-coordination-and-world-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global coordination and world state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exchange-of-resources-between-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exchange of resources between entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Systems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../world_management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    World Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/world/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    World API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/adapters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapters API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Declaration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Declaration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-function-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Function Signature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-pattern-declaration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Pattern Declaration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#querying-entities-and-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Querying Entities and Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Querying Entities and Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Updating Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-reads-return-copies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All Reads Return Copies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-multiple-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Multiple Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-via-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating via Return Values
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#understanding-execution-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding Execution Behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Understanding Execution Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#access-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frequency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#typical-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Typical Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-match-and-execute-per-entity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern-Match and execute per entity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identify-and-operate-on-groups-of-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identify and operate on groups of entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#global-coordination-and-world-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global coordination and world state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exchange-of-resources-between-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exchange of resources between entities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async Systems
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    System
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="systems">Systems<a class="headerlink" href="#systems" title="Permanent link">&para;</a></h1>
+<p>Systems contain the logic that operates on entities with specific component combinations. While <a href="../components/">Components</a> define <em>what</em> entities are, systems define <em>how</em> they behave.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Systems are functions (or async functions) that query entities by their components and apply transformations. AgentECS uses access pattern declarations for validation and documentation, with optional declarations for flexibility.</p>
+<p><strong>Key Characteristics:</strong></p>
+<ul>
+<li><strong>Function-Based</strong>: Systems are decorated functions, not classes</li>
+<li><strong>Optional Declarations</strong>: Declare <code>reads</code> and <code>writes</code> for validation, or omit for full access</li>
+<li><strong>Snapshot Isolation</strong>: Systems in the same execution group see a consistent worldview</li>
+<li><strong>Async-First</strong>: Systems can be sync or async, framework handles both seamlessly</li>
+</ul>
+<pre class="mermaid"><code>graph TD
+    A[System] --&gt;|Declares| B[reads: Task, TokenBudget]
+    A --&gt;|Declares| C[writes: Task, TokenBudget]
+    A --&gt;|Queries| D[World]
+    D --&gt;|Returns| E[Entities with Components]
+    A --&gt;|Updates| F[Write Buffer]
+    F --&gt;|Applied at| G[Group Boundary]
+
+    style A fill:#c5e1a5
+    style D fill:#e1f5fe
+    style F fill:#ffecb3</code></pre>
+<div class="admonition tip">
+<p class="admonition-title">Systems are Pure (Within an Execution Group)</p>
+<p>Systems read from storage and write to a buffer. Changes aren't visible to other systems in the same group until the group boundary, enabling parallelization without race conditions. Subsequent groups see applied changes.</p>
+</div>
+<h2 id="basic-declaration">Basic Declaration<a class="headerlink" href="#basic-declaration" title="Permanent link">&para;</a></h2>
+<p>Systems are defined using the <code>@system</code> decorator:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">system</span><span class="p">,</span> <span class="n">ScopedAccess</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">))</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_tasks</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Process tasks using available tokens.&quot;&quot;&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">):</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;completed&quot;</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">]</span> <span class="o">=</span> <span class="n">TokenBudget</span><span class="p">(</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                <span class="n">available</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                <span class="n">used</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">100</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>            <span class="p">)</span>
+</span></code></pre></div>
+<h3 id="system-function-signature">System Function Signature<a class="headerlink" href="#system-function-signature" title="Permanent link">&para;</a></h3>
+<p><strong>Required Parameter:</strong>
+- <code>world: ScopedAccess</code> - Provides controlled access to the world</p>
+<p><strong>Optional Return:</strong>
+- <code>None</code> - No explicit changes (use <code>world[entity, Type] = value</code>)
+- <code>SystemResult</code> - Explicit result object
+- <code>dict[EntityId, dict[type, Any]]</code> - Entity → components mapping
+- <code>dict[EntityId, Any]</code> - Entity → single component (type inferred)
+- <code>list[tuple[EntityId, Any]]</code> - List of (entity, component) pairs</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Direct Updates (Recommended)</label><label for="__tabbed_1_2">Dict Return</label><label for="__tabbed_1_3">SystemResult Return</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">))</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_tasks</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">):</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;completed&quot;</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">]</span> <span class="o">=</span> <span class="n">TokenBudget</span><span class="p">(</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                <span class="n">available</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                <span class="n">used</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">100</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>            <span class="p">)</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">))</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_tasks</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">entity</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            <span class="n">Task</span><span class="p">:</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;completed&quot;</span><span class="p">),</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            <span class="n">TokenBudget</span><span class="p">:</span> <span class="n">TokenBudget</span><span class="p">(</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">100</span><span class="p">,</span> <span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="p">}</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>        <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">)</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">&gt;=</span> <span class="mi">100</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="p">}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemResult</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">))</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_tasks</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SystemResult</span><span class="p">:</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">SystemResult</span><span class="p">()</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">):</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="k">if</span> <span class="n">entity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">updates</span><span class="p">:</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                <span class="n">result</span><span class="o">.</span><span class="n">updates</span><span class="p">[</span><span class="n">entity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>            <span class="n">result</span><span class="o">.</span><span class="n">updates</span><span class="p">[</span><span class="n">entity</span><span class="p">][</span><span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;completed&quot;</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>            <span class="n">result</span><span class="o">.</span><span class="n">updates</span><span class="p">[</span><span class="n">entity</span><span class="p">][</span><span class="n">TokenBudget</span><span class="p">]</span> <span class="o">=</span> <span class="n">TokenBudget</span><span class="p">(</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>                <span class="n">available</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>                <span class="n">used</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">100</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>            <span class="p">)</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="k">return</span> <span class="n">result</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Prefer Direct Updates</p>
+<p>Using <code>world[entity, Type] = value</code> is more ergonomic and readable than returning dicts or SystemResult objects. Save return values for pure systems or when you need fine-grained control.</p>
+</div>
+<h3 id="access-pattern-declaration">Access Pattern Declaration<a class="headerlink" href="#access-pattern-declaration" title="Permanent link">&para;</a></h3>
+<p>Systems can optionally declare which component types they read and write:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@system</span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">,</span> <span class="n">Context</span><span class="p">),</span>  <span class="c1"># Can read these types</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">Context</span><span class="p">),</span>              <span class="c1"># Can write these types</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_system</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<p><strong>Access Declarations Are Optional</strong></p>
+<p>For quick prototyping, omit declarations entirely:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@system</span><span class="p">()</span>  <span class="c1"># Full access, runs in parallel with other systems</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">quick_prototype</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># Can read/write any component</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Declare Access</p>
+<ul>
+<li><strong>Skip declarations</strong> for quick prototyping or simple scripts</li>
+<li><strong>Add declarations</strong> when you want validation and documentation</li>
+<li><strong>Use dev mode</strong> when debugging (runs alone, easier to reason about)</li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Write Implies Read</p>
+<p>If a system declares a type in <code>writes</code>, it automatically has read access to that type. You don't need to list it in both.</p>
+</div>
+<h2 id="querying-entities-and-components">Querying Entities and Components<a class="headerlink" href="#querying-entities-and-components" title="Permanent link">&para;</a></h2>
+<p>Systems query entities using the <code>world(ComponentType, ...)</code> syntax:</p>
+<h3 id="query-syntax">Query Syntax<a class="headerlink" href="#query-syntax" title="Permanent link">&para;</a></h3>
+<p><strong>Basic Multi-Component Query:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">))</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">process_tasks</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="c1"># Iterate entities with BOTH Task AND TokenBudget</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Task</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">):</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="c1"># task and budget are copies - must write back changes</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;pending&quot;</span> <span class="ow">and</span> <span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2"> processing: </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;completed&quot;</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">]</span> <span class="o">=</span> <span class="n">TokenBudget</span><span class="p">(</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>                <span class="n">available</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">100</span><span class="p">,</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>                <span class="n">used</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">100</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>            <span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Single-Component Query:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">TokenBudget</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">TokenBudget</span><span class="p">,))</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">decay_budget</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">TokenBudget</span><span class="p">):</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">TokenBudget</span><span class="p">]</span> <span class="o">=</span> <span class="n">TokenBudget</span><span class="p">(</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>            <span class="n">available</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">available</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>            <span class="n">used</span><span class="o">=</span><span class="n">budget</span><span class="o">.</span><span class="n">used</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>        <span class="p">)</span>
+</span></code></pre></div>
+<p><strong>Entity Handle for Repeated Access:</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">))</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">complex_system</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="k">for</span> <span class="n">entity_id</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">):</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>        <span class="n">e</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="n">entity_id</span><span class="p">)</span>  <span class="c1"># Get EntityHandle</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>        <span class="c1"># Dict-style access</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="k">if</span> <span class="n">Velocity</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="n">vel</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">Velocity</span><span class="p">]</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>            <span class="n">e</span><span class="p">[</span><span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        <span class="k">if</span> <span class="n">Health</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>            <span class="n">e</span><span class="p">[</span><span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="n">Health</span><span class="p">]</span><span class="o">.</span><span class="n">hp</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="n">Health</span><span class="p">]</span><span class="o">.</span><span class="n">max_hp</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Query Returns Iterator</p>
+<p><code>world(Type1, Type2)</code> returns a <code>QueryResult</code> that yields <code>(entity, comp1, comp2)</code> tuples. It's lazy—entities are fetched on iteration.</p>
+</div>
+<h2 id="updating-components">Updating Components<a class="headerlink" href="#updating-components" title="Permanent link">&para;</a></h2>
+<h3 id="all-reads-return-copies">All Reads Return Copies<a class="headerlink" href="#all-reads-return-copies" title="Permanent link">&para;</a></h3>
+<p><strong>IMPORTANT:</strong> All component reads return deep copies, not references.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,))</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">movement</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">):</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>        <span class="c1"># pos and vel are COPIES - safe to mutate</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>        <span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>  <span class="c1"># Must write back!</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>        <span class="c1"># Or create new instance (same effect):</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>        <span class="c1"># world[entity, Position] = Position(pos.x + vel.dx, pos.y + vel.dy)</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Must Write Back</p>
+<p>Mutations to retrieved components do NOT persist automatically. You must write back via <code>world[entity, Type] = component</code>. This applies to all reads: <code>world[entity, Type]</code>, <code>world(Type)</code> queries, and <code>world.get(entity, Type)</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Why Copies?</p>
+<p>Returning copies prevents accidental mutation of world state, works with any storage backend (including remote/serialized), and maintains snapshot isolation guarantees.</p>
+</div>
+<h3 id="updating-multiple-components">Updating Multiple Components<a class="headerlink" href="#updating-multiple-components" title="Permanent link">&para;</a></h3>
+<p>Update multiple components on the same entity:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Fuel</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Fuel</span><span class="p">))</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">movement_with_fuel</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">fuel</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Fuel</span><span class="p">):</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>        <span class="k">if</span> <span class="n">fuel</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>            <span class="c1"># Update multiple components</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Fuel</span><span class="p">]</span> <span class="o">=</span> <span class="n">Fuel</span><span class="p">(</span><span class="n">fuel</span><span class="o">.</span><span class="n">amount</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            <span class="c1"># Stop moving when out of fuel</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">]</span> <span class="o">=</span> <span class="n">Velocity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="updating-via-return-values">Updating via Return Values<a class="headerlink" href="#updating-via-return-values" title="Permanent link">&para;</a></h3>
+<p>For pure functional systems, return changes instead of writing to world:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Input</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Output</span><span class="p">,),</span> <span class="n">mode</span><span class="o">=</span><span class="n">SystemMode</span><span class="o">.</span><span class="n">PURE</span><span class="p">)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ReadOnlyAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">EntityId</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pure system - must return all changes.&quot;&quot;&quot;</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        <span class="n">entity</span><span class="p">:</span> <span class="p">{</span><span class="n">Output</span><span class="p">:</span> <span class="n">Output</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)}</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">world</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Input</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="p">}</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">SystemMode.PURE</p>
+<p>Pure systems receive <code>ReadOnlyAccess</code> and must return all changes. They cannot use <code>world[entity, Type] = value</code>.</p>
+</div>
+<h2 id="understanding-execution-behavior">Understanding Execution Behavior<a class="headerlink" href="#understanding-execution-behavior" title="Permanent link">&para;</a></h2>
+<h3 id="access-levels">Access Levels<a class="headerlink" href="#access-levels" title="Permanent link">&para;</a></h3>
+<p>AgentECS provides three access levels:</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h9V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3H7a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2zm-6 9a2 2 0 0 0 2-2 2 2 0 0 0-2-2 2 2 0 0 0-2 2 2 2 0 0 0 2 2"/></svg></span> <strong>Standard Access</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">C</span><span class="p">,))</span>
+</span></code></pre></div>
+<p>Type-level access. System can read A, B and write C. Runs in parallel with other systems.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 20V10H6v10zm0-12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h9V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3H7a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2zm-6 9a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 1-2 2"/></svg></span> <strong>Full Access (Optional Declarations)</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nd">@system</span><span class="p">()</span>  <span class="c1"># No reads/writes declared</span>
+</span></code></pre></div>
+<p>Unrestricted access. Still runs in parallel with other systems.</p>
+</li>
+<li>
+<p><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 5.82 7.36 4.16A4.99 4.99 0 0 1 12 1c2.76 0 5 2.24 5 5v2h1a2 2 0 0 1 2 2v6.8L11.2 8H15V6c0-1.66-1.34-3-3-3-1.59 0-2.89 1.25-3 2.82m13.11 15.64-1.27 1.27-1.38-1.38c-.36.4-.88.65-1.46.65H6c-1.11 0-2-.89-2-2V10a2 2 0 0 1 2-2h.11l-5-5 1.28-1.27zm-8.26-5.72-2.59-2.59C10.5 13.44 10 14.16 10 15a2 2 0 0 0 2 2c.84 0 1.56-.5 1.85-1.26"/></svg></span> <strong>Dev Mode</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
+</span></code></pre></div>
+<p>Unrestricted access AND runs in isolation. Use for debugging.</p>
+</li>
+</ul>
+</div>
+<p><strong>How Access Affects Execution:</strong></p>
+<pre class="mermaid"><code>graph LR
+    A["debug_system&lt;br/&gt;@system.dev&lt;br/&gt;(Group 1)"]
+    B["movement&lt;br/&gt;reads: Pos, Vel&lt;br/&gt;(Group 2)"]
+    C["damage&lt;br/&gt;writes: Health&lt;br/&gt;(Group 2)"]
+    D["render&lt;br/&gt;full access&lt;br/&gt;(Group 2)"]
+
+    A --&gt;|runs first,&lt;br/&gt;then| B
+    B -.runs in parallel.- C
+    C -.runs in parallel.- D
+
+    style A fill:#ffcdd2
+    style B fill:#c8e6c9
+    style C fill:#c8e6c9
+    style D fill:#c8e6c9</code></pre>
+<div class="admonition info">
+<p class="admonition-title">Snapshot Isolation and Merge Strategies</p>
+<p>All systems in an execution group see the same initial state (snapshot isolation). When multiple systems write to the same entity/component, results are merged using configurable strategies:</p>
+<ul>
+<li><strong>LastWriterWins</strong> (default): Later system (by registration) overwrites earlier</li>
+<li><strong>MergeableFirst</strong>: Use <code>__merge__</code> method if available</li>
+<li><strong>Error</strong>: Raise exception on conflict (useful for debugging)</li>
+</ul>
+<p>See <a href="../scheduling/">Scheduling</a> for details on merge strategies.</p>
+</div>
+<h3 id="frequency">Frequency<a class="headerlink" href="#frequency" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Future Feature</p>
+<p><code>frequency</code> parameter exists but isn't yet used by scheduler:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">every_other_tick</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="c1"># Future: Run every 2 ticks</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<p>Planned for frequency-based execution in a future release.</p>
+</div>
+<h3 id="conditions">Conditions<a class="headerlink" href="#conditions" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Future Feature</p>
+<p>Condition-based execution is planned but not yet implemented:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Future API (not yet available)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Alert</span><span class="p">,),</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">world</span><span class="p">:</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">overheat_alert</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+</div>
+<h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Future Feature</p>
+<p>Explicit dependencies are planned but not yet implemented:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Future API (not yet available)</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">depends_on</span><span class="o">=</span><span class="p">[</span><span class="n">systemA</span><span class="p">,</span> <span class="n">systemB</span><span class="p">])</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">dependent_system</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="c1"># Runs after systemA and systemB</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="k">pass</span>
+</span></code></pre></div>
+<p>Currently, use execution groups to control ordering. Dev mode systems run in separate groups before normal systems.</p>
+</div>
+<h2 id="typical-workflows">Typical Workflows<a class="headerlink" href="#typical-workflows" title="Permanent link">&para;</a></h2>
+<p>AgentECS is extremely flexible in how systems can be defined. Here are common patterns to get started:</p>
+<h3 id="pattern-match-and-execute-per-entity">Pattern-Match and execute per entity<a class="headerlink" href="#pattern-match-and-execute-per-entity" title="Permanent link">&para;</a></h3>
+<p>Process each entity individually based on its components:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">))</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">entity_update</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Update each entity independently.&quot;&quot;&quot;</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">health</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">):</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        <span class="c1"># Move entity</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>        <span class="c1"># Damage if out of bounds</span>
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>        <span class="k">if</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">hp</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="n">health</span><span class="o">.</span><span class="n">max_hp</span><span class="p">)</span>
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_pos</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use</p>
+<p>Use for logic that applies independently to each entity (movement, health decay, AI decisions).</p>
+</div>
+<h3 id="identify-and-operate-on-groups-of-entities">Identify and operate on groups of entities<a class="headerlink" href="#identify-and-operate-on-groups-of-entities" title="Permanent link">&para;</a></h3>
+<p>Collect entities, analyze as a group, then update:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Opinion</span><span class="p">,))</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">consensus_building</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Agents in proximity influence each other&#39;s opinions.&quot;&quot;&quot;</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="n">agents</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">)]</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">:</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="c1"># Find nearby agents</span>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>        <span class="n">nearby</span> <span class="o">=</span> <span class="p">[</span><span class="n">other_op</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">,</span> <span class="n">other_op</span> <span class="ow">in</span> <span class="n">agents</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>                  <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">distance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        <span class="k">if</span> <span class="n">nearby</span><span class="p">:</span>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>            <span class="c1"># Average with nearby opinions</span>
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>            <span class="n">avg_opinion</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">nearby</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">nearby</span><span class="p">)</span>
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>            <span class="n">blended</span> <span class="o">=</span> <span class="p">(</span><span class="n">opinion</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">+</span> <span class="n">avg_opinion</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">]</span> <span class="o">=</span> <span class="n">Opinion</span><span class="p">(</span><span class="n">blended</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use</p>
+<p>Use for logic requiring awareness of multiple entities (consensus, flocking, collision detection).</p>
+</div>
+<h3 id="global-coordination-and-world-state">Global coordination and world state<a class="headerlink" href="#global-coordination-and-world-state" title="Permanent link">&para;</a></h3>
+<p>Systems can access singleton components for global parameters:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>  <span class="c1"># Dev mode to access singleton</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">temperature_adjustment</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust global temperature based on agent consensus.&quot;&quot;&quot;</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="c1"># Count agents with ConvergingTag</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">converging_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">ConvergingTag</span><span class="p">))</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">total_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">))</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="k">if</span> <span class="n">total_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>        <span class="n">ratio</span> <span class="o">=</span> <span class="n">converging_count</span> <span class="o">/</span> <span class="n">total_count</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>        <span class="c1"># If majority converging, reduce temperature (decrease exploration)</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>        <span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>            <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">GlobalConfig</span><span class="p">(</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>                <span class="n">temperature</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span>
+</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>            <span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use</p>
+<p>Use for systems that modify global parameters based on aggregate state (temperature, difficulty, resource availability).</p>
+</div>
+<h3 id="shared-resources">Shared resources<a class="headerlink" href="#shared-resources" title="Permanent link">&para;</a></h3>
+<p>Model resources shared across entities:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nd">@component</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nd">@dataclass</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResourceAccess</span><span class="p">:</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">requested</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">resource_allocation</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate limited resources to competing agents.&quot;&quot;&quot;</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="c1"># Get shared pool</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="n">pool</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">ResourcePool</span><span class="p">]</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    <span class="n">available</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">amount</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>    <span class="c1"># Collect requests</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>    <span class="n">requests</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">requested</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">ResourceAccess</span><span class="p">)]</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>    <span class="n">total_requested</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">amt</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">)</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>    <span class="c1"># Proportional allocation</span>
+</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">requested</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">:</span>
+</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>        <span class="k">if</span> <span class="n">total_requested</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-21-22"><a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>            <span class="n">allocated</span> <span class="o">=</span> <span class="p">(</span><span class="n">requested</span> <span class="o">/</span> <span class="n">total_requested</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">total_requested</span><span class="p">)</span>
+</span><span id="__span-21-23"><a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Resources</span><span class="p">]</span> <span class="o">=</span> <span class="n">Resources</span><span class="p">(</span><span class="n">allocated</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use</p>
+<p>Use for competitive resource allocation (context windows, compute, database connections).</p>
+</div>
+<h3 id="exchange-of-resources-between-entities">Exchange of resources between entities<a class="headerlink" href="#exchange-of-resources-between-entities" title="Permanent link">&para;</a></h3>
+<p>Model bilateral or market-based exchanges:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,</span> <span class="n">TradeOffer</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,))</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">execute_trades</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute valid trade offers between entities.&quot;&quot;&quot;</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="n">offers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">offer</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">TradeOffer</span><span class="p">)]</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">offers</span><span class="p">:</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>        <span class="k">if</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">)</span> <span class="ow">and</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">):</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>            <span class="n">buyer_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>            <span class="n">seller_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>            <span class="k">if</span> <span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;=</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">:</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>                <span class="c1"># Execute trade</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>                <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">-</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>                <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">seller_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">+</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use</p>
+<p>Use for agent-to-agent transactions (trading, task delegation, information exchange).</p>
+</div>
+<h2 id="async-systems">Async Systems<a class="headerlink" href="#async-systems" title="Permanent link">&para;</a></h2>
+<p>Systems can be async for I/O-bound operations:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Query</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Response</span><span class="p">,))</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">llm_inference</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Call LLM API for entities with queries.&quot;&quot;&quot;</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Query</span><span class="p">):</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">call_llm_api</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>  <span class="c1"># Async function</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>        <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>    <span class="c1"># Parallel API calls</span>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">responses</span><span class="p">):</span>
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Response</span><span class="p">]</span> <span class="o">=</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Async Detection</p>
+<p>AgentECS automatically detects async systems via <code>inspect.iscoroutinefunction()</code>. Mix sync and async systems freely—the framework handles both.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">When to Use Async</p>
+<p>Use async systems for:</p>
+<ul>
+<li>LLM API calls</li>
+<li>Database queries</li>
+<li>Network I/O</li>
+<li>Any operation that would block</li>
+</ul>
+<p>The scheduler will <code>await</code> async systems and run them concurrently when possible.</p>
+</div>
+<h2 id="system-best-practices">System Best Practices<a class="headerlink" href="#system-best-practices" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Small, Focused Systems</p>
+<p>Prefer many small systems over few large ones. Small systems are easier to reason about and maintain.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Start Without Declarations</p>
+<p>Start with <code>@system()</code> (no declarations) for quick prototyping. Add <code>reads</code>/<code>writes</code> when you want validation and documentation.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Declare What You Use</p>
+<p>When declaring access, only list the component types you actually need. This provides runtime validation and documents intent.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Avoid Hidden State</p>
+<p>Systems should not maintain state between ticks in global variables or class attributes. All state should live in components.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Use EntityHandle for Multiple Accesses</p>
+<p>If accessing many components on the same entity, use <code>world.entity(entity_id)</code> to get a convenient handle.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Dev Mode for Debugging</p>
+<p>Use <code>@system.dev()</code> when debugging. It runs in isolation (separate execution group), making it easier to reason about state changes without interference from other systems.</p>
+</div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><a href="../components/">Components</a></strong>: Define the data systems operate on</li>
+<li><strong><a href="../queries/">Queries</a></strong>: Advanced query patterns with filters</li>
+<li><strong><a href="../world_management/">World Management</a></strong>: How systems interact with the world</li>
+<li><strong><a href="../scheduling/">Scheduling</a></strong>: How systems are executed and parallelized</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/extensivelabs/agentecs" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
