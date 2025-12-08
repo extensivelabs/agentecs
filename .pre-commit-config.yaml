@@ -1,0 +1,73 @@
+# AgentECS Pre-commit Hooks Configuration
+# See https://pre-commit.com for more information
+
+default_language_version:
+  python: python3
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^\.agents/
+      - id: end-of-file-fixer
+        exclude: ^\.agents/
+      - id: check-yaml
+        exclude: ^(\.agents/|mkdocs\.yml$)
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.0
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix]
+        exclude: ^(tests/|examples/|\.agents/)
+      # Run the formatter
+      - id: ruff-format
+        exclude: ^\.agents/
+
+  # Mypy - Static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pytest>=8.0
+          - pydantic>=2.0
+          - pydantic-settings>=2.0
+          - chromadb>=0.4.0
+          - instructor>=1.0.0
+          - tenacity>=8.0
+        args: [--strict, --no-error-summary]
+        exclude: ^(tests/|examples/|\.agents/)
+        files: ^src/
+
+  # Optional: Check for common security issues
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        args: ['-c', 'pyproject.toml']
+        additional_dependencies: ['bandit[toml]']
+        exclude: ^(tests/|\.agents/)
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
