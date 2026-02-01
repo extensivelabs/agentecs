@@ -320,6 +320,26 @@
   
 
       
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../viz/" class="md-tabs__link">
+          
+  
+  
+  Visualization
+
+        </a>
+      </li>
+    
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -1019,6 +1039,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#when-to-use-access-declarations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use Access Declarations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequency" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1546,6 +1577,179 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualization
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Visualization
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../viz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../viz/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../viz/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../viz/extending/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1717,6 +1921,17 @@
     <span class="md-ellipsis">
       
         Access Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-access-declarations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use Access Declarations
       
     </span>
   </a>
@@ -2206,14 +2421,73 @@
 </ul>
 <p>See <a href="../scheduling/">Scheduling</a> for details on merge strategies.</p>
 </div>
+<h3 id="when-to-use-access-declarations">When to Use Access Declarations<a class="headerlink" href="#when-to-use-access-declarations" title="Permanent link">&para;</a></h3>
+<p>Access declarations are <strong>optional</strong> in AgentECS. Under snapshot isolation with merge strategies, correctness doesn't require declarations. Here's when each approach is appropriate:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Syntax</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No declarations</strong></td>
+<td><code>@system()</code></td>
+<td>Quick prototyping, scripts, simple systems</td>
+</tr>
+<tr>
+<td><strong>With declarations</strong></td>
+<td><code>@system(reads=..., writes=...)</code></td>
+<td>Production code, team projects, complex systems</td>
+</tr>
+<tr>
+<td><strong>Dev mode</strong></td>
+<td><code>@system.dev()</code></td>
+<td>Debugging, inspecting state, tracing issues</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benefits of Declaring Access:</strong></p>
+<ul>
+<li><strong>Runtime validation</strong>: Catch accidental access to undeclared components</li>
+<li><strong>Documentation</strong>: Declarations show intent at a glance</li>
+<li><strong>Future optimization</strong>: Declarations enable smarter scheduling (planned)</li>
+<li><strong>Refactoring safety</strong>: Easier to understand what a system touches</li>
+</ul>
+<p><strong>When to Skip Declarations:</strong></p>
+<ul>
+<li>Rapid prototyping where you're still figuring out what components you need</li>
+<li>One-off scripts or experiments</li>
+<li>Systems that legitimately need access to many/all components (aggregators, debuggers)</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Quick prototype - figure out what you need first</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nd">@system</span><span class="p">()</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">experimental</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">):</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>        <span class="c1"># Still exploring what else we need...</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>        <span class="k">if</span> <span class="n">Health</span> <span class="ow">in</span> <span class="n">world</span><span class="o">.</span><span class="n">entity</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>            <span class="n">world</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1"># Production - declare what you use</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Health</span><span class="p">,))</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">production_ready</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">health</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">):</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="n">world</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Gradual Adoption</p>
+<p>Start with <code>@system()</code> to explore, then add declarations as your system stabilizes. This keeps iteration fast while enabling validation in production.</p>
+</div>
 <h3 id="frequency">Frequency<a class="headerlink" href="#frequency" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Future Feature</p>
 <p><code>frequency</code> parameter exists but isn't yet used by scheduler:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">every_other_tick</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="c1"># Future: Run every 2 ticks</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">pass</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">every_other_tick</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="c1"># Future: Run every 2 ticks</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    <span class="k">pass</span>
 </span></code></pre></div>
 <p>Planned for frequency-based execution in a future release.</p>
 </div>
@@ -2221,22 +2495,22 @@
 <div class="admonition info">
 <p class="admonition-title">Future Feature</p>
 <p>Condition-based execution is planned but not yet implemented:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Future API (not yet available)</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Alert</span><span class="p">,),</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">world</span><span class="p">:</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">overheat_alert</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="k">pass</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Future API (not yet available)</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Alert</span><span class="p">,),</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">world</span><span class="p">:</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">overheat_alert</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="k">pass</span>
 </span></code></pre></div>
 </div>
 <h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Future Feature</p>
 <p>Explicit dependencies are planned but not yet implemented:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Future API (not yet available)</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">depends_on</span><span class="o">=</span><span class="p">[</span><span class="n">systemA</span><span class="p">,</span> <span class="n">systemB</span><span class="p">])</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">dependent_system</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="c1"># Runs after systemA and systemB</span>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="k">pass</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Future API (not yet available)</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">A</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">B</span><span class="p">,),</span> <span class="n">depends_on</span><span class="o">=</span><span class="p">[</span><span class="n">systemA</span><span class="p">,</span> <span class="n">systemB</span><span class="p">])</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">dependent_system</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="c1"># Runs after systemA and systemB</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="k">pass</span>
 </span></code></pre></div>
 <p>Currently, use execution groups to control ordering. Dev mode systems run in separate groups before normal systems.</p>
 </div>
@@ -2244,18 +2518,18 @@
 <p>AgentECS is extremely flexible in how systems can be defined. Here are common patterns to get started:</p>
 <h3 id="pattern-match-and-execute-per-entity">Pattern-Match and execute per entity<a class="headerlink" href="#pattern-match-and-execute-per-entity" title="Permanent link">&para;</a></h3>
 <p>Process each entity individually based on its components:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">))</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">entity_update</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Update each entity independently.&quot;&quot;&quot;</span>
-</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">health</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">):</span>
-</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        <span class="c1"># Move entity</span>
-</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
-</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>
-</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>        <span class="c1"># Damage if out of bounds</span>
-</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>        <span class="k">if</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
-</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">hp</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="n">health</span><span class="o">.</span><span class="n">max_hp</span><span class="p">)</span>
-</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>
-</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_pos</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Health</span><span class="p">))</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">entity_update</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Update each entity independently.&quot;&quot;&quot;</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">health</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Health</span><span class="p">):</span>
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>        <span class="c1"># Move entity</span>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">vel</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>        <span class="c1"># Damage if out of bounds</span>
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="k">if</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">new_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Health</span><span class="p">]</span> <span class="o">=</span> <span class="n">Health</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">hp</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="n">health</span><span class="o">.</span><span class="n">max_hp</span><span class="p">)</span>
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_pos</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">When to Use</p>
@@ -2263,21 +2537,21 @@
 </div>
 <h3 id="identify-and-operate-on-groups-of-entities">Identify and operate on groups of entities<a class="headerlink" href="#identify-and-operate-on-groups-of-entities" title="Permanent link">&para;</a></h3>
 <p>Collect entities, analyze as a group, then update:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Opinion</span><span class="p">,))</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">consensus_building</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Agents in proximity influence each other&#39;s opinions.&quot;&quot;&quot;</span>
-</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="n">agents</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">)]</span>
-</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
-</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">:</span>
-</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="c1"># Find nearby agents</span>
-</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>        <span class="n">nearby</span> <span class="o">=</span> <span class="p">[</span><span class="n">other_op</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">,</span> <span class="n">other_op</span> <span class="ow">in</span> <span class="n">agents</span>
-</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>                  <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">distance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span>
-</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>
-</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        <span class="k">if</span> <span class="n">nearby</span><span class="p">:</span>
-</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>            <span class="c1"># Average with nearby opinions</span>
-</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>            <span class="n">avg_opinion</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">nearby</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">nearby</span><span class="p">)</span>
-</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>            <span class="n">blended</span> <span class="o">=</span> <span class="p">(</span><span class="n">opinion</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">+</span> <span class="n">avg_opinion</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>
-</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">]</span> <span class="o">=</span> <span class="n">Opinion</span><span class="p">(</span><span class="n">blended</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Opinion</span><span class="p">,))</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">consensus_building</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Agents in proximity influence each other&#39;s opinions.&quot;&quot;&quot;</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="n">agents</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">)]</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">opinion</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">:</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>        <span class="c1"># Find nearby agents</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>        <span class="n">nearby</span> <span class="o">=</span> <span class="p">[</span><span class="n">other_op</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">,</span> <span class="n">other_op</span> <span class="ow">in</span> <span class="n">agents</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>                  <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">distance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">other_pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">]</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>        <span class="k">if</span> <span class="n">nearby</span><span class="p">:</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>            <span class="c1"># Average with nearby opinions</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>            <span class="n">avg_opinion</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">nearby</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">nearby</span><span class="p">)</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>            <span class="n">blended</span> <span class="o">=</span> <span class="p">(</span><span class="n">opinion</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">+</span> <span class="n">avg_opinion</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Opinion</span><span class="p">]</span> <span class="o">=</span> <span class="n">Opinion</span><span class="p">(</span><span class="n">blended</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">When to Use</p>
@@ -2285,24 +2559,24 @@
 </div>
 <h3 id="global-coordination-and-world-state">Global coordination and world state<a class="headerlink" href="#global-coordination-and-world-state" title="Permanent link">&para;</a></h3>
 <p>Systems can access singleton components for global parameters:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>  <span class="c1"># Dev mode to access singleton</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">temperature_adjustment</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust global temperature based on agent consensus.&quot;&quot;&quot;</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="c1"># Count agents with ConvergingTag</span>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">converging_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">ConvergingTag</span><span class="p">))</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">total_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">))</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>
-</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>    <span class="k">if</span> <span class="n">total_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>        <span class="n">ratio</span> <span class="o">=</span> <span class="n">converging_count</span> <span class="o">/</span> <span class="n">total_count</span>
-</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>
-</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>        <span class="c1"># If majority converging, reduce temperature (decrease exploration)</span>
-</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>        <span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span>
-</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
-</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>            <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">GlobalConfig</span><span class="p">(</span>
-</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>                <span class="n">temperature</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span>
-</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>            <span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>  <span class="c1"># Dev mode to access singleton</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">temperature_adjustment</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Adjust global temperature based on agent consensus.&quot;&quot;&quot;</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="c1"># Count agents with ConvergingTag</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="n">converging_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">ConvergingTag</span><span class="p">))</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="n">total_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">,</span> <span class="n">AgentTag</span><span class="p">))</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="k">if</span> <span class="n">total_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>        <span class="n">ratio</span> <span class="o">=</span> <span class="n">converging_count</span> <span class="o">/</span> <span class="n">total_count</span>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>        <span class="c1"># If majority converging, reduce temperature (decrease exploration)</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>        <span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>            <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">GlobalConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">GlobalConfig</span><span class="p">(</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>                <span class="n">temperature</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">temperature</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>            <span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">When to Use</p>
@@ -2310,29 +2584,29 @@
 </div>
 <h3 id="shared-resources">Shared resources<a class="headerlink" href="#shared-resources" title="Permanent link">&para;</a></h3>
 <p>Model resources shared across entities:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nd">@component</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nd">@dataclass</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResourceAccess</span><span class="p">:</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">requested</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
-</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
-</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">resource_allocation</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate limited resources to competing agents.&quot;&quot;&quot;</span>
-</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
-</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
-</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    <span class="c1"># Get shared pool</span>
-</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    <span class="n">pool</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">ResourcePool</span><span class="p">]</span>
-</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    <span class="n">available</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">amount</span>
-</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>
-</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>    <span class="c1"># Collect requests</span>
-</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>    <span class="n">requests</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">requested</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">ResourceAccess</span><span class="p">)]</span>
-</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>    <span class="n">total_requested</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">amt</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">)</span>
-</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>
-</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>    <span class="c1"># Proportional allocation</span>
-</span><span id="__span-21-20"><a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">requested</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">:</span>
-</span><span id="__span-21-21"><a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>        <span class="k">if</span> <span class="n">total_requested</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-21-22"><a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>            <span class="n">allocated</span> <span class="o">=</span> <span class="p">(</span><span class="n">requested</span> <span class="o">/</span> <span class="n">total_requested</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">total_requested</span><span class="p">)</span>
-</span><span id="__span-21-23"><a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Resources</span><span class="p">]</span> <span class="o">=</span> <span class="n">Resources</span><span class="p">(</span><span class="n">allocated</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nd">@component</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="nd">@dataclass</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResourceAccess</span><span class="p">:</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="n">requested</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">resource_allocation</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Allocate limited resources to competing agents.&quot;&quot;&quot;</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>    <span class="c1"># Get shared pool</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>    <span class="n">pool</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">,</span> <span class="n">ResourcePool</span><span class="p">]</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>    <span class="n">available</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">amount</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>
+</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>    <span class="c1"># Collect requests</span>
+</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>    <span class="n">requests</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">requested</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">ResourceAccess</span><span class="p">)]</span>
+</span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>    <span class="n">total_requested</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">amt</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">)</span>
+</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>
+</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>    <span class="c1"># Proportional allocation</span>
+</span><span id="__span-22-20"><a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">requested</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">:</span>
+</span><span id="__span-22-21"><a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>        <span class="k">if</span> <span class="n">total_requested</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-22-22"><a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>            <span class="n">allocated</span> <span class="o">=</span> <span class="p">(</span><span class="n">requested</span> <span class="o">/</span> <span class="n">total_requested</span><span class="p">)</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">available</span><span class="p">,</span> <span class="n">total_requested</span><span class="p">)</span>
+</span><span id="__span-22-23"><a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a>            <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Resources</span><span class="p">]</span> <span class="o">=</span> <span class="n">Resources</span><span class="p">(</span><span class="n">allocated</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">When to Use</p>
@@ -2340,20 +2614,20 @@
 </div>
 <h3 id="exchange-of-resources-between-entities">Exchange of resources between entities<a class="headerlink" href="#exchange-of-resources-between-entities" title="Permanent link">&para;</a></h3>
 <p>Model bilateral or market-based exchanges:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,</span> <span class="n">TradeOffer</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,))</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">execute_trades</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute valid trade offers between entities.&quot;&quot;&quot;</span>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="n">offers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">offer</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">TradeOffer</span><span class="p">)]</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>
-</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">offers</span><span class="p">:</span>
-</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>        <span class="k">if</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">)</span> <span class="ow">and</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">):</span>
-</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>            <span class="n">buyer_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
-</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>            <span class="n">seller_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
-</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
-</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>            <span class="k">if</span> <span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;=</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">:</span>
-</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>                <span class="c1"># Execute trade</span>
-</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>                <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">-</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
-</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>                <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">seller_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">+</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,</span> <span class="n">TradeOffer</span><span class="p">),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Credits</span><span class="p">,))</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">execute_trades</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute valid trade offers between entities.&quot;&quot;&quot;</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="n">offers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">e</span><span class="p">,</span> <span class="n">offer</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">TradeOffer</span><span class="p">)]</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">offer</span> <span class="ow">in</span> <span class="n">offers</span><span class="p">:</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>        <span class="k">if</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">)</span> <span class="ow">and</span> <span class="n">world</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">):</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>            <span class="n">buyer_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>            <span class="n">seller_credits</span> <span class="o">=</span> <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>            <span class="k">if</span> <span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;=</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">:</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>                <span class="c1"># Execute trade</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>                <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">buyer_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">-</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>                <span class="n">world</span><span class="p">[</span><span class="n">offer</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Credits</span><span class="p">]</span> <span class="o">=</span> <span class="n">Credits</span><span class="p">(</span><span class="n">seller_credits</span><span class="o">.</span><span class="n">amount</span> <span class="o">+</span> <span class="n">offer</span><span class="o">.</span><span class="n">price</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">When to Use</p>
@@ -2361,24 +2635,24 @@
 </div>
 <h2 id="async-systems">Async Systems<a class="headerlink" href="#async-systems" title="Permanent link">&para;</a></h2>
 <p>Systems can be async for I/O-bound operations:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Query</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Response</span><span class="p">,))</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">llm_inference</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Call LLM API for entities with queries.&quot;&quot;&quot;</span>
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>
-</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>
-</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Query</span><span class="p">):</span>
-</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">call_llm_api</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>  <span class="c1"># Async function</span>
-</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>        <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
-</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>
-</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>    <span class="c1"># Parallel API calls</span>
-</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>    <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
-</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>
-</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">responses</span><span class="p">):</span>
-</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Response</span><span class="p">]</span> <span class="o">=</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Query</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Response</span><span class="p">,))</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">llm_inference</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Call LLM API for entities with queries.&quot;&quot;&quot;</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Query</span><span class="p">):</span>
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">call_llm_api</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>  <span class="c1"># Async function</span>
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>        <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>    <span class="c1"># Parallel API calls</span>
+</span><span id="__span-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>    <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span><span id="__span-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>
+</span><span id="__span-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">responses</span><span class="p">):</span>
+</span><span id="__span-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Response</span><span class="p">]</span> <span class="o">=</span> <span class="n">Response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Async Detection</p>
