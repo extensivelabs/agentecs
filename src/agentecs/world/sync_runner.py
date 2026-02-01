@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import threading
 from collections.abc import AsyncIterator, Iterator
@@ -9,7 +11,7 @@ T = TypeVar("T")
 class SyncRunner:
     """Thread-safe async runner for sync contexts. Singleton per process."""
 
-    _instance: "SyncRunner" | None = None
+    _instance: SyncRunner | None = None
     _lock = threading.Lock()
 
     def __init__(self) -> None:
@@ -17,7 +19,7 @@ class SyncRunner:
         self._thread: threading.Thread | None = None
 
     @classmethod
-    def get(cls) -> "SyncRunner":
+    def get(cls) -> SyncRunner:
         """Get the singleton SyncRunner instance, creating it if necessary."""
         if cls._instance is None:
             with cls._lock:
