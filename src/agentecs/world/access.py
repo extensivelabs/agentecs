@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.world.sync_runner import SyncRunner
 
 if TYPE_CHECKING:
     from agentecs.world.result import SystemResult
@@ -208,6 +209,7 @@ class ScopedAccess:
         self._buffer = buffer
         self._readable = descriptor.readable_types()
         self._writable = descriptor.writable_types()
+        self._sync_runner: SyncRunner = SyncRunner.get()
 
     def _check_readable(self, *types: type) -> None:
         if self._descriptor.is_dev_mode():
@@ -321,58 +323,7 @@ class ScopedAccess:
         *component_types: type,
     ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
         """Internal query returning (entity, (comp1, comp2, ...))."""
-        yielded_entities = set()
-
-        for entity, components in self._world._query_components(*component_types):
-            should_skip = False
-            for comp_type in component_types:
-                if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
-                    should_skip = True
-                    break
-            if should_skip:
-                continue
-
-            result = []
-            for comp_type, comp in zip(component_types, components, strict=False):
-                if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    result.append(copy.deepcopy(self._buffer.updates[entity][comp_type]))
-                else:
-                    result.append(copy.deepcopy(comp))
-            yielded_entities.add(entity)
-            yield entity, tuple(result)
-
-        for entity in list(self._buffer.updates.keys()) + list(self._buffer.inserts.keys()):
-            if entity in yielded_entities:
-                continue
-
-            has_all = True
-            result = []
-            for comp_type in component_types:
-                comp = None
-
-                if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    comp = self._buffer.updates[entity][comp_type]
-                elif entity in self._buffer.inserts:
-                    for inserted_comp in self._buffer.inserts[entity]:
-                        if type(inserted_comp) is comp_type:
-                            comp = inserted_comp
-                            break
-                if comp is None:
-                    comp = self._world._get_component(entity, comp_type)
-
-                if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
-                    has_all = False
-                    break
-
-                if comp is None:
-                    has_all = False
-                    break
-
-                result.append(copy.deepcopy(comp))
-
-            if has_all:
-                yielded_entities.add(entity)
-                yield entity, tuple(result)
+        return self._sync_runner.iterate(self._query_raw_async(*component_types))
 
     def query(
         self,
