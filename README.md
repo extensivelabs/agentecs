@@ -16,6 +16,7 @@ AgentECS applies the ECS (Entity-Component-System) paradigm to AI agent orchestr
 - **Systems** = Behaviors that emerge from component combinations
 
 This enables:
+- Systems executing based on groupings of comonents rather than individual agents
 - Agents sharing resources (LLMs, context) without hard coupling
 - Emergent workflows without explicit dependency graphs
 - Parallel execution via declared access patterns
@@ -62,71 +63,6 @@ This enables:
 │      Sequential within groups, parallel across groups           │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-## Key Design Decisions
-
-### 1. Components are Copies - Must Write Back
-
-**All reads return copies.** Mutate freely, but must write back:
-
-```python
-@system(reads=(Position, Velocity), writes=(Position,))
-def movement(world: ScopedAccess) -> None:
-    for entity, pos, vel in world(Position, Velocity):
-        # pos and vel are COPIES - mutations won't persist
-        # Create new instance and write back:
-        world[entity, Position] = Position(pos.x + vel.dx, pos.y + vel.dy)
-
-        # Alternative: mutate copy then write back:
-        # pos.x += vel.dx
-        # pos.y += vel.dy
-        # world[entity, Position] = pos  # Write required!
-```
-
-Writes go to a buffer, enabling:
-- Snapshot isolation (consistent state per system)
-- Safe parallelization (no shared mutable state)
-- Read-own-writes within the same system
-
-### 2. Access Patterns Enable Parallelism
-
-Declared reads/writes allow the scheduler to detect conflicts:
-
-```python
-# These CAN run in parallel (disjoint write sets)
-@system(reads=(Position,), writes=(Position,))  # writes Position
-@system(reads=(Health,), writes=(Health,))      # writes Health
-
-# These CANNOT (conflicting access)
-@system(reads=(Position,), writes=(Position,))  # writes Position
-@system(reads=(Position,), writes=(Velocity,))  # reads Position
-```
-
-### 3. No Special "Resources" - Just Singleton Components
-
-LLM access, configuration, and other global state are components on a well-known entity:
-
-```python
-world.set_singleton(LLMConfig(model="claude", temperature=0.7))
-
-# In system:
-config = world.singleton(LLMConfig)
-```
-
-### 4. Component Operations are Optional Protocols
-
-Components CAN implement merge/split/diff, but don't have to:
-
-```python
-@component
-@dataclass
-class Context:
-    history: list[str]
-
-    def __merge__(self, other: "Context") -> "Context":
-        return Context(history=self.history + other.history)
-```
-
 ## Development Setup
 
 This project supports [direnv](https://direnv.net/) for automatic environment management:
