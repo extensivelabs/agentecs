@@ -1,0 +1,173 @@
+version: '3'
+
+vars:
+  PYTHON: python3
+  UV: uv
+  SRC_DIR: src
+  TEST_DIR: tests
+  EXAMPLES_DIR: examples
+
+tasks:
+
+  setup:
+    desc: Initialize development environment (run this first)
+    cmds:
+      - task: _check-tools
+      - task: _create-venv
+      - task: install
+      - task: _install-hooks
+      - echo "✓ Development environment ready!"
+      - echo "Run 'task --list' to see available commands"
+
+  _check-tools:
+    internal: true
+    desc: Check required tools are installed
+    cmds:
+      - |
+        command -v {{.UV}} >/dev/null 2>&1 || { echo "Error: uv not found. Run scripts/bootstrap.sh first"; exit 1; }
+      - |
+        command -v git >/dev/null 2>&1 || { echo "Error: git not found"; exit 1; }
+    silent: true
+
+  _create-venv:
+    internal: true
+    desc: Create virtual environment with uv
+    cmds:
+      - '{{.UV}} venv --python {{.PYTHON}}'
+    status:
+      - test -d .venv
+
+  install:
+    desc: Install dependencies with uv
+    cmds:
+      - '{{.UV}} pip install -e ".[dev,pydantic,docs]"'
+    sources:
+      - pyproject.toml
+
+  _install-hooks:
+    internal: true
+    desc: Install pre-commit hooks
+    cmds:
+      - '{{.UV}} run pre-commit install'
+    status:
+      - test -f .git/hooks/pre-commit
+
+  test:
+    desc: Run all tests
+    cmds:
+      - '{{.UV}} run pytest {{.CLI_ARGS}}'
+
+  test:unit:
+    desc: Run unit tests only
+    cmds:
+      - '{{.UV}} run pytest tests/core tests/world tests/storage tests/scheduling {{.CLI_ARGS}}'
+
+  test:integration:
+    desc: Run integration tests only
+    cmds:
+      - '{{.UV}} run pytest tests/integration {{.CLI_ARGS}}'
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - '{{.UV}} run pytest --cov={{.SRC_DIR}}/agentecs --cov-report=term-missing --cov-report=html --cov-branch {{.CLI_ARGS}}'
+      - echo "✓ Coverage report generated in htmlcov/index.html"
+
+  lint:
+    desc: Run ruff linting
+    cmds:
+      - '{{.UV}} run ruff check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  lint:fix:
+    desc: Run ruff linting and auto-fix issues
+    cmds:
+      - '{{.UV}} run ruff check --fix {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  format:
+    desc: Auto-format code with ruff
+    cmds:
+      - '{{.UV}} run ruff format {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  format:check:
+    desc: Check code formatting without changes
+    cmds:
+      - '{{.UV}} run ruff format --check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+
+  type:check:
+    desc: Run mypy type checking
+    cmds:
+      - '{{.UV}} run mypy {{.SRC_DIR}}'
+
+  check:
+    desc: Run all checks (lint, format, type, test)
+    cmds:
+      - task: format:check
+      - task: lint
+      - task: type:check
+      - task: test
+      - echo "✓ All checks passed!"
+
+  run:
+    desc: "Run an example script (usage: task run -- examples/simple_agents.py)"
+    cmds:
+      - '{{.UV}} run {{.PYTHON}} {{.CLI_ARGS}}'
+
+  clean:
+    desc: Remove build artifacts and caches
+    cmds:
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf *.egg-info
+      - rm -rf .pytest_cache/
+      - rm -rf .mypy_cache/
+      - rm -rf .ruff_cache/
+      - rm -rf htmlcov/
+      - rm -rf .coverage
+      - rm -rf site/
+      - find . -type d -name __pycache__ -exec rm -rf {} +
+      - find . -type f -name "*.pyc" -delete
+      - echo "✓ Cleaned build artifacts and caches"
+
+  clean:venv:
+    desc: Remove virtual environment (use before full reinstall)
+    cmds:
+      - rm -rf .venv/
+      - echo "✓ Removed virtual environment"
+      - echo "Run 'task setup' to recreate"
+
+  docs:
+    desc: Build documentation with MkDocs
+    cmds:
+      - '{{.UV}} run mkdocs build'
+      - echo "✓ Documentation built in site/"
+
+  docs:serve:
+    desc: Serve documentation locally with live reload
+    cmds:
+      - '{{.UV}} run mkdocs serve'
+
+  # === Visualizer Tasks ===
+  # Note: Visualization is in separate agentecs-viz package
+  # Install with: pip install agentecs-viz (or pip install agentecs[viz])
+
+  viz:install:
+    desc: Install agentecs-viz package
+    cmds:
+      - '{{.UV}} pip install agentecs-viz'
+
+  viz:serve:
+    desc: Start viz server with mock data (requires agentecs-viz installed)
+    cmds:
+      - '{{.UV}} run agentecs-viz serve --mock {{.CLI_ARGS}}'
+
+  # === Example Tasks ===
+
+  example:task_dispatch:
+    desc: Run task dispatch example with visualization (requires agentecs-viz)
+    cmds:
+      - '{{.UV}} run python examples/task_dispatch_app/main.py --viz {{.CLI_ARGS}}'
+
+  example:task_dispatch:headless:
+    desc: Run task dispatch example in headless mode (no viz)
+    cmds:
+      - '{{.UV}} run python examples/task_dispatch_app/main.py --headless {{.CLI_ARGS}}'

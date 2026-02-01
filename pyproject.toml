@@ -1,0 +1,135 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentecs"
+version = "0.1.0"
+description = "Entity Component System for AI Agent Orchestration"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["ecs", "agents", "ai", "orchestration"]
+authors = [
+    { name = "ExtensiveLabs", email = "contact@extensivelabs.com" },
+    { name = "Ingo Marquart", email = "digital@ingomarquart.de" },
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+dependencies = [
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "pytest-xdist>=3.5",        # Parallel test execution
+    "pytest-watch>=4.2",         # Watch mode for TDD
+    "pytest-asyncio>=0.23",      # Async test support
+    "hypothesis>=6.0",           # Property-based testing
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pre-commit>=3.6",           # Pre-commit hooks
+    "debugpy",
+]
+pydantic = [
+    "pydantic>=2.0",
+]
+config = [
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+]
+chroma = [
+    "chromadb>=0.4",
+    "pydantic>=2.0",
+]
+llm = [
+    "instructor>=1.0",
+    "openai>=1.0",
+    "pydantic>=2.0",
+    "anthropic>=0.75.0",
+]
+retry = [
+    "tenacity>=8.0",
+]
+notebook = [
+    "jupyter>=1.0",
+    "ipykernel>=6.0",
+    "ipywidgets>=8.0",
+]
+all = [
+    "agentecs[config,chroma,llm,retry,notebook]",
+]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+]
+
+[project.urls]
+Documentation = "https://extensivelabs.github.io/agentecs"
+Issues = "https://github.com/extensivelabs/agentecs/issues"
+Source = "https://github.com/extensivelabs/agentecs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentecs"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM"]
+ignore = ["D100", "D104", "D105", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D101", "D102", "D103"]
+"examples/**/*.py" = ["D101", "D102", "D103"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = false
+
+
+
+[[tool.mypy.overrides]]
+module = "openai"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "openai.*"
+ignore_missing_imports = true
+
+
+[[tool.mypy.overrides]]
+module = "tenacity"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tenacity.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pydantic-settings>=2.12.0",
+]
+
+[tool.bandit]
+# B101: assert usage (test files excluded in pre-commit anyway)
+# B311: random module (only used in mock source for test data, not security)
+skips = ["B101", "B311"]

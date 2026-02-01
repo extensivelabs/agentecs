@@ -1,0 +1,35 @@
+name: Question
+description: Ask a question about usage or design
+labels: [question]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help!
+
+        Please check the [documentation](https://extensivelabs.github.io/agentecs) first.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to accomplish? Include code if relevant.
+      placeholder: |
+        ```python
+        # What you're working on
+        ```
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What Have You Tried?
+      description: What approaches have you already attempted?

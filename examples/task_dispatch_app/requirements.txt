@@ -1,0 +1,5 @@
+# Core
+agentecs[llm]
+
+# Visualization (optional)
+agentecs-viz
