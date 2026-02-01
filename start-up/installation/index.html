@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -602,6 +602,17 @@
     <span class="md-ellipsis">
       
         LLM Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
       
     </span>
   </a>
@@ -1777,6 +1788,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#all-optional-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2045,27 +2067,47 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>chroma<span class="o">]</span>
 </span></code></pre></div>
 <h3 id="llm-integration">LLM Integration<a class="headerlink" href="#llm-integration" title="Permanent link">&para;</a></h3>
-<p>For built-in LLM client adapters (future):</p>
+<p>For built-in LLM client adapters:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>llm<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="visualization">Visualization<a class="headerlink" href="#visualization" title="Permanent link">&para;</a></h3>
+<p>The visualization tool is a separate package (<a href="https://github.com/extensivelabs/agentecs-viz">agentecs-viz</a>):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Option 1: Install directly</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs-viz
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Note: agentecs[viz] extra will be available once agentecs-viz is published to PyPI</span>
+</span></code></pre></div>
+<p>This installs <code>agentecs</code> as a dependency automatically. See <a href="../../viz/">Visualization</a> for usage.</p>
+<p><strong>Local Development</strong> (for contributing to agentecs-viz):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Clone both repos side by side</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/extensivelabs/agentecs
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/extensivelabs/agentecs-viz
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Install agentecs in editable mode</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nb">cd</span><span class="w"> </span>agentecs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># Install agentecs-viz in editable mode</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="nb">cd</span><span class="w"> </span>../agentecs-viz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </span></code></pre></div>
 <h3 id="all-optional-dependencies">All Optional Dependencies<a class="headerlink" href="#all-optional-dependencies" title="Permanent link">&para;</a></h3>
 <p>To install everything:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>all<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>all<span class="o">]</span>
 </span></code></pre></div>
 <p>Equivalent to:
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>config,retry,chroma,llm<span class="o">]</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>agentecs<span class="o">[</span>config,chroma,llm,retry,notebook<span class="o">]</span>
 </span></code></pre></div></p>
+<p>Note: Visualization is installed separately with <code>pip install agentecs-viz</code>.</p>
 <h2 id="development-installation">Development Installation<a class="headerlink" href="#development-installation" title="Permanent link">&para;</a></h2>
 <p>For contributing to AgentECS or running examples:</p>
 <h3 id="clone-repository">Clone Repository<a class="headerlink" href="#clone-repository" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/extensivelabs/agentecs
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">cd</span><span class="w"> </span>agentecs
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/extensivelabs/agentecs
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">cd</span><span class="w"> </span>agentecs
 </span></code></pre></div>
 <h3 id="set-up-development-environment">Set Up Development Environment<a class="headerlink" href="#set-up-development-environment" title="Permanent link">&para;</a></h3>
 <p>AgentECS uses <code>uv</code> for fast dependency management and <code>task</code> for build automation.</p>
 <p><strong>Automatic Setup:</strong></p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./scripts/bootstrap.sh
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>task<span class="w"> </span>setup
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./scripts/bootstrap.sh
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>task<span class="w"> </span>setup
 </span></code></pre></div>
 <p>This will:
 1. Install <code>uv</code> if not present
@@ -2074,75 +2116,75 @@
 4. Set up pre-commit hooks</p>
 <p><strong>Manual Setup:</strong></p>
 <p>If you prefer manual setup:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Install uv (if not already installed)</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Create virtual environment and install dependencies</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>uv<span class="w"> </span>sync
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Activate virtual environment</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># Linux/macOS</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1"># or</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>.venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate<span class="w">  </span><span class="c1"># Windows</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1"># Install pre-commit hooks</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Install uv (if not already installed)</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Create virtual environment and install dependencies</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>uv<span class="w"> </span>sync
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Activate virtual environment</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># Linux/macOS</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="c1"># or</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>.venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate<span class="w">  </span><span class="c1"># Windows</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="c1"># Install pre-commit hooks</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install
 </span></code></pre></div>
 <h3 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h3>
 <p>Run tests to verify everything works:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>task<span class="w"> </span><span class="nb">test</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>task<span class="w"> </span><span class="nb">test</span>
 </span></code></pre></div>
 <p>Run a simple example:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/simple_agents.py
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>examples/simple_agents.py
 </span></code></pre></div>
 <h3 id="development-tasks">Development Tasks<a class="headerlink" href="#development-tasks" title="Permanent link">&para;</a></h3>
 <p>AgentECS uses <code>task</code> (Taskfile) for common development operations:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Run all tests</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>task<span class="w"> </span><span class="nb">test</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Run type checking</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>task<span class="w"> </span>type-check
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Run linting</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>task<span class="w"> </span>lint
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="c1"># Auto-fix linting issues</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>task<span class="w"> </span>lint-fix
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c1"># Build documentation</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>task<span class="w"> </span>docs
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="c1"># List all available tasks</span>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>task<span class="w"> </span>--list
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Run all tests</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>task<span class="w"> </span><span class="nb">test</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Run type checking</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>task<span class="w"> </span>type-check
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Run linting</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>task<span class="w"> </span>lint
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="c1"># Auto-fix linting issues</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>task<span class="w"> </span>lint-fix
+</span><span id="__span-14-12"><a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>
+</span><span id="__span-14-13"><a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1"># Build documentation</span>
+</span><span id="__span-14-14"><a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>task<span class="w"> </span>docs
+</span><span id="__span-14-15"><a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>
+</span><span id="__span-14-16"><a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="c1"># List all available tasks</span>
+</span><span id="__span-14-17"><a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>task<span class="w"> </span>--list
 </span></code></pre></div>
 <h2 id="verify-installation_1">Verify Installation<a class="headerlink" href="#verify-installation_1" title="Permanent link">&para;</a></h2>
 <p>Check your installation:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">agentecs</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">agentecs</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Try a simple example</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">World</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">ScopedAccess</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="nd">@component</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="nd">@dataclass</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">Position</span><span class="p">:</span>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="n">x</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">y</span><span class="p">:</span> <span class="nb">float</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
-</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,))</span>
-</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">move_right</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">):</span>
-</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>
-</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">()</span>
-</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="n">entity</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">Position</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="n">world</span><span class="o">.</span><span class="n">register_system</span><span class="p">(</span><span class="n">move_right</span><span class="p">)</span>
-</span><span id="__span-13-22"><a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="n">world</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
-</span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>
-</span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="n">pos</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">get_component</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">)</span>
-</span><span id="__span-13-25"><a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="k">assert</span> <span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># Entity moved right</span>
-</span><span id="__span-13-26"><a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✓ AgentECS is working!&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">agentecs</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">agentecs</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Try a simple example</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">World</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">ScopedAccess</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="nd">@component</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="nd">@dataclass</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">Position</span><span class="p">:</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="n">x</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    <span class="n">y</span><span class="p">:</span> <span class="nb">float</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,))</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">move_right</span><span class="p">(</span><span class="n">world</span><span class="p">:</span> <span class="n">ScopedAccess</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>    <span class="k">for</span> <span class="n">entity</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">world</span><span class="p">(</span><span class="n">Position</span><span class="p">):</span>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>        <span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="n">Position</span><span class="p">(</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">()</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="n">entity</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">Position</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="n">world</span><span class="o">.</span><span class="n">register_system</span><span class="p">(</span><span class="n">move_right</span><span class="p">)</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="n">world</span><span class="o">.</span><span class="n">tick</span><span class="p">()</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="n">pos</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">get_component</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">)</span>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="k">assert</span> <span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">1</span>  <span class="c1"># Entity moved right</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✓ AgentECS is working!&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
 <ul>
@@ -2160,7 +2202,7 @@
 </ul>
 <h3 id="optional-dependency-errors">Optional Dependency Errors<a class="headerlink" href="#optional-dependency-errors" title="Permanent link">&para;</a></h3>
 <p>If you see errors about missing optional dependencies:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">Retry</span> <span class="n">policy</span> <span class="n">requires</span> <span class="n">tenacity</span><span class="o">.</span> <span class="n">Install</span> <span class="k">with</span><span class="p">:</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">agentecs</span><span class="p">[</span><span class="n">retry</span><span class="p">]</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="ne">ImportError</span><span class="p">:</span> <span class="n">Retry</span> <span class="n">policy</span> <span class="n">requires</span> <span class="n">tenacity</span><span class="o">.</span> <span class="n">Install</span> <span class="k">with</span><span class="p">:</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">agentecs</span><span class="p">[</span><span class="n">retry</span><span class="p">]</span>
 </span></code></pre></div>
 <p>Install the required optional dependency group as shown in the error message.</p>
 <h3 id="development-setup-issues">Development Setup Issues<a class="headerlink" href="#development-setup-issues" title="Permanent link">&para;</a></h3>
@@ -2255,10 +2297,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
