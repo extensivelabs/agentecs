@@ -108,8 +108,6 @@ def movement(world: ScopedAccess) -> None:
 ## Quick Example
 
 ```python
-```python
-
 from dataclasses import dataclass, field
 from enum import Enum
 
