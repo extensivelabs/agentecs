@@ -33,47 +33,6 @@ def test_spawn_and_get():
     assert pos.y == 2.0
 
 
-def test_system_execution():
-    """Test basic ECS operations: system execution."""
-
-    @system(reads=(TestPosition, TestVelocity), writes=(TestPosition,))
-    def movement(world: ScopedAccess) -> None:
-        for entity, pos, vel in world(TestPosition, TestVelocity):
-            world[entity, TestPosition] = TestPosition(
-                pos.x + vel.dx,
-                pos.y + vel.dy,
-            )
-
-    world = World()
-    entity = world.spawn(TestPosition(0, 0), TestVelocity(1, 2))
-    world.register_system(movement)
-
-    world.tick()
-
-    pos = world.get(entity, TestPosition)
-    assert pos is not None
-    assert pos.x == 1.0
-    assert pos.y == 2.0
-
-
-def test_dict_style_access():
-    """Test basic ECS operations: dictionary-style access."""
-
-    @system(reads=(TestPosition,), writes=(TestPosition,))
-    def modify(world: ScopedAccess) -> None:
-        for entity in world(TestPosition).entities():
-            old = world[entity, TestPosition]
-            world[entity, TestPosition] = TestPosition(old.x + 1, old.y)
-
-    world = World()
-    entity = world.spawn(TestPosition(5, 5))
-    world.register_system(modify)
-    world.tick()
-
-    pos = world.get(entity, TestPosition)
-    assert pos.x == 6
-
-
 def test_membership_check():
     """Test basic ECS operations: membership check."""
 

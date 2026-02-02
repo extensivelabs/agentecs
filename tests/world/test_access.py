@@ -271,3 +271,45 @@ def test_readonly_system_cannot_write(world):
     # Should raise because readonly systems can't write
     with pytest.raises(AccessViolationError):
         world.tick()
+
+
+# QueryResult tests
+
+
+def test_query_result_len(world):
+    """QueryResult.__len__ returns count of matching entities."""
+    world.spawn(TestValue(1))
+    world.spawn(TestValue(2))
+    world.spawn(TestValue(3))
+    world.spawn(OtherValue(99))
+
+    count = None
+
+    @system(reads=(TestValue,), writes=())
+    def count_entities(access: ScopedAccess) -> None:
+        nonlocal count
+        count = len(access(TestValue))
+
+    world.register_system(count_entities)
+    world.tick()
+
+    assert count == 3
+
+
+def test_query_result_entities(world):
+    """QueryResult.entities() yields only entity IDs."""
+    e1 = world.spawn(TestValue(1))
+    e2 = world.spawn(TestValue(2))
+    world.spawn(OtherValue(99))
+
+    entity_ids = []
+
+    @system(reads=(TestValue,), writes=())
+    def collect_entities(access: ScopedAccess) -> None:
+        for eid in access(TestValue).entities():
+            entity_ids.append(eid)
+
+    world.register_system(collect_entities)
+    world.tick()
+
+    assert set(entity_ids) == {e1, e2}

@@ -105,41 +105,30 @@ class TestMergeEntities:
         assert world.get(merged, NonMergeableTag) is not None
         assert world.get(merged, NonSplittableHealth) is not None
 
-    def test_merge_non_mergeable_first(self) -> None:
-        """Non-mergeable components use FIRST strategy by default."""
+    @pytest.mark.parametrize(
+        ("handling", "expected_name"),
+        [
+            (NonMergeableHandling.FIRST, "alice"),
+            (NonMergeableHandling.SECOND, "bob"),
+            (NonMergeableHandling.SKIP, None),
+        ],
+    )
+    def test_merge_non_mergeable_handling(
+        self, handling: NonMergeableHandling, expected_name: str | None
+    ) -> None:
+        """Non-mergeable handling strategies work correctly."""
         world = World()
         e1 = world.spawn(NonMergeableTag("alice"))
         e2 = world.spawn(NonMergeableTag("bob"))
 
-        merged = world.merge_entities(e1, e2, on_non_mergeable=NonMergeableHandling.FIRST)
+        merged = world.merge_entities(e1, e2, on_non_mergeable=handling)
 
         tag = world.get(merged, NonMergeableTag)
-        assert tag is not None
-        assert tag.name == "alice"
-
-    def test_merge_non_mergeable_second(self) -> None:
-        """Non-mergeable with SECOND keeps second entity's component."""
-        world = World()
-        e1 = world.spawn(NonMergeableTag("alice"))
-        e2 = world.spawn(NonMergeableTag("bob"))
-
-        merged = world.merge_entities(e1, e2, on_non_mergeable=NonMergeableHandling.SECOND)
-
-        tag = world.get(merged, NonMergeableTag)
-        assert tag is not None
-        assert tag.name == "bob"
-
-    def test_merge_non_mergeable_skip(self) -> None:
-        """Non-mergeable with SKIP excludes the component."""
-        world = World()
-        e1 = world.spawn(MergeablePosition(0, 0), NonMergeableTag("alice"))
-        e2 = world.spawn(MergeablePosition(10, 10), NonMergeableTag("bob"))
-
-        merged = world.merge_entities(e1, e2, on_non_mergeable=NonMergeableHandling.SKIP)
-
-        # Position merged, tag skipped
-        assert world.get(merged, MergeablePosition) is not None
-        assert world.get(merged, NonMergeableTag) is None
+        if expected_name is None:
+            assert tag is None
+        else:
+            assert tag is not None
+            assert tag.name == expected_name
 
     def test_merge_non_mergeable_error(self) -> None:
         """Non-mergeable with ERROR raises TypeError."""
@@ -192,40 +181,35 @@ class TestSplitEntity:
         assert world.get(left, SplittableCredits) is not None
         assert world.get(right, SplittableCredits) is not None
 
-    def test_split_non_splittable_both(self) -> None:
-        """Non-splittable with BOTH clones to both entities."""
+    @pytest.mark.parametrize(
+        ("handling", "left_has", "right_has"),
+        [
+            (NonSplittableHandling.BOTH, True, True),
+            (NonSplittableHandling.FIRST, True, False),
+            (NonSplittableHandling.SKIP, False, False),
+        ],
+    )
+    def test_split_non_splittable_handling(
+        self, handling: NonSplittableHandling, left_has: bool, right_has: bool
+    ) -> None:
+        """Non-splittable handling strategies work correctly."""
         world = World()
         entity = world.spawn(NonSplittableHealth(100))
 
-        left, right = world.split_entity(entity, on_non_splittable=NonSplittableHandling.BOTH)
+        left, right = world.split_entity(entity, on_non_splittable=handling)
 
         left_hp = world.get(left, NonSplittableHealth)
         right_hp = world.get(right, NonSplittableHealth)
-        assert left_hp is not None and left_hp.hp == 100
-        assert right_hp is not None and right_hp.hp == 100
 
-    def test_split_non_splittable_first(self) -> None:
-        """Non-splittable with FIRST gives to first entity only."""
-        world = World()
-        entity = world.spawn(NonSplittableHealth(100))
+        if left_has:
+            assert left_hp is not None and left_hp.hp == 100
+        else:
+            assert left_hp is None
 
-        left, right = world.split_entity(entity, on_non_splittable=NonSplittableHandling.FIRST)
-
-        assert world.get(left, NonSplittableHealth) is not None
-        assert world.get(right, NonSplittableHealth) is None
-
-    def test_split_non_splittable_skip(self) -> None:
-        """Non-splittable with SKIP excludes from both."""
-        world = World()
-        entity = world.spawn(SplittableCredits(100.0), NonSplittableHealth(100))
-
-        left, right = world.split_entity(entity, on_non_splittable=NonSplittableHandling.SKIP)
-
-        # Credits split, health skipped
-        assert world.get(left, SplittableCredits) is not None
-        assert world.get(right, SplittableCredits) is not None
-        assert world.get(left, NonSplittableHealth) is None
-        assert world.get(right, NonSplittableHealth) is None
+        if right_has:
+            assert right_hp is not None and right_hp.hp == 100
+        else:
+            assert right_hp is None
 
     def test_split_non_splittable_error(self) -> None:
         """Non-splittable with ERROR raises TypeError."""

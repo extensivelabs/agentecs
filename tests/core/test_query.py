@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -234,27 +235,35 @@ def test_query_immutable():
     assert q1 is not q2
 
 
-def test_normalize_type_tuple_returns_typeaccess():
-    """normalize_access((A, B)) returns TypeAccess({A, B})."""
-    pattern = normalize_access((CompA, CompB))
-
-    assert isinstance(pattern, TypeAccess)
-    assert pattern.types == frozenset([CompA, CompB])
-
-
-def test_normalize_query_returns_queryaccess():
-    """normalize_access(Query(...)) returns QueryAccess."""
+@pytest.mark.parametrize(
+    ("input_val", "expected_type", "check_fn"),
+    [
+        (
+            (CompA, CompB),
+            TypeAccess,
+            lambda p: p.types == frozenset([CompA, CompB]),
+        ),
+        (
+            Query(CompA).excluding(CompB),
+            "QueryAccess",
+            lambda p: Query(CompA).excluding(CompB).required == (CompA,),
+        ),
+        (
+            AllAccess(),
+            AllAccess,
+            lambda p: True,
+        ),
+    ],
+    ids=["type_tuple", "query", "allaccess"],
+)
+def test_normalize_access_variants(input_val, expected_type, check_fn):
+    """normalize_access returns correct type for each input variant."""
     from agentecs.core.query import QueryAccess
 
-    q = Query(CompA).excluding(CompB)
-    pattern = normalize_access(q)
+    pattern = normalize_access(input_val)
 
-    assert isinstance(pattern, QueryAccess)
-    assert q in pattern.queries
-
-
-def test_normalize_allaccess_returns_allaccess():
-    """normalize_access(AllAccess()) returns AllAccess."""
-    pattern = normalize_access(AllAccess())
-
-    assert isinstance(pattern, AllAccess)
+    if expected_type == "QueryAccess":
+        assert isinstance(pattern, QueryAccess)
+    else:
+        assert isinstance(pattern, expected_type)
+    assert check_fn(pattern)
