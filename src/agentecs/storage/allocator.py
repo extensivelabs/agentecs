@@ -1,7 +1,6 @@
 """Entity allocation service.
 
 EntityAllocator is a stateful service that manages entity ID lifecycle.
-It belongs in world/ (services) not core/ (stateless functionalities).
 """
 
 from __future__ import annotations

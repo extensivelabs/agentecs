@@ -93,7 +93,7 @@ class World:
         """Destroy entity. For use outside systems."""
         self._storage.destroy_entity(entity)
 
-    def get(self, entity: EntityId, component_type: type[ComponentT]) -> ComponentT | None:
+    def get_copy(self, entity: EntityId, component_type: type[ComponentT]) -> ComponentT | None:
         """Get component copy. For use outside systems.
 
         Returns a deep copy to prevent accidental mutation of world state.
@@ -106,15 +106,15 @@ class World:
         """Set component. For use outside systems."""
         self._storage.set_component(entity, component)
 
-    def singleton(self, component_type: type[ComponentT]) -> ComponentT | None:
+    def singleton_copy(self, component_type: type[ComponentT]) -> ComponentT | None:
         """Get singleton component from WORLD entity."""
-        return self.get(SystemEntity.WORLD, component_type)
+        return self.get_copy(SystemEntity.WORLD, component_type)
 
     def set_singleton(self, component: Any) -> None:
         """Set singleton component on WORLD entity."""
         self.set(SystemEntity.WORLD, component)
 
-    def query(self, *component_types: type) -> Iterator[tuple[EntityId, ...]]:
+    def query_copies(self, *component_types: type) -> Iterator[tuple[EntityId, ...]]:
         """Query entities with specified component types. For use outside systems.
 
         Returns iterator of tuples: (entity, component1, component2, ...)
