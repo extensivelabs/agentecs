@@ -1,182 +1,192 @@
-# AgentECS Documentation
+# AgentECS
 
 **Entity Component System for AI Agent Orchestration**
 
-Welcome to the AgentECS documentation. AgentECS applies the ECS paradigm to AI agent orchestration, enabling flexible, scalable, and emergent agent workflows.
+AgentECS applies the ECS architectural pattern to AI agents, enabling flexible, scalable, and emergent agent workflows.
 
-## Quick Links
+<div class="grid cards" markdown>
 
-- **[Getting Started](start-up/installation.md)** - Install and run your first AgentECS system
-- **[Cookbook](cookbook/index.md)** - Practical examples and patterns
-- **[System Documentation](system/index.md)** - Architecture and design deep-dives
-- **[API Reference](api/index.md)** - Complete API documentation
+- :material-arrow-right-box: **[Getting Started](start-up/installation.md)**
 
-## What is AgentECS and why another agent framework?
+    Install AgentECS and run your first system
 
-Existing agent frameworks are largely either
+- :material-book-open-variant: **[Core Concepts](start-up/core-concepts.md)**
 
-- Monolithic agents interacting through handoffs
-- Graph-based Workflows, connecting agentic actions
+    Understand entities, components, and systems
 
-By contrast, AgentECS decouples AI agents into:
+- :material-chef-hat: **[Cookbook](cookbook/index.md)**
 
-- **Entities** = Agent identities
-- **Components** = Agent capabilities and state
-- **Systems** = Behaviors that emerge from combinations of components or even agents
+    Practical examples and patterns
 
-With the greatest flexibility in what these classes comprise.
+- :material-file-document: **[API Reference](api/index.md)**
 
-Basically, we believe that we are early in the days of AI agents, and that we need to explore a larger space of agentic workflows.
+    Complete API documentation
 
-AgentECS is designed to enable this exploration.
+</div>
 
-For instance, check out the following examples where:
+---
 
-- ... workflows emerge from agentic interactions
-- ... agents compete for context space
-- ... agents merge based on social proximity
-- ... agents that split in response to modular tasks
-- ... a Monte-Carlo-Tree-Search agent swarm, parallelizing simulations and discovery
-- ... the environment changes depending on agent's consensus
+## Why Another Agent Framework?
 
-## Features
+Existing frameworks assume we know what agentic workflows should look like:
 
-As ECS, AgentECS inherits many benefits of the paradigm such as flexibility, scalability, and parallelism.
-However, we find that when applied to AI agents, new possibilities arise, such as these features:
+- **Monolithic agents** with hand-off protocols
+- **Graph-based workflows** with explicit orchestration
 
-- **New Systems** - AgentECS enables a strictly larger set of agentic workflows, many we never tried before
-- **Emergent Workflows** - No explicit graphs needed, behavior emerges from system and their interactions
-- **Resource Sharing** - Agents can share or even compete for resources (LLMs, context)
-- **Dynamic Agents** - Agents can merge, split, spawn or be destroyed
-- **Parallel Execution** - Automatic parallelization from declared access patterns at any scale
-- **Dynamic Environments** - Environments and interactions can depend on actions of agents
-- **bAttEriEs iNcluDed** - Of course AgentECS comes with components and systems you can use out-of-the-box
+We're early in AI agents. The design space is vast and largely unexplored.
 
-1. **Flexibility** - AgentECS allows flexible workflows and freedom in what elements they comprise
-2. **Scalability** - Support for swarms and large-scale workflows without scale boundaries
-3. **Emergent Execution** - Automatic scheduling of actions based on access patterns, timings or dependencies
-4. **Systems over agents** -
+AgentECS takes a different approach. Decouple agents into primitives:
 
+- **Entities** = Identities (agents, tasks, resources)
+- **Components** = Data (state, capabilities, context)
+- **Systems** = Behavior (operates on component patterns)
 
-## Core Principles
+Then let workflows **emerge** from their interactions.
 
-### Flexibility and systems over agents
+<div class="grid cards" markdown>
 
-While an opinionated framework with a rich class-hierarchy has many advantages, this is only true so long as it fits your use-case. And who knows what the future holds for AI?
+- :material-cogs: **Emergent Workflows**
 
-AgentECS is flexible.
-What is an agent? Well, it's an entity associated with a set of components.
+    No explicit graphs needed. Behavior emerges from system interactions.
 
-What is a component? It's any data structure you need.
+- :material-share-variant: **Resource Sharing**
 
-What is a system? It's any transformation of any combination of components.
+    Agents can share or compete for resources: LLMs, context, tasks.
 
-So, we think in terms of systems, literally.
+- :material-call-split: **Dynamic Agents**
 
-This means: the level of analysis is flexible. You can absolutely focus on a specific agent, but you can also act on a group, archetypes or patterns of agents.
+    Agents can merge, split, spawn, or be destroyed at runtime.
 
-It also means that AgentECS is lightweight.
+- :material-earth: **Dynamic Environments**
 
-### Emergence and Parallelism
+    The environment can change based on collective agent state.
 
-By default, you do not need to orchestrate workflows. AgentECS works in ticks, within which systems are scheduled in parallel so long as they do not conflict. Per default, this occurs via access patterns:
+- :material-resize: **Flexible Granularity**
 
-```python
-# These CAN run in parallel (disjoint write sets)
-@system(reads=(Position,), writes=(Position,))
-@system(reads=(Health,), writes=(Health,))
+    Systems operate on any level: single agents, groups, or entire swarms.
 
-# These CANNOT (conflicting access)
-@system(reads=(Position,), writes=(Position,))
-@system(reads=(Position,), writes=(Velocity,))
-```
+- :material-server: **Automatic Parallelism**
 
-As such, complex workflows can emerge from simple systems.
-Still, you can also encode explicit dependencies or ordering if you want to.
+    Declared access patterns enable safe parallel execution at scale.
 
-### Systems Return Intent, Don't Mutate
+</div>
 
-Systems write to a buffer, enabling snapshot isolation and safe parallelization:
-
-```python
-@system(reads=(Position, Velocity), writes=(Position,))
-def movement(world: ScopedAccess) -> None:
-    for entity, pos, vel in world(Position, Velocity):
-        world[entity, Position] = Position(pos.x + vel.dx, pos.y + vel.dy)
-```
+---
 
 ## Quick Example
 
 ```python
-from dataclasses import dataclass, field
-from enum import Enum
-
-from agentecs import ScopedAccess, World, component, system
-
-
-class TaskStatus(Enum):
-    PENDING = "pending"
-    COMPLETED = "completed"
-
-
-@dataclass
-class Task:
-    description: str
-    status: TaskStatus = TaskStatus.PENDING
-
+from dataclasses import dataclass
+from agentecs import World, component, system, ScopedAccess
 
 @component
 @dataclass
-class TaskList:
-    tasks: list[Task] = field(default_factory=list)
+class Agent:
+    name: str
 
+@component
+@dataclass
+class Task:
+    description: str
+    done: bool = False
 
-@system(reads=(TaskList,), writes=(TaskList,))
-def spawn_agents(world: ScopedAccess) -> None:
-    """Spawn agents when pending tasks exceed agent count."""
-    agents = list(world(TaskList))
-    if not agents:
-        return
+@system(reads=(Agent, Task), writes=(Task,))
+def work(world: ScopedAccess) -> None:
+    for entity, agent, task in world(Agent, Task):
+        if not task.done:
+            print(f"{agent.name}: {task.description}")
+            world[entity, Task] = Task(task.description, done=True)
 
-    _, task_list = agents[0]
-    pending = sum(1 for t in task_list.tasks if t.status == TaskStatus.PENDING)
-
-    if pending > len(agents):
-        world.spawn(task_list)
-
-
-@system(reads=(TaskList,), writes=(TaskList,))
-def process_tasks(world: ScopedAccess) -> None:
-    """Each agent completes one pending task.
-
-    This simulates agents working in parallel on a shared task list.
-    """
-    for entity, task_list in world(TaskList):
-        for task in task_list.tasks:
-            if task.status == TaskStatus.PENDING:
-                task.status = TaskStatus.COMPLETED
-                print(f"Agent {entity.index}: {task.description}")
-                world[entity, TaskList] = task_list
-                break
-
-
+# Create world and register system
 world = World()
-world.register_system(spawn_agents)
-world.register_system(process_tasks)
+world.register_system(work)
 
-# Adds 4 tasks to be processed
-tasks = TaskList(tasks=[Task(f"Task-{i}") for i in range(1, 5)])
-# Adds a single agent with the task list
-world.spawn(tasks)
-# First tick: Agent works on one task while a new agent is spawned
+# Spawn agents with tasks
+world.spawn(Agent("Alice"), Task("Write report"))
+world.spawn(Agent("Bob"), Task("Review code"))
+
+# Run one tick - both agents work in parallel
 world.tick()
-# Subsequent ticks: Agents process tasks
-world.ticket() # ...
 ```
+
+Output:
+```
+Alice: Write report
+Bob: Review code
+```
+
+---
+
+## Core Principles
+
+### Entities Are Just IDs
+
+Entities have no behavior. They're identities that hold components together:
+
+```python
+# An agent is just an entity with certain components
+agent = world.spawn(
+    Agent(name="Alice"),
+    Context(messages=[]),
+    Task(description="Analyze data"),
+)
+```
+
+### Systems Operate on Patterns
+
+Systems query for component combinations, not specific entities:
+
+```python
+@system(reads=(Agent, Task), writes=(Task,))
+def work(world: ScopedAccess) -> None:
+    # Finds ALL entities with both Agent AND Task
+    for entity, agent, task in world(Agent, Task):
+        ...
+```
+
+### Changes Apply at Tick Boundaries
+
+Systems write to a buffer. Changes merge and apply when the tick completes:
+
+```python
+world[entity, Task] = Task(...)  # Buffered, not immediate
+world.tick()                      # All changes apply atomically
+```
+
+This enables snapshot isolation: systems see consistent state, even when running in parallel.
+
+### Access Patterns Enable Parallelism
+
+Declare what components a system reads and writes. Non-conflicting systems run in parallel:
+
+```python
+# These CAN run in parallel (disjoint writes)
+@system(reads=(Position,), writes=(Position,))
+@system(reads=(Health,), writes=(Health,))
+
+# These CANNOT (both write Position)
+@system(reads=(Position,), writes=(Position,))
+@system(reads=(Velocity,), writes=(Position,))
+```
+
+---
+
+## What Can You Build?
+
+AgentECS enables workflows that are awkward or impossible in traditional frameworks:
+
+- **Agent swarms** that scale to thousands of concurrent agents
+- **Competitive agents** fighting for shared context or resources
+- **Social dynamics** where agents merge based on similarity
+- **Hierarchical agents** that split tasks and spawn sub-agents
+- **Adaptive environments** that respond to collective agent behavior
+- **Monte Carlo search** with parallel simulation branches
+
+---
 
 ## Next Steps
 
-- Follow the [Installation Guide](start-up/installation.md) to get started
-- Read [Core Concepts](start-up/core-concepts.md) to understand the fundamentals
-- Explore the [Cookbook](cookbook/index.md) for practical patterns
-- Dive into [System Documentation](system/index.md) for architecture details
+- **[Installation](start-up/installation.md)** - Get AgentECS running
+- **[Core Concepts](start-up/core-concepts.md)** - Understand the fundamentals
+- **[Cookbook](cookbook/index.md)** - Learn common patterns
+- **[Architecture](system/index.md)** - Deep dive into internals
