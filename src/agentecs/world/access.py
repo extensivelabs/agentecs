@@ -24,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import copy
+import warnings
 from collections.abc import AsyncIterator, Iterable, Iterator
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
@@ -488,8 +489,17 @@ class ScopedAccess:
 
     def spawn(self, *components: Any) -> EntityId:
         """Spawn new entity with components. Returns provisional ID."""
+        seen_types: set[type] = set()
         for comp in components:
-            self._check_writable(type(comp))
+            comp_type = type(comp)
+            self._check_writable(comp_type)
+            if comp_type in seen_types:
+                warnings.warn(
+                    f"spawn() received multiple components of type {comp_type.__name__}. "
+                    f"Only the last one will be kept.",
+                    stacklevel=2,
+                )
+            seen_types.add(comp_type)
 
         self._buffer.spawns.append(components)
         # Return provisional ID - actual ID assigned at apply time

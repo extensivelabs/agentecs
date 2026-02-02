@@ -87,30 +87,71 @@ For detailed setup instructions, see the [Getting Started guide](https://extensi
 ## Quick Start
 
 ```python
-from dataclasses import dataclass
-from agentecs import World, component, system, ScopedAccess
+
+from dataclasses import dataclass, field
+from enum import Enum
+
+from agentecs import ScopedAccess, World, component, system
+
+
+class TaskStatus(Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+
+
+@dataclass
+class Task:
+    description: str
+    status: TaskStatus = TaskStatus.PENDING
+
 
 @component
 @dataclass
-class Position:
-    x: float
-    y: float
+class TaskList:
+    tasks: list[Task] = field(default_factory=list)
 
-@component
-@dataclass
-class Velocity:
-    dx: float
-    dy: float
 
-@system(reads=(Position, Velocity), writes=(Position,))
-def movement(world: ScopedAccess) -> None:
-    for entity, pos, vel in world(Position, Velocity):
-        world[entity, Position] = Position(pos.x + vel.dx, pos.y + vel.dy)
+@system(reads=(TaskList,), writes=(TaskList,))
+def spawn_agents(world: ScopedAccess) -> None:
+    """Spawn agents when pending tasks exceed agent count."""
+    agents = list(world(TaskList))
+    if not agents:
+        return
+
+    _, task_list = agents[0]
+    pending = sum(1 for t in task_list.tasks if t.status == TaskStatus.PENDING)
+
+    if pending > len(agents):
+        world.spawn(task_list)
+
+
+@system(reads=(TaskList,), writes=(TaskList,))
+def process_tasks(world: ScopedAccess) -> None:
+    """Each agent completes one pending task.
+
+    This simulates agents working in parallel on a shared task list.
+    """
+    for entity, task_list in world(TaskList):
+        for task in task_list.tasks:
+            if task.status == TaskStatus.PENDING:
+                task.status = TaskStatus.COMPLETED
+                print(f"Agent {entity.index}: {task.description}")
+                world[entity, TaskList] = task_list
+                break
+
 
 world = World()
-agent = world.spawn(Position(0, 0), Velocity(1, 0))
-world.register_system(movement)
+world.register_system(spawn_agents)
+world.register_system(process_tasks)
+
+# Adds 4 tasks to be processed
+tasks = TaskList(tasks=[Task(f"Task-{i}") for i in range(1, 5)])
+# Adds a single agent with the task list
+world.spawn(tasks)
+# First tick: Agent works on one task while a new agent is spawned
 world.tick()
+# Subsequent ticks: Agents process tasks
+world.ticket() # ...
 ```
 
 ## Future Work

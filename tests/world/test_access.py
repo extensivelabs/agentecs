@@ -313,3 +313,49 @@ def test_query_result_entities(world):
     world.tick()
 
     assert set(entity_ids) == {e1, e2}
+
+
+# Duplicate component warning tests
+
+
+def test_spawn_duplicate_components_warns(world):
+    """World.spawn() warns when given multiple components of same type.
+
+    Why: ECS constraint is one component per type per entity. Silent overwrites
+    can cause subtle bugs.
+    """
+    with pytest.warns(UserWarning, match="multiple components of type TestValue"):
+        world.spawn(TestValue(1), TestValue(2))
+
+
+def test_spawn_duplicate_keeps_last(world):
+    """When spawning with duplicates, the last component is kept."""
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        entity = world.spawn(TestValue(1), TestValue(2), TestValue(42))
+
+    val = world.get(entity, TestValue)
+    assert val is not None
+    assert val.value == 42
+
+
+def test_scoped_spawn_duplicate_components_warns(world):
+    """ScopedAccess.spawn() warns when given multiple components of same type."""
+    warned = False
+
+    @system.dev()
+    def spawn_duplicates(access: ScopedAccess) -> None:
+        nonlocal warned
+        import warnings
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            access.spawn(TestValue(1), TestValue(2))
+            warned = any("multiple components of type TestValue" in str(x.message) for x in w)
+
+    world.register_system(spawn_duplicates)
+    world.tick()
+
+    assert warned, "ScopedAccess.spawn() should warn on duplicate component types"

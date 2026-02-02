@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import warnings
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -75,7 +76,16 @@ class World:
     def spawn(self, *components: Any) -> EntityId:
         """Create entity with components. For use outside systems."""
         entity = self._storage.create_entity()
+        seen_types: set[type] = set()
         for comp in components:
+            comp_type = type(comp)
+            if comp_type in seen_types:
+                warnings.warn(
+                    f"spawn() received multiple components of type {comp_type.__name__}. "
+                    f"Only the last one will be kept.",
+                    stacklevel=2,
+                )
+            seen_types.add(comp_type)
             self._storage.set_component(entity, comp)
         return entity
 

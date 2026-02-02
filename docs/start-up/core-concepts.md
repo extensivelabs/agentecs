@@ -175,6 +175,42 @@ world.spawn(
 )
 ```
 
+### Component Uniqueness
+
+!!! warning "One Component Per Type Per Entity"
+    Each entity can have **at most one component of each type**. Attempting to spawn an entity with multiple components of the same type will result in only the last one being kept (with a warning).
+
+This is a fundamental ECS constraint shared by all major frameworks (Unity ECS, Bevy, EnTT). It enables efficient storage patterns like archetypal storage.
+
+**Wrong - only last Task survives:**
+
+```python
+# ❌ Silent overwrite - only "Task D" is kept
+agent = world.spawn(
+    Task("A"),
+    Task("B"),
+    Task("C"),
+    Task("D"),
+)
+```
+
+**Correct - use a wrapper component:**
+
+```python
+# ✅ Use a list wrapper for multiple items
+@component
+@dataclass
+class TaskList:
+    tasks: list[Task] = field(default_factory=list)
+
+agent = world.spawn(TaskList(tasks=[
+    Task("A"),
+    Task("B"),
+    Task("C"),
+    Task("D"),
+]))
+```
+
 **Optional Component Protocols:**
 
 Components can implement optional protocols for advanced features:
