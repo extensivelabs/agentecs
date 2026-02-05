@@ -202,7 +202,7 @@ def merge_components(a: T, b: T, strategy: Callable[[T, T], T] | None = None) ->
     if isinstance(a, Mergeable):
         # a and b are same type T, and a is Mergeable, so b is too
         # __merge__ uses Self type annotation, returns same type
-        return a.__merge__(b)  # type: ignore[return-value]
+        return a.__merge__(b)
     raise TypeError(f"{type(a).__name__} is not Mergeable and no strategy provided")
 
 

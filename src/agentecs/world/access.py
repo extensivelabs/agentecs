@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.core.types import Copy
 from agentecs.world.sync_runner import SyncRunner
 
 if TYPE_CHECKING:
@@ -247,7 +248,7 @@ class ScopedAccess:
                 f"System '{self._descriptor.name}' cannot write {t.__name__}: not in writable types"
             )
 
-    def __getitem__(self, key: tuple[EntityId, type[T]]) -> T:
+    def __getitem__(self, key: tuple[EntityId, type[T]]) -> Copy[T]:
         """Get directly the component T for the entity in key.
 
         Example: world[entity, Position] -> Position
@@ -291,7 +292,7 @@ class ScopedAccess:
         """
         return self.entities()
 
-    def get(self, entity: EntityId, component_type: type[T]) -> T:
+    def get(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component copy (from buffer or storage).
 
         ALWAYS returns a copy to prevent accidental mutation of world state.
@@ -410,7 +411,7 @@ class ScopedAccess:
         async for entity, components in self._query_raw_async(*component_types):
             yield entity, components
 
-    async def get_async(self, entity: EntityId, component_type: type[T]) -> T:
+    async def get_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component asynchronously, checking buffer first (read own writes).
 
         Async variant for use in async systems. For distributed storage, this enables
@@ -443,7 +444,7 @@ class ScopedAccess:
         else:
             raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
 
-    def singleton(self, component_type: type[T]) -> T:
+    def singleton(self, component_type: type[T]) -> Copy[T]:
         """Get singleton component from WORLD entity."""
         result = self.get(SystemEntity.WORLD, component_type)
         if result is None:
@@ -542,6 +543,29 @@ class ScopedAccess:
         """Split entity into two using Splittable components."""
         # TODO: Implement using component protocols
         raise NotImplementedError("Entity splitting not yet implemented")
+
+    def get_copy(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy. Alias for get() with explicit naming."""
+        return self.get(entity, component_type)
+
+    async def get_copy_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy asynchronously. Alias for get_async()."""
+        return await self.get_async(entity, component_type)
+
+    def query_copies(
+        self,
+        *component_types: type,
+    ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities returning component copies. Alias for query()."""
+        return self.query(*component_types)
+
+    async def query_copies_async(
+        self,
+        *component_types: type,
+    ) -> AsyncIterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities asynchronously returning copies. Alias for query_async()."""
+        async for item in self.query_async(*component_types):
+            yield item
 
 
 # TODO: Implement PureReadAccess (ScopedAccess without write methods)

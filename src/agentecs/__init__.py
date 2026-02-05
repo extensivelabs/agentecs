@@ -24,6 +24,7 @@ __version__ = "0.1.0"
 
 # Core primitives
 from agentecs.core import (
+    Copy,
     Diffable,
     EntityId,
     Interpolatable,
@@ -74,6 +75,7 @@ __all__ = [
     # Version
     "__version__",
     # Core
+    "Copy",
     "EntityId",
     "SystemEntity",
     "component",

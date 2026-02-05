@@ -10,6 +10,7 @@ Usage:
 
 from __future__ import annotations
 
+import copy as cp
 import pickle  # nosec B403 - Used only for local testing/prototyping, not production
 from collections.abc import AsyncIterator, Iterator
 from typing import Any, TypeVar
@@ -83,19 +84,26 @@ class LocalStorage:
             if self._allocator.is_alive(entity):
                 yield entity
 
-    def get_component(self, entity: EntityId, component_type: type[T]) -> T | None:
+    def get_component(
+        self, entity: EntityId, component_type: type[T], copy: bool = True
+    ) -> T | None:
         """Get a component from an entity.
 
         Args:
             entity: Entity to query.
             component_type: Type of component to retrieve.
+            copy: Whether to return a copy of the component (default True).
 
         Returns:
             Component instance or None if not present.
         """
         if entity not in self._components:
             return None
-        return self._components[entity].get(component_type)
+        return (
+            cp.deepcopy(self._components[entity].get(component_type))
+            if copy
+            else self._components[entity].get(component_type)
+        )
 
     def set_component(self, entity: EntityId, component: Any) -> None:
         """Set or update a component on an entity.
@@ -155,6 +163,7 @@ class LocalStorage:
     def query(
         self,
         *component_types: type,
+        copy: bool = True,
     ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
         """Find entities with all specified components.
 
@@ -162,6 +171,7 @@ class LocalStorage:
 
         Args:
             *component_types: Component types to query for.
+            copy: Whether to return copies of components (default True).
 
         Yields:
             Tuples of (entity, (component1, component2, ...)) for each match.
@@ -172,13 +182,16 @@ class LocalStorage:
                 continue
             if type_set.issubset(components.keys()):
                 result = tuple(components[t] for t in component_types)
-                yield entity, result
+                yield cp.deepcopy(entity), cp.deepcopy(result) if copy else (entity, result)
 
-    def query_single(self, component_type: type[T]) -> Iterator[tuple[EntityId, T]]:
+    def query_single(
+        self, component_type: type[T], copy: bool = True
+    ) -> Iterator[tuple[EntityId, T]]:
         """Optimized single-component query.
 
         Args:
             component_type: Component type to query for.
+            copy: Whether to return copies of components (default True).
 
         Yields:
             Tuples of (entity, component) for each match.
@@ -187,7 +200,11 @@ class LocalStorage:
             if not self._allocator.is_alive(entity):
                 continue
             if component_type in components:
-                yield entity, components[component_type]
+                yield (
+                    (cp.deepcopy(entity), cp.deepcopy(components[component_type]))
+                    if copy
+                    else (entity, components[component_type])
+                )
 
     def apply_updates(
         self,
@@ -260,31 +277,34 @@ class LocalStorage:
     # Async variants - for LocalStorage these just wrap sync methods
     # Future distributed storage backends can implement truly async versions
 
-    async def get_component_async(self, entity: EntityId, component_type: type[T]) -> T | None:
+    async def get_component_async(
+        self, entity: EntityId, component_type: type[T], copy: bool = True
+    ) -> T | None:
         """Get component from entity (async wrapper for sync implementation).
 
         Args:
             entity: Entity to query.
             component_type: Type of component to retrieve.
+            copy: Whether to return a copy of the component (default True).
 
         Returns:
             Component instance or None if not present.
         """
-        return self.get_component(entity, component_type)
+        return self.get_component(entity, component_type, copy)
 
     async def query_async(
-        self,
-        *component_types: type,
+        self, *component_types: type, copy: bool = True
     ) -> AsyncIterator[tuple[EntityId, tuple[Any, ...]]]:
         """Find entities with all specified components (async wrapper).
 
         Args:
             *component_types: Component types to query for.
+            copy: Whether to return copies of components (default True).
 
         Yields:
             Tuples of (entity, (component1, component2, ...)) for each match.
         """
-        for entity, components in self.query(*component_types):
+        for entity, components in self.query(*component_types, copy=copy):
             # Test
             yield entity, components
 

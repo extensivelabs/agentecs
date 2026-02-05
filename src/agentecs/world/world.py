@@ -33,6 +33,7 @@ from agentecs.core.component.models import (
 )
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.core.types import Copy
 from agentecs.storage.local import LocalStorage
 from agentecs.storage.protocol import Storage
 from agentecs.world.access import ScopedAccess
@@ -93,7 +94,9 @@ class World:
         """Destroy entity. For use outside systems."""
         self._storage.destroy_entity(entity)
 
-    def get_copy(self, entity: EntityId, component_type: type[ComponentT]) -> ComponentT | None:
+    def get_copy(
+        self, entity: EntityId, component_type: type[ComponentT]
+    ) -> Copy[ComponentT] | None:
         """Get component copy. For use outside systems.
 
         Returns a deep copy to prevent accidental mutation of world state.
@@ -106,7 +109,7 @@ class World:
         """Set component. For use outside systems."""
         self._storage.set_component(entity, component)
 
-    def singleton_copy(self, component_type: type[ComponentT]) -> ComponentT | None:
+    def singleton_copy(self, component_type: type[ComponentT]) -> Copy[ComponentT] | None:
         """Get singleton component from WORLD entity."""
         return self.get_copy(SystemEntity.WORLD, component_type)
 

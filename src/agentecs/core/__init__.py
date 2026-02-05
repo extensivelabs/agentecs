@@ -39,8 +39,11 @@ from agentecs.core.system import (
     check_write_access,
     system,
 )
+from agentecs.core.types import Copy
 
 __all__ = [
+    # Types
+    "Copy",
     # Identity
     "EntityId",
     "SystemEntity",
