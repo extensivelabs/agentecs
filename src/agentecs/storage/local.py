@@ -13,7 +13,7 @@ from __future__ import annotations
 import copy as cp
 import pickle  # nosec B403 - Used only for local testing/prototyping, not production
 from collections.abc import AsyncIterator, Iterator
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 from uuid import UUID
 
 from agentecs import Copy
@@ -90,12 +90,12 @@ class LocalStorage:
         return self._shared_refs.get((entity, component_type))
 
     def _get_component_raw(self, entity: EntityId, component_type: type[T]) -> T | None:
-        """Get component without copy (internal use)."""
-        # Shared components first
+        """Get component without copy (internal use). Unwraps shared wrappers."""
         if shared_id := self._return_shared_id(entity, component_type):
-            return self._shared_components.get(shared_id)
-
-        # Regular component
+            component = self._shared_components.get(shared_id)
+            if isinstance(component, WrappedComponent):
+                return cast(T, component.unwrap())
+            return cast(T, component)
         return self._components.get(entity, {}).get(component_type)
 
     def create_entity(self) -> EntityId:
@@ -309,17 +309,17 @@ class LocalStorage:
             if not self._allocator.is_alive(entity):
                 continue
             entity_types = set(components.keys())
-            # Add shared types
             for (e, t), _ in self._shared_refs.items():
                 if e == entity:
                     entity_types.add(t)
-                    components[t] = self._shared_components[self._shared_refs[(e, t)]]
             if type_set.issubset(entity_types):
-                yield (
-                    (entity, tuple(cp.deepcopy(components[t]) for t in component_types))
-                    if copy
-                    else (entity, tuple(components[t] for t in component_types))
-                )
+                if copy:
+                    result = tuple(
+                        cp.deepcopy(self._get_component_raw(entity, t)) for t in component_types
+                    )
+                else:
+                    result = tuple(self._get_component_raw(entity, t) for t in component_types)
+                yield entity, result
 
     def query_single(
         self, component_type: type[T], copy: bool = True
