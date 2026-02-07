@@ -34,16 +34,29 @@ config = [
     { name = "pydantic-settings" },
 ]
 dev = [
+    { name = "anthropic" },
+    { name = "chromadb" },
     { name = "debugpy" },
     { name = "hypothesis" },
+    { name = "instructor" },
+    { name = "ipykernel" },
+    { name = "ipywidgets" },
+    { name = "jupyter" },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
     { name = "mypy" },
+    { name = "openai" },
     { name = "pre-commit" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
     { name = "pytest-watch" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "tenacity" },
 ]
 docs = [
     { name = "mkdocs" },
@@ -75,6 +88,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agentecs", extras = ["all", "docs"], marker = "extra == 'dev'" },
     { name = "agentecs", extras = ["config", "chroma", "llm", "retry", "notebook"], marker = "extra == 'all'" },
     { name = "anthropic", marker = "extra == 'llm'", specifier = ">=0.75.0" },
     { name = "chromadb", marker = "extra == 'chroma'", specifier = ">=0.4" },

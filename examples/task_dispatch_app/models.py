@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class ResponseType(str, Enum):
+class ResponseType(StrEnum):
     """Agent response action types.
 
     - DEEP_THOUGHT: Agent needs more thinking time, message contains reasoning

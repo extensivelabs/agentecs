@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 from agentecs import component
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """Task lifecycle states.
 
     Tasks flow through these states:
