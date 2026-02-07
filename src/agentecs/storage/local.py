@@ -14,7 +14,11 @@ import copy as cp
 import pickle  # nosec B403 - Used only for local testing/prototyping, not production
 from collections.abc import AsyncIterator, Iterator
 from typing import Any, TypeVar
+from uuid import UUID
 
+from agentecs import Copy
+from agentecs.core import Shared
+from agentecs.core.component.wrapper import WrappedComponent
 from agentecs.core.identity import EntityId
 from agentecs.storage.allocator import EntityAllocator
 
@@ -42,6 +46,57 @@ class LocalStorage:
         self._shard = shard
         self._allocator = EntityAllocator(shard=shard)
         self._components: dict[EntityId, dict[type, Any]] = {}
+
+        self._shared_refs: dict[tuple[EntityId, type], UUID] = {}
+        self._shared_components: dict[UUID, Any] = {}
+        self._shared_type_ref: dict[type, UUID] = {}
+        """The shared types are stored as follows:
+        _shared_refs maps entities to UUIDs of instances of shared components.
+        _shared_components maps those UUIDs to the actual shared component instances.
+        _shared_type_refs maps those components that are shared by type to their shared UUIDs.
+        """
+
+    def _is_shared_type(self, component_type: type) -> bool:
+        """Check if component type is marked as shared via decorator."""
+        meta = getattr(component_type, "__component_meta__", None)
+        return meta is not None and getattr(meta, "shared", False)
+
+    def _is_wrapped_component(self, component: Any) -> type[WrappedComponent[Any]] | None:
+        """Check if a component instance is wrapped e.g. Shared and return the wrapper type."""
+        if isinstance(component, WrappedComponent):
+            if isinstance(component, Shared):
+                return Shared
+            else:
+                # Future wrapper types can be checked here
+                pass
+        return None
+
+    def _is_shared_type_or_instance(self, component: Any) -> bool:
+        """Check if a component instance is shared (either wrapper or type)."""
+        return self._is_wrapped_component(component) is Shared or self._is_shared_type(
+            type(component)
+        )
+
+    def _is_shared(self, entity: EntityId, component_type: type) -> bool:
+        """Check if a component is shared (either per-instance or per-type)."""
+        # Per-instance sharing (via Shared() wrapper)
+        if (entity, component_type) in self._shared_refs:
+            return True
+        # Per-type sharing (via @component(shared=True))
+        return self._is_shared_type(component_type)
+
+    def _return_shared_id(self, entity: EntityId, component_type: type) -> UUID | None:
+        """Check if this entity's component is shared and return id or None."""
+        return self._shared_refs.get((entity, component_type))
+
+    def _get_component_raw(self, entity: EntityId, component_type: type[T]) -> T | None:
+        """Get component without copy (internal use)."""
+        # Shared components first
+        if shared_id := self._return_shared_id(entity, component_type):
+            return self._shared_components.get(shared_id)
+
+        # Regular component
+        return self._components.get(entity, {}).get(component_type)
 
     def create_entity(self) -> EntityId:
         """Create a new entity and return its ID.
@@ -86,7 +141,7 @@ class LocalStorage:
 
     def get_component(
         self, entity: EntityId, component_type: type[T], copy: bool = True
-    ) -> T | None:
+    ) -> Copy[T] | T | None:
         """Get a component from an entity.
 
         Args:
@@ -99,14 +154,19 @@ class LocalStorage:
         """
         if entity not in self._components:
             return None
-        return (
-            cp.deepcopy(self._components[entity].get(component_type))
-            if copy
-            else self._components[entity].get(component_type)
-        )
+        component = self._get_component_raw(entity, component_type)
+        if component is None:
+            return None
+        return cp.deepcopy(component) if copy else component
 
     def set_component(self, entity: EntityId, component: Any) -> None:
         """Set or update a component on an entity.
+
+        Shared components are added as follows:
+        - If the component is wrapped in Shared, it is stored
+          as a shared instance and mapped to the entity.
+        - If the component's type is decorated as shared, we wrap
+          it as needed and store it as shared type, and wrapped instance.
 
         Args:
             entity: Entity to modify.
@@ -114,7 +174,37 @@ class LocalStorage:
         """
         if entity not in self._components:
             self._components[entity] = {}
-        self._components[entity][type(component)] = component
+
+        if self._is_shared_type_or_instance(component):
+            if self._is_wrapped_component(component) is Shared:
+                shared_id = component.ref_id
+                # Set the shared component instance if not already stored
+                self._shared_components[shared_id] = component
+                # Assign the shared reference ID to this entity's component slot
+                self._shared_refs[(entity, component.component_type)] = shared_id
+                # Ensure prior component type is cleared if it exists and is different
+                if component.component_type in self._components[entity]:
+                    del self._components[entity][component.component_type]
+            else:
+                # Shared by type.
+                if shared_id := self._shared_type_ref.get(type(component)):
+                    # If this type is already shared, just reference it
+                    self._shared_refs[(entity, type(component))] = shared_id
+                    # Wrap the component in the shared wrapper for storage
+                    wrapper = Shared(component)
+                    wrapper._ref.instance_id = shared_id
+                    # Assign or update
+                    self._shared_components[shared_id] = component
+                else:
+                    # First time seeing this type. Wrap it.
+                    wrapper = Shared(component)
+                    shared_id = wrapper.ref_id
+                    self._shared_type_ref[type(component)] = shared_id
+                    self._shared_refs[(entity, type(component))] = shared_id
+                    self._shared_components[shared_id] = component
+        else:
+            # Regular component - store directly
+            self._components[entity][type(component)] = component
 
     def remove_component(self, entity: EntityId, component_type: type) -> bool:
         """Remove a component from an entity.
@@ -128,10 +218,39 @@ class LocalStorage:
         """
         if entity not in self._components:
             return False
+        if self._is_shared(entity, component_type):
+            # Remove shared instance reference for this entity
+            if (entity, component_type) in self._shared_refs:
+                del self._shared_refs[(entity, component_type)]
+            return True
         if component_type in self._components[entity]:
             del self._components[entity][component_type]
             return True
         return False
+
+    def remove_component_from_all(self, component_type: type) -> None:
+        """Remove a component type from all entities.
+
+        This completely removes shared components.
+
+        Args:
+            component_type: Type of component to remove from all entities.
+        """
+        # Remove shared type reference if it exists
+        if component_type in self._shared_type_ref:
+            shared_id = self._shared_type_ref[component_type]
+            del self._shared_type_ref[component_type]
+
+        # Remove all shared instance references for this component type
+        to_remove = [key for key, sid in self._shared_refs.items() if sid == shared_id]
+        for key in to_remove:
+            del self._shared_refs[key]
+        if shared_id in self._shared_components:
+            del self._shared_components[shared_id]
+
+        # Remove from all entities
+        for entity in list(self._components.keys()):
+            self.remove_component(entity, component_type)
 
     def has_component(self, entity: EntityId, component_type: type) -> bool:
         """Check if an entity has a specific component type.
@@ -145,6 +264,10 @@ class LocalStorage:
         """
         if entity not in self._components:
             return False
+
+        if self._is_shared(entity, component_type):
+            return True
+
         return component_type in self._components[entity]
 
     def get_component_types(self, entity: EntityId) -> frozenset[type]:
@@ -158,7 +281,12 @@ class LocalStorage:
         """
         if entity not in self._components:
             return frozenset()
-        return frozenset(self._components[entity].keys())
+        types = set(self._components[entity].keys())
+        # Add shared types
+        for (e, t), _ in self._shared_refs.items():
+            if e == entity:
+                types.add(t)
+        return frozenset(types)
 
     def query(
         self,
@@ -180,9 +308,18 @@ class LocalStorage:
         for entity, components in self._components.items():
             if not self._allocator.is_alive(entity):
                 continue
-            if type_set.issubset(components.keys()):
-                result = tuple(components[t] for t in component_types)
-                yield cp.deepcopy(entity), cp.deepcopy(result) if copy else (entity, result)
+            entity_types = set(components.keys())
+            # Add shared types
+            for (e, t), _ in self._shared_refs.items():
+                if e == entity:
+                    entity_types.add(t)
+                    components[t] = self._shared_components[self._shared_refs[(e, t)]]
+            if type_set.issubset(entity_types):
+                yield (
+                    (entity, tuple(cp.deepcopy(components[t]) for t in component_types))
+                    if copy
+                    else (entity, tuple(components[t] for t in component_types))
+                )
 
     def query_single(
         self, component_type: type[T], copy: bool = True
@@ -196,15 +333,10 @@ class LocalStorage:
         Yields:
             Tuples of (entity, component) for each match.
         """
-        for entity, components in self._components.items():
-            if not self._allocator.is_alive(entity):
-                continue
-            if component_type in components:
-                yield (
-                    (cp.deepcopy(entity), cp.deepcopy(components[component_type]))
-                    if copy
-                    else (entity, components[component_type])
-                )
+        # Since this is local, no need to optimize here.
+        iterator = self.query(component_type, copy=copy)
+        for entity, components in iterator:
+            yield entity, components[0]
 
     def apply_updates(
         self,
@@ -260,6 +392,9 @@ class LocalStorage:
                 "shard": self._shard,
                 "components": self._components,
                 "allocator_next": self._allocator._next_index,
+                "shared_refs": self._shared_refs,
+                "shared_components": self._shared_components,
+                "shared_type_ref": self._shared_type_ref,
             }
         )
 
@@ -273,6 +408,9 @@ class LocalStorage:
         self._shard = state["shard"]
         self._components = state["components"]
         self._allocator._next_index = state["allocator_next"]
+        self._shared_refs = state["shared_refs"]
+        self._shared_components = state["shared_components"]
+        self._shared_type_ref = state["shared_type_ref"]
 
     # Async variants - for LocalStorage these just wrap sync methods
     # Future distributed storage backends can implement truly async versions

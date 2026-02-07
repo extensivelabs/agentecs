@@ -24,7 +24,7 @@ from collections.abc import Callable
 from dataclasses import is_dataclass
 from typing import TypeVar
 
-from agentecs.core.component.models import ComponentMeta, Mergeable, Reducible
+from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducible
 
 T = TypeVar("T")
 
@@ -56,10 +56,10 @@ class ComponentRegistry:
 
     def __init__(self) -> None:
         """Initialize empty component registry."""
-        self._by_type: dict[type, ComponentMeta] = {}
+        self._by_type: dict[type, ComponentTypeMeta] = {}
         self._by_id: dict[int, type] = {}
 
-    def register(self, cls: type) -> ComponentMeta:
+    def register(self, cls: type) -> ComponentTypeMeta:
         """Register a component type and return its metadata.
 
         Args:
@@ -82,7 +82,7 @@ class ComponentRegistry:
                 f"Component ID collision: {cls} and {existing} hash to {component_id}"
             )
 
-        meta = ComponentMeta(
+        meta = ComponentTypeMeta(
             component_id=component_id,
             type_name=f"{cls.__module__}.{cls.__qualname__}",
         )
@@ -90,7 +90,7 @@ class ComponentRegistry:
         self._by_id[component_id] = cls
         return meta
 
-    def get_meta(self, cls: type) -> ComponentMeta | None:
+    def get_meta(self, cls: type) -> ComponentTypeMeta | None:
         """Get metadata for a registered component type.
 
         Args:

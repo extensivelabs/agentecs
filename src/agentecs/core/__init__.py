@@ -7,14 +7,16 @@ Architecture Note:
 """
 
 from agentecs.core.component import (
-    ComponentMeta,
+    ComponentRef,
     ComponentRegistry,
+    ComponentTypeMeta,
     Diffable,
     Interpolatable,
     Mergeable,
     NonMergeableHandling,
     NonSplittableHandling,
     Reducible,
+    Shared,
     Splittable,
     component,
     get_registry,
@@ -50,7 +52,7 @@ __all__ = [
     # Component
     "component",
     "get_registry",
-    "ComponentMeta",
+    "ComponentTypeMeta",
     "ComponentRegistry",
     "Mergeable",
     "Splittable",
@@ -61,6 +63,8 @@ __all__ = [
     "NonSplittableHandling",
     "merge_components",
     "reduce_components",
+    "Shared",
+    "ComponentRef",
     # System
     "system",
     "SystemDescriptor",
