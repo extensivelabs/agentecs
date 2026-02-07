@@ -57,7 +57,7 @@ def test_entity_handle_setitem(world):
     world.register_system(write_via_handle)
     world.tick()
 
-    pos = world.get(entity, Position)
+    pos = world.get_copy(entity, Position)
     assert pos is not None
     assert pos.x == 5.0
     assert pos.y == 10.0
@@ -75,8 +75,8 @@ def test_entity_handle_delitem(world):
     world.register_system(remove_via_handle)
     world.tick()
 
-    assert world.get(entity, Position) is not None
-    assert world.get(entity, Velocity) is None
+    assert world.get_copy(entity, Position) is not None
+    assert world.get_copy(entity, Velocity) is None
 
 
 def test_entity_handle_contains(world):

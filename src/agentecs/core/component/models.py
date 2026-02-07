@@ -10,6 +10,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Protocol, Self, TypeVar, runtime_checkable
+from uuid import UUID
 
 T = TypeVar("T")
 
@@ -104,8 +105,16 @@ class Interpolatable(Protocol):
 
 
 @dataclass(slots=True, frozen=True)
-class ComponentMeta:
+class ComponentTypeMeta:
     """Metadata for registered component types."""
 
     component_id: int
     type_name: str
+
+
+@dataclass(slots=True)
+class ComponentRef:
+    """Tracks a shared component."""
+
+    instance_id: UUID
+    component_type: type

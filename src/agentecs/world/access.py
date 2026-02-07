@@ -30,10 +30,12 @@ from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.core.types import Copy
 from agentecs.world.sync_runner import SyncRunner
 
 if TYPE_CHECKING:
     from agentecs.world.result import SystemResult
+    from agentecs.world.world import World
 
 T = TypeVar("T")
 
@@ -201,7 +203,7 @@ class ScopedAccess:
 
     def __init__(
         self,
-        world: Any,  # World instance (avoid circular import)
+        world: World,  # World instance (avoid circular import)
         descriptor: SystemDescriptor,
         buffer: SystemResult,
     ):
@@ -246,7 +248,7 @@ class ScopedAccess:
                 f"System '{self._descriptor.name}' cannot write {t.__name__}: not in writable types"
             )
 
-    def __getitem__(self, key: tuple[EntityId, type[T]]) -> T:
+    def __getitem__(self, key: tuple[EntityId, type[T]]) -> Copy[T]:
         """Get directly the component T for the entity in key.
 
         Example: world[entity, Position] -> Position
@@ -290,21 +292,13 @@ class ScopedAccess:
         """
         return self.entities()
 
-    def get(self, entity: EntityId, component_type: type[T]) -> T:
+    def get(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component copy (from buffer or storage).
 
         ALWAYS returns a copy to prevent accidental mutation of world state.
         Modifications must be written back explicitly via world[entity, Type] = component.
         """
-        self._check_readable(component_type)
-
-        if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
-            return cast(T, copy.deepcopy(self._buffer.updates[entity][component_type]))
-
-        if component := self._world._get_component(entity, component_type):
-            return cast(T, copy.deepcopy(component))
-        else:
-            raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
+        return cast(T, self._sync_runner.run(self.get_async(entity, component_type)))
 
     def has(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has a specific component type."""
@@ -317,7 +311,7 @@ class ScopedAccess:
         if entity in self._buffer.removes and component_type in self._buffer.removes[entity]:
             return False
 
-        return cast(bool, self._world._has_component(entity, component_type))
+        return self._world._has_component(entity, component_type)
 
     def _query_raw(
         self,
@@ -343,6 +337,8 @@ class ScopedAccess:
 
         async for entity, components in self._world._query_components_async(*component_types):
             should_skip = False
+            if entity in self._buffer.destroys:
+                continue
             for comp_type in component_types:
                 if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
                     should_skip = True
@@ -353,14 +349,18 @@ class ScopedAccess:
             result = []
             for comp_type, comp in zip(component_types, components, strict=False):
                 if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    result.append(self._buffer.updates[entity][comp_type])
+                    result.append(copy.deepcopy(self._buffer.updates[entity][comp_type]))
                 else:
-                    result.append(comp)
+                    result.append(copy.deepcopy(comp))
             yielded_entities.add(entity)
+            # Yield either from storage or updated from buffer
             yield entity, tuple(result)
 
+        # At this point we have yielded all entities that has components matching in storage.
+        # However, if we have added new components,
+        # then these might now match and need to be yielded also.
         for entity in list(self._buffer.updates.keys()) + list(self._buffer.inserts.keys()):
-            if entity in yielded_entities:
+            if entity in yielded_entities or entity in self._buffer.destroys:
                 continue
 
             has_all = True
@@ -386,7 +386,7 @@ class ScopedAccess:
                     has_all = False
                     break
 
-                result.append(comp)
+                result.append(copy.deepcopy(comp))
 
             if has_all:
                 yielded_entities.add(entity)
@@ -411,7 +411,7 @@ class ScopedAccess:
         async for entity, components in self._query_raw_async(*component_types):
             yield entity, components
 
-    async def get_async(self, entity: EntityId, component_type: type[T]) -> T:
+    async def get_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component asynchronously, checking buffer first (read own writes).
 
         Async variant for use in async systems. For distributed storage, this enables
@@ -432,12 +432,19 @@ class ScopedAccess:
         if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
             return cast(T, copy.deepcopy(self._buffer.updates[entity][component_type]))
 
+        if entity in self._buffer.inserts:
+            for comp in self._buffer.inserts[entity]:
+                if type(comp) is component_type:
+                    return copy.deepcopy(comp)
+
         if component := await self._world._get_component_async(entity, component_type):
-            return cast(T, copy.deepcopy(component))
+            return copy.deepcopy(component)
+        elif entity in self._buffer.destroys:
+            raise KeyError(f"Entity {entity} has been destroyed")
         else:
             raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
 
-    def singleton(self, component_type: type[T]) -> T:
+    def singleton(self, component_type: type[T]) -> Copy[T]:
         """Get singleton component from WORLD entity."""
         result = self.get(SystemEntity.WORLD, component_type)
         if result is None:
@@ -446,7 +453,7 @@ class ScopedAccess:
 
     def entities(self) -> Iterator[EntityId]:
         """Iterate all entities."""
-        return cast(Iterator[EntityId], self._world._all_entities())
+        return self._world._all_entities()
 
     def entity(self, entity_id: EntityId) -> EntityHandle:
         """Get handle for convenient single-entity operations."""
@@ -536,6 +543,29 @@ class ScopedAccess:
         """Split entity into two using Splittable components."""
         # TODO: Implement using component protocols
         raise NotImplementedError("Entity splitting not yet implemented")
+
+    def get_copy(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy. Alias for get() with explicit naming."""
+        return self.get(entity, component_type)
+
+    async def get_copy_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy asynchronously. Alias for get_async()."""
+        return await self.get_async(entity, component_type)
+
+    def query_copies(
+        self,
+        *component_types: type,
+    ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities returning component copies. Alias for query()."""
+        return self.query(*component_types)
+
+    async def query_copies_async(
+        self,
+        *component_types: type,
+    ) -> AsyncIterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities asynchronously returning copies. Alias for query_async()."""
+        async for item in self.query_async(*component_types):
+            yield item
 
 
 # TODO: Implement PureReadAccess (ScopedAccess without write methods)

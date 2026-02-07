@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, get_type_hints
+from typing import TYPE_CHECKING, Any, TypeVar, get_type_hints
 
 from agentecs.adapters.models import (
     Filter,
@@ -67,7 +67,7 @@ def _is_dataclass(cls: type) -> bool:
     return dataclasses.is_dataclass(cls) and isinstance(cls, type)
 
 
-def _serialize_to_metadata(data: Any, data_type: type[T]) -> dict[str, Any]:
+def _serialize_to_metadata[T](data: Any, data_type: type[T]) -> dict[str, Any]:
     """Serialize a Pydantic model or dataclass to ChromaDB metadata.
 
     ChromaDB metadata only supports str, int, float, bool values.
@@ -109,7 +109,7 @@ def _serialize_to_metadata(data: Any, data_type: type[T]) -> dict[str, Any]:
     return metadata
 
 
-def _deserialize_from_metadata(metadata: dict[str, Any], data_type: type[T]) -> T:
+def _deserialize_from_metadata[T](metadata: dict[str, Any], data_type: type[T]) -> T:
     """Deserialize ChromaDB metadata back to a Pydantic model or dataclass.
 
     Args:
@@ -211,7 +211,7 @@ def _build_chroma_where(filters: Filter | FilterGroup | None) -> dict[str, Any] 
     return {chroma_op: children}
 
 
-class ChromaAdapter(Generic[T]):
+class ChromaAdapter[T]:
     """ChromaDB implementation of VectorStore protocol.
 
     Stores typed data models (Pydantic or dataclass) with vector embeddings
