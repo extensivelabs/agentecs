@@ -29,7 +29,7 @@ from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducib
 T = TypeVar("T")
 
 
-def _stable_component_id(cls: type) -> int:
+def _stable_component_type_id(cls: type) -> int:
     """Generate deterministic ID from fully qualified class name.
 
     Uses SHA256 hash of the fully qualified name to ensure same IDs across
@@ -46,9 +46,9 @@ def _stable_component_id(cls: type) -> int:
 
 
 class ComponentRegistry:
-    """Process-local registry mapping component types to deterministic IDs.
+    """Process-local registry mapping component types to deterministic type IDs.
 
-    Maintains bidirectional mapping between component types and their IDs.
+    Maintains bidirectional mapping between component types and their type IDs.
     Deterministic IDs ensure same code produces same IDs across nodes.
 
     # TODO: Figure our distributed syncing of local registrys if needed.
@@ -57,13 +57,14 @@ class ComponentRegistry:
     def __init__(self) -> None:
         """Initialize empty component registry."""
         self._by_type: dict[type, ComponentTypeMeta] = {}
-        self._by_id: dict[int, type] = {}
+        self._by_type_id: dict[int, type] = {}
 
-    def register(self, cls: type) -> ComponentTypeMeta:
+    def register(self, cls: type, shared: bool = False) -> ComponentTypeMeta:
         """Register a component type and return its metadata.
 
         Args:
             cls: Component class to register.
+            shared: If true component is shared type, only one instance will be kept.
 
         Returns:
             Component metadata including ID and type name.
@@ -74,20 +75,21 @@ class ComponentRegistry:
         if cls in self._by_type:
             return self._by_type[cls]
 
-        component_id = _stable_component_id(cls)
+        component_type_id = _stable_component_type_id(cls)
 
-        if component_id in self._by_id:
-            existing = self._by_id[component_id]
+        if component_type_id in self._by_type_id:
+            existing = self._by_type_id[component_type_id]
             raise RuntimeError(
-                f"Component ID collision: {cls} and {existing} hash to {component_id}"
+                f"Component ID collision: {cls} and {existing} hash to {component_type_id}"
             )
 
         meta = ComponentTypeMeta(
-            component_id=component_id,
+            component_type_id=component_type_id,
             type_name=f"{cls.__module__}.{cls.__qualname__}",
+            shared=shared,
         )
         self._by_type[cls] = meta
-        self._by_id[component_id] = cls
+        self._by_type_id[component_type_id] = cls
         return meta
 
     def get_meta(self, cls: type) -> ComponentTypeMeta | None:
@@ -101,16 +103,16 @@ class ComponentRegistry:
         """
         return self._by_type.get(cls)
 
-    def get_type(self, component_id: int) -> type | None:
-        """Get component type by its ID.
+    def get_type(self, component_type_id: int) -> type | None:
+        """Get component type by its type ID.
 
         Args:
-            component_id: Component ID to look up.
+            component_type_id: Component type ID to look up.
 
         Returns:
             Component class if found, None otherwise.
         """
-        return self._by_id.get(component_id)
+        return self._by_type_id.get(component_type_id)
 
     def is_registered(self, cls: type) -> bool:
         """Check if a type is registered as a component.
@@ -152,11 +154,12 @@ def _is_pydantic(cls: type) -> bool:
     return False
 
 
-def component(cls: type) -> type:
+def component(cls: type, shared: bool = False) -> type:
     """Register a dataclass or Pydantic model as a component type.
 
     Args:
         cls: Dataclass or Pydantic model to register as component.
+        shared: If true component is shared type, only one instance will be kept.
 
     Returns:
         The decorated class with __component_meta__ attribute added.

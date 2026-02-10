@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from uuid import UUID
-
 from agentecs.core.component.models import ComponentRef
 
 
@@ -22,19 +20,19 @@ class _ComponentWrapper[T]:
 
 
 class Shared[T](_ComponentWrapper[T]):
-    """Wrapper for shared components, adding a UUID reference."""
+    """Wrapper for shared components, adding an instance ID reference."""
 
     __slots__ = ("_ref",)
 
     def __init__(self, component: T) -> None:
         super().__init__(component)
         self._ref: ComponentRef = ComponentRef(
-            instance_id=UUID(int=id(component)), component_type=type(component)
+            instance_id=id(component), component_type=type(component)
         )
 
     @property
-    def ref_id(self) -> UUID:
-        """Return the unique reference ID for this shared component."""
+    def ref_id(self) -> int:
+        """Return the unique instance ID for this shared component."""
         return self._ref.instance_id
 
 
