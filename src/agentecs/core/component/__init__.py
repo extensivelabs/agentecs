@@ -8,7 +8,8 @@ from agentecs.core.component.core import (
     reduce_components,
 )
 from agentecs.core.component.models import (
-    ComponentMeta,
+    ComponentRef,
+    ComponentTypeMeta,
     Diffable,
     Interpolatable,
     Mergeable,
@@ -17,10 +18,11 @@ from agentecs.core.component.models import (
     Reducible,
     Splittable,
 )
+from agentecs.core.component.wrapper import Shared
 
 __all__ = [
     # Models
-    "ComponentMeta",
+    "ComponentTypeMeta",
     "Mergeable",
     "Splittable",
     "Reducible",
@@ -28,10 +30,12 @@ __all__ = [
     "Interpolatable",
     "NonMergeableHandling",
     "NonSplittableHandling",
+    "ComponentRef",
     # Core
     "component",
     "get_registry",
     "ComponentRegistry",
     "merge_components",
     "reduce_components",
+    "Shared",
 ]

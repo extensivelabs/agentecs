@@ -87,7 +87,7 @@ async def test_parallel_execution_deterministic():
         world.register_system(add_ten)
         await world.tick_async()
 
-        results.append(world.get(entity, Counter).value)  # type: ignore
+        results.append(world.get_copy(entity, Counter).value)  # type: ignore
 
     # All runs should produce same result
     assert all(r == results[0] for r in results), f"Non-deterministic results: {results}"
@@ -118,7 +118,7 @@ async def test_sequential_scheduler_same_as_max_concurrent_1():
         world.register_system(increment)
         await world.tick_async()
 
-        assert world.get(entity, Counter).value == 1  # type: ignore
+        assert world.get_copy(entity, Counter).value == 1  # type: ignore
 
 
 # Merge strategy tests
@@ -152,7 +152,7 @@ async def test_last_writer_wins_merge():
     await world.tick_async()
 
     # Second writer wins (registered later)
-    assert world.get(entity, Counter).value == 200  # type: ignore
+    assert world.get_copy(entity, Counter).value == 200  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -183,7 +183,7 @@ async def test_mergeable_first_uses_protocol():
     await world.tick_async()
 
     # MergeableCounter.__merge__ sums values: 5 + 3 = 8
-    assert world.get(entity, MergeableCounter).value == 8  # type: ignore
+    assert world.get_copy(entity, MergeableCounter).value == 8  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -247,7 +247,7 @@ async def test_dev_mode_runs_in_isolation():
 
     # Dev system runs first (in its own group), normal sees its result
     # Dev: 0 -> 1, Normal: 1 -> 11
-    assert world.get(entity, Counter).value == 11  # type: ignore
+    assert world.get_copy(entity, Counter).value == 11  # type: ignore
 
 
 # Concurrency tests
@@ -368,7 +368,7 @@ async def test_retry_skip_on_exhausted():
 
     # Should not raise, should apply succeeds' result
     await world.tick_async()
-    assert world.get(entity, Counter).value == 1  # type: ignore
+    assert world.get_copy(entity, Counter).value == 1  # type: ignore
 
 
 # Error handling tests
@@ -438,7 +438,7 @@ async def test_custom_execution_group_builder():
     await world.tick_async()
 
     # With sequential groups, second sees first's result: 0 -> 1 -> 11
-    assert world.get(entity, Counter).value == 11  # type: ignore
+    assert world.get_copy(entity, Counter).value == 11  # type: ignore
 
 
 # Optional access declarations test
@@ -477,7 +477,7 @@ async def test_optional_access_declarations():
     await world.tick_async()
 
     # LastWriterWins: another_full_access (registered second) wins
-    assert world.get(entity, Counter).value == 10  # type: ignore
+    assert world.get_copy(entity, Counter).value == 10  # type: ignore
 
 
 # Multiple ticks test
@@ -502,4 +502,4 @@ async def test_multiple_ticks_accumulate():
     for _ in range(10):
         await world.tick_async()
 
-    assert world.get(entity, Counter).value == 10  # type: ignore
+    assert world.get_copy(entity, Counter).value == 10  # type: ignore

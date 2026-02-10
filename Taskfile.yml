@@ -40,7 +40,7 @@ tasks:
   install:
     desc: Install dependencies with uv
     cmds:
-      - '{{.UV}} pip install -e ".[dev,pydantic,docs]"'
+      - '{{.UV}} pip install -e ".[dev,pydantic,docs, retry]"'
     sources:
       - pyproject.toml
 

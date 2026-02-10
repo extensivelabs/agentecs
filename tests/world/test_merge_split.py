@@ -73,7 +73,7 @@ class TestMergeEntities:
 
         merged = world.merge_entities(e1, e2)
 
-        pos = world.get(merged, MergeablePosition)
+        pos = world.get_copy(merged, MergeablePosition)
         assert pos is not None
         assert pos.x == 5.0  # (0 + 10) / 2
         assert pos.y == 10.0  # (0 + 20) / 2
@@ -87,10 +87,10 @@ class TestMergeEntities:
         merged = world.merge_entities(e1, e2)
 
         # Original entities should not exist
-        assert world.get(e1, MergeablePosition) is None
-        assert world.get(e2, MergeablePosition) is None
+        assert world.get_copy(e1, MergeablePosition) is None
+        assert world.get_copy(e2, MergeablePosition) is None
         # Merged entity should exist
-        assert world.get(merged, MergeablePosition) is not None
+        assert world.get_copy(merged, MergeablePosition) is not None
 
     def test_merge_combines_different_components(self) -> None:
         """Components unique to one entity are included in merged."""
@@ -101,9 +101,9 @@ class TestMergeEntities:
         merged = world.merge_entities(e1, e2)
 
         # All components should be present
-        assert world.get(merged, MergeablePosition) is not None
-        assert world.get(merged, NonMergeableTag) is not None
-        assert world.get(merged, NonSplittableHealth) is not None
+        assert world.get_copy(merged, MergeablePosition) is not None
+        assert world.get_copy(merged, NonMergeableTag) is not None
+        assert world.get_copy(merged, NonSplittableHealth) is not None
 
     @pytest.mark.parametrize(
         ("handling", "expected_name"),
@@ -123,7 +123,7 @@ class TestMergeEntities:
 
         merged = world.merge_entities(e1, e2, on_non_mergeable=handling)
 
-        tag = world.get(merged, NonMergeableTag)
+        tag = world.get_copy(merged, NonMergeableTag)
         if expected_name is None:
             assert tag is None
         else:
@@ -161,8 +161,8 @@ class TestSplitEntity:
 
         left, right = world.split_entity(entity, ratio=0.7)
 
-        left_credits = world.get(left, SplittableCredits)
-        right_credits = world.get(right, SplittableCredits)
+        left_credits = world.get_copy(left, SplittableCredits)
+        right_credits = world.get_copy(right, SplittableCredits)
         assert left_credits is not None
         assert right_credits is not None
         assert left_credits.amount == pytest.approx(70.0)
@@ -176,10 +176,10 @@ class TestSplitEntity:
         left, right = world.split_entity(entity)
 
         # Original should not exist
-        assert world.get(entity, SplittableCredits) is None
+        assert world.get_copy(entity, SplittableCredits) is None
         # Split entities should exist
-        assert world.get(left, SplittableCredits) is not None
-        assert world.get(right, SplittableCredits) is not None
+        assert world.get_copy(left, SplittableCredits) is not None
+        assert world.get_copy(right, SplittableCredits) is not None
 
     @pytest.mark.parametrize(
         ("handling", "left_has", "right_has"),
@@ -198,8 +198,8 @@ class TestSplitEntity:
 
         left, right = world.split_entity(entity, on_non_splittable=handling)
 
-        left_hp = world.get(left, NonSplittableHealth)
-        right_hp = world.get(right, NonSplittableHealth)
+        left_hp = world.get_copy(left, NonSplittableHealth)
+        right_hp = world.get_copy(right, NonSplittableHealth)
 
         if left_has:
             assert left_hp is not None and left_hp.hp == 100
@@ -246,8 +246,8 @@ class TestSplitEntity:
 
         left, right = world.split_entity(entity)
 
-        left_credits = world.get(left, SplittableCredits)
-        right_credits = world.get(right, SplittableCredits)
+        left_credits = world.get_copy(left, SplittableCredits)
+        right_credits = world.get_copy(right, SplittableCredits)
         assert left_credits is not None and left_credits.amount == 50.0
         assert right_credits is not None and right_credits.amount == 50.0
 
@@ -263,7 +263,7 @@ class TestMergeSplitRoundtrip:
         left, right = world.split_entity(entity)
         merged = world.merge_entities(left, right)
 
-        credits = world.get(merged, SplittableCredits)
+        credits = world.get_copy(merged, SplittableCredits)
         assert credits is not None
         assert credits.amount == 100.0  # 50 + 50
 
@@ -279,7 +279,7 @@ class TestMergeSplitRoundtrip:
 
         # Each should have 25
         for e in [l2, l3, r2, r3]:
-            c = world.get(e, SplittableCredits)
+            c = world.get_copy(e, SplittableCredits)
             assert c is not None and c.amount == 25.0
 
         # Merge back
@@ -287,6 +287,6 @@ class TestMergeSplitRoundtrip:
         m2 = world.merge_entities(r2, r3)
         final = world.merge_entities(m1, m2)
 
-        credits = world.get(final, SplittableCredits)
+        credits = world.get_copy(final, SplittableCredits)
         assert credits is not None
         assert credits.amount == 100.0

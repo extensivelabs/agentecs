@@ -68,7 +68,7 @@ def main() -> None:
     for tick in range(1, 4):
         print(f"--- Tick {tick} ---")
         world.tick()
-        agents = list(world.query(TaskList))
+        agents = list(world.query_copies(TaskList))
         _, tl = agents[0]
         done = sum(1 for t in tl.tasks if t.status == TaskStatus.COMPLETED)
         print(f"    ({len(agents)} agents, {done}/4 done)")

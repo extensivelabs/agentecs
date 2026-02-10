@@ -7,14 +7,16 @@ Architecture Note:
 """
 
 from agentecs.core.component import (
-    ComponentMeta,
+    ComponentRef,
     ComponentRegistry,
+    ComponentTypeMeta,
     Diffable,
     Interpolatable,
     Mergeable,
     NonMergeableHandling,
     NonSplittableHandling,
     Reducible,
+    Shared,
     Splittable,
     component,
     get_registry,
@@ -39,15 +41,18 @@ from agentecs.core.system import (
     check_write_access,
     system,
 )
+from agentecs.core.types import Copy
 
 __all__ = [
+    # Types
+    "Copy",
     # Identity
     "EntityId",
     "SystemEntity",
     # Component
     "component",
     "get_registry",
-    "ComponentMeta",
+    "ComponentTypeMeta",
     "ComponentRegistry",
     "Mergeable",
     "Splittable",
@@ -58,6 +63,8 @@ __all__ = [
     "NonSplittableHandling",
     "merge_components",
     "reduce_components",
+    "Shared",
+    "ComponentRef",
     # System
     "system",
     "SystemDescriptor",

@@ -27,7 +27,7 @@ def test_spawn_and_get():
     world = World()
     entity = world.spawn(TestPosition(1.0, 2.0))
 
-    pos = world.get(entity, TestPosition)
+    pos = world.get_copy(entity, TestPosition)
     assert pos is not None
     assert pos.x == 1.0
     assert pos.y == 2.0

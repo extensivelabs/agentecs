@@ -31,7 +31,7 @@ def test_same_class_produces_same_id(registry):
     meta2 = registry.register(TestComp)
     meta3 = registry.register(TestComp)
 
-    assert meta1.component_id == meta2.component_id == meta3.component_id
+    assert meta1.component_type_id == meta2.component_type_id == meta3.component_type_id
 
 
 def test_id_stable_across_registry_instances():
@@ -51,7 +51,7 @@ def test_id_stable_across_registry_instances():
     meta1 = registry1.register(StableComp)
     meta2 = registry2.register(StableComp)
 
-    assert meta1.component_id == meta2.component_id
+    assert meta1.component_type_id == meta2.component_type_id
 
 
 def test_different_classes_get_different_ids(registry):
@@ -70,7 +70,7 @@ def test_different_classes_get_different_ids(registry):
     meta_a = registry.register(CompA)
     meta_b = registry.register(CompB)
 
-    assert meta_a.component_id != meta_b.component_id
+    assert meta_a.component_type_id != meta_b.component_type_id
 
 
 def test_collision_detection(registry):
@@ -93,9 +93,9 @@ def test_collision_detection(registry):
     registry.register(CompA)
 
     # Mock hash collision
-    with patch("agentecs.core.component.core._stable_component_id") as mock_hash:
+    with patch("agentecs.core.component.core._stable_component_type_id") as mock_hash:
         # Make CompB hash to same ID as CompA
-        mock_hash.return_value = registry.get_meta(CompA).component_id  # type: ignore
+        mock_hash.return_value = registry.get_meta(CompA).component_type_id  # type: ignore
 
         with pytest.raises(RuntimeError, match="Component ID collision"):
             registry.register(CompB)
