@@ -13,7 +13,6 @@ tasks:
     desc: Initialize development environment (run this first)
     cmds:
       - task: _check-tools
-      - task: _create-venv
       - task: install
       - task: _install-hooks
       - echo "✓ Development environment ready!"
@@ -29,20 +28,13 @@ tasks:
         command -v git >/dev/null 2>&1 || { echo "Error: git not found"; exit 1; }
     silent: true
 
-  _create-venv:
-    internal: true
-    desc: Create virtual environment with uv
-    cmds:
-      - '{{.UV}} venv --python {{.PYTHON}}'
-    status:
-      - test -d .venv
-
   install:
     desc: Install dependencies with uv
     cmds:
-      - '{{.UV}} pip install -e ".[dev,pydantic,docs, retry]"'
+      - '{{.UV}} sync'
     sources:
       - pyproject.toml
+      - uv.lock
 
   _install-hooks:
     internal: true

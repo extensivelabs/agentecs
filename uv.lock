@@ -15,7 +15,6 @@ source = { editable = "." }
 [package.optional-dependencies]
 all = [
     { name = "anthropic" },
-    { name = "chromadb" },
     { name = "instructor" },
     { name = "ipykernel" },
     { name = "ipywidgets" },
@@ -32,31 +31,6 @@ chroma = [
 config = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
-]
-dev = [
-    { name = "anthropic" },
-    { name = "chromadb" },
-    { name = "debugpy" },
-    { name = "hypothesis" },
-    { name = "instructor" },
-    { name = "ipykernel" },
-    { name = "ipywidgets" },
-    { name = "jupyter" },
-    { name = "mkdocs" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
-    { name = "mypy" },
-    { name = "openai" },
-    { name = "pre-commit" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-watch" },
-    { name = "pytest-xdist" },
-    { name = "ruff" },
-    { name = "tenacity" },
 ]
 docs = [
     { name = "mkdocs" },
@@ -83,17 +57,24 @@ retry = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "pydantic-settings" },
+    { name = "agentecs", extra = ["all", "docs"] },
+    { name = "debugpy" },
+    { name = "hypothesis" },
+    { name = "mypy" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-watch" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "agentecs", extras = ["all", "docs"], marker = "extra == 'dev'" },
-    { name = "agentecs", extras = ["config", "chroma", "llm", "retry", "notebook"], marker = "extra == 'all'" },
+    { name = "agentecs", extras = ["config", "llm", "retry", "notebook"], marker = "extra == 'all'" },
     { name = "anthropic", marker = "extra == 'llm'", specifier = ">=0.75.0" },
     { name = "chromadb", marker = "extra == 'chroma'", specifier = ">=0.4" },
-    { name = "debugpy", marker = "extra == 'dev'" },
-    { name = "hypothesis", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "instructor", marker = "extra == 'llm'", specifier = ">=1.0" },
     { name = "ipykernel", marker = "extra == 'notebook'", specifier = ">=6.0" },
     { name = "ipywidgets", marker = "extra == 'notebook'", specifier = ">=8.0" },
@@ -101,26 +82,30 @@ requires-dist = [
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.5" },
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'", specifier = ">=0.24" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.19" },
     { name = "openai", marker = "extra == 'llm'", specifier = ">=1.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.6" },
     { name = "pydantic", marker = "extra == 'chroma'", specifier = ">=2.0" },
     { name = "pydantic", marker = "extra == 'config'", specifier = ">=2.0" },
     { name = "pydantic", marker = "extra == 'llm'", specifier = ">=2.0" },
     { name = "pydantic", marker = "extra == 'pydantic'", specifier = ">=2.0" },
     { name = "pydantic-settings", marker = "extra == 'config'", specifier = ">=2.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
-    { name = "pytest-watch", marker = "extra == 'dev'", specifier = ">=4.2" },
-    { name = "pytest-xdist", marker = "extra == 'dev'", specifier = ">=3.5" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
     { name = "tenacity", marker = "extra == 'retry'", specifier = ">=8.0" },
 ]
-provides-extras = ["dev", "pydantic", "config", "chroma", "llm", "retry", "notebook", "all", "docs"]
+provides-extras = ["pydantic", "config", "chroma", "llm", "retry", "notebook", "all", "docs"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pydantic-settings", specifier = ">=2.12.0" }]
+dev = [
+    { name = "agentecs", extras = ["all", "docs"] },
+    { name = "debugpy" },
+    { name = "hypothesis", specifier = ">=6.0" },
+    { name = "mypy", specifier = ">=1.19" },
+    { name = "pre-commit", specifier = ">=3.6" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23" },
+    { name = "pytest-cov", specifier = ">=4.0" },
+    { name = "pytest-watch", specifier = ">=4.2" },
+    { name = "pytest-xdist", specifier = ">=3.5" },
+    { name = "ruff", specifier = ">=0.4" },
+]
 
 [[package]]
 name = "aiohappyeyeballs"
