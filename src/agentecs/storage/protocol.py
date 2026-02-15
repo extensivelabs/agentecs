@@ -53,6 +53,10 @@ class Storage(Protocol):
         """Remove component from entity. Returns True if existed."""
         ...
 
+    def remove_component_from_all(self, component_type: type) -> None:
+        """Remove a component type from all entities."""
+        ...
+
     def has_component(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has component."""
         ...
