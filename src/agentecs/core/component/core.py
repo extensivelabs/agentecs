@@ -196,7 +196,7 @@ def component(cls: type | None = None, *, shared: bool = False) -> type | Callab
                 f"Did you forget @dataclass decorator?"
             )
         meta = _registry.register(c, shared=shared)
-        c.__setattr__("__component_meta__", meta)
+        c.__component_meta__ = meta  # type: ignore
         return c
 
     if cls is None:
