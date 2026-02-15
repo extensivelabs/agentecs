@@ -25,9 +25,10 @@ from __future__ import annotations
 
 import copy
 import warnings
-from collections.abc import AsyncIterator, Iterable, Iterator
+from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
+from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
 from agentecs.core.types import Copy
@@ -214,38 +215,44 @@ class ScopedAccess:
         self._writable = descriptor.writable_types()
         self._sync_runner: SyncRunner = SyncRunner.get()
 
-    def _check_readable(self, *types: type) -> None:
+    def _check_readable(self, *types: type | Any) -> None:
         if self._descriptor.is_dev_mode():
             return
         for t in types:
-            if self._readable and t not in self._readable:
+            component_type = get_type(t) if not isinstance(t, type) else t
+            if self._readable and component_type not in self._readable:
                 raise AccessViolationError(
-                    f"System '{self._descriptor.name}' cannot read {t.__name__}: "
+                    f"System '{self._descriptor.name}' cannot read {component_type.__name__}: "
                     f"not in readable types"
                 )
 
-    def _check_writable(self, t: type) -> None:
+    def _check_writable(self, component: type | Any) -> None:
         from ..core.system import SystemMode
 
         if self._descriptor.is_dev_mode():
             return
 
+        component_type: type = get_type(component) if not isinstance(component, type) else component
+
         # READONLY mode cannot write at all
         if self._descriptor.mode == SystemMode.READONLY:
             raise AccessViolationError(
-                f"System '{self._descriptor.name}' is READONLY and cannot write {t.__name__}"
+                f"System '{self._descriptor.name}' is READONLY"
+                f"and cannot write {component_type.__name__}"
             )
 
         if not self._writable:  # Empty = dev mode
             return
-        if t not in self._writable:
-            if t in self._readable:
+        if component_type not in self._writable:
+            if component_type in self._readable:
                 raise AccessViolationError(
-                    f"System '{self._descriptor.name}' cannot write {t.__name__}: "
+                    f"System '{self._descriptor.name}' cannot"
+                    f"write {component_type.__name__}: "
                     f"declared as read-only"
                 )
             raise AccessViolationError(
-                f"System '{self._descriptor.name}' cannot write {t.__name__}: not in writable types"
+                f"System '{self._descriptor.name}': "
+                f"{component_type.__name__}: not in writable types"
             )
 
     def __getitem__(self, key: tuple[EntityId, type[T]]) -> Copy[T]:
@@ -434,8 +441,8 @@ class ScopedAccess:
 
         if entity in self._buffer.inserts:
             for comp in self._buffer.inserts[entity]:
-                if type(comp) is component_type:
-                    return copy.deepcopy(comp)
+                if get_type(comp) is component_type:
+                    return cast(T, copy.deepcopy(comp))
 
         if component := await self._world._get_component_async(entity, component_type):
             return copy.deepcopy(component)
@@ -461,8 +468,8 @@ class ScopedAccess:
 
     def update(self, entity: EntityId, component: Any) -> None:
         """Update/set component on entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        comp_type = get_type(component)
+        self._check_writable(component)
 
         if entity not in self._buffer.updates:
             self._buffer.updates[entity] = {}
@@ -470,8 +477,8 @@ class ScopedAccess:
 
     def update_singleton(self, component: Any) -> None:
         """Update/set singleton component on WORLD entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        comp_type = get_type(component)
+        self._check_writable(component)
 
         if SystemEntity.WORLD not in self._buffer.updates:
             self._buffer.updates[SystemEntity.WORLD] = {}
@@ -479,8 +486,7 @@ class ScopedAccess:
 
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        self._check_writable(component)
 
         if entity not in self._buffer.inserts:
             self._buffer.inserts[entity] = []
@@ -498,8 +504,8 @@ class ScopedAccess:
         """Spawn new entity with components. Returns provisional ID."""
         seen_types: set[type] = set()
         for comp in components:
-            comp_type = type(comp)
-            self._check_writable(comp_type)
+            comp_type = get_type(comp)
+            self._check_writable(comp)
             if comp_type in seen_types:
                 warnings.warn(
                     f"spawn() received multiple components of type {comp_type.__name__}. "
@@ -515,16 +521,6 @@ class ScopedAccess:
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
         self._buffer.destroys.append(entity)
-
-    def insert_shared(self, entities: Iterable[EntityId], component: Any) -> None:
-        """Multiple entities share same component instance.
-
-        Gotcha: Modifications affect all sharing entities.
-        """
-        comp_type = type(component)
-        self._check_writable(comp_type)
-        # TODO: Implement via SharedComponentRef in storage
-        raise NotImplementedError("Shared components not yet implemented")
 
     def merge_entities(
         self,

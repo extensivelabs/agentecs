@@ -17,7 +17,7 @@ T = TypeVar("T")
 # Merge strategies
 
 
-def merge_using_protocol(comp1: T, comp2: T) -> T:
+def merge_using_protocol[T](comp1: T, comp2: T) -> T:
     """Merge two components using the Mergeable protocol.
 
     Args:
@@ -35,7 +35,7 @@ def merge_using_protocol(comp1: T, comp2: T) -> T:
     return comp1.__merge__(comp2)
 
 
-def merge_take_first(comp1: T, comp2: T) -> T:
+def merge_take_first[T](comp1: T, comp2: T) -> T:
     """Take the first component, discard the second.
 
     Args:
@@ -48,7 +48,7 @@ def merge_take_first(comp1: T, comp2: T) -> T:
     return comp1
 
 
-def merge_take_second(comp1: T, comp2: T) -> T:
+def merge_take_second[T](comp1: T, comp2: T) -> T:
     """Take the second component, discard the first.
 
     Args:
@@ -61,7 +61,7 @@ def merge_take_second(comp1: T, comp2: T) -> T:
     return comp2
 
 
-def merge_skip(comp1: T, comp2: T) -> None:
+def merge_skip[T](comp1: T, comp2: T) -> None:
     """Skip both components (exclude from merged entity).
 
     Args:
@@ -74,7 +74,7 @@ def merge_skip(comp1: T, comp2: T) -> None:
     return None
 
 
-def merge_error(comp1: T, comp2: T) -> T:
+def merge_error[T](comp1: T, comp2: T) -> T:
     """Raise an error for non-mergeable components.
 
     Args:

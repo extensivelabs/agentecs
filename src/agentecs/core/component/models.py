@@ -109,7 +109,7 @@ class ComponentTypeMeta:
 
     component_type_id: int
     type_name: str
-    shared: bool
+    shared: bool = False
 
 
 @dataclass(slots=True)

@@ -22,7 +22,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from dataclasses import is_dataclass
-from typing import TypeVar
+from typing import TypeVar, overload
 
 from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducible
 
@@ -154,15 +154,28 @@ def _is_pydantic(cls: type) -> bool:
     return False
 
 
-def component(cls: type, shared: bool = False) -> type:
+@overload
+def component(cls: type) -> type: ...
+
+
+@overload
+def component(cls: None = None, *, shared: bool = False) -> Callable[[type], type]: ...
+
+
+def component(cls: type | None = None, *, shared: bool = False) -> type | Callable[[type], type]:
     """Register a dataclass or Pydantic model as a component type.
 
+    Supports three forms:
+        @component                    # bare decorator
+        @component()                  # parenthesized, no args
+        @component(shared=True)       # factory with args
+
     Args:
-        cls: Dataclass or Pydantic model to register as component.
-        shared: If true component is shared type, only one instance will be kept.
+        cls: The class to register, or None if called with arguments.
+        shared: If True, component is shared type (one instance kept).
 
     Returns:
-        The decorated class with __component_meta__ attribute added.
+        Decorated class or decorator function.
 
     Raises:
         TypeError: If class is neither a dataclass nor Pydantic model.
@@ -175,18 +188,26 @@ def component(cls: type, shared: bool = False) -> type:
         ... class MyComponent:
         ...     value: int
     """
-    if not (is_dataclass(cls) or _is_pydantic(cls)):
-        raise TypeError(
-            f"Component {cls.__name__} must be a dataclass or Pydantic model. "
-            f"Did you forget @dataclass decorator?"
-        )
 
-    meta = _registry.register(cls)
-    cls.__component_meta__ = meta  # type: ignore
-    return cls
+    def decorator(c: type) -> type:
+        if not (is_dataclass(c) or _is_pydantic(c)):
+            raise TypeError(
+                f"Component {c.__name__} must be a dataclass or Pydantic model. "
+                f"Did you forget @dataclass decorator?"
+            )
+        meta = _registry.register(c, shared=shared)
+        c.__setattr__("__component_meta__", meta)
+        return c
+
+    if cls is None:
+        # Called with args: @component() or @component(shared=True)
+        return decorator
+    else:
+        # Called bare: @component
+        return decorator(cls)
 
 
-def merge_components(a: T, b: T, strategy: Callable[[T, T], T] | None = None) -> T:
+def merge_components[T](a: T, b: T, strategy: Callable[[T, T], T] | None = None) -> T:
     """Merge two components using custom strategy or component's __merge__ method.
 
     Args:
@@ -209,7 +230,7 @@ def merge_components(a: T, b: T, strategy: Callable[[T, T], T] | None = None) ->
     raise TypeError(f"{type(a).__name__} is not Mergeable and no strategy provided")
 
 
-def reduce_components(items: list[T], strategy: Callable[[list[T]], T] | None = None) -> T:
+def reduce_components[T](items: list[T], strategy: Callable[[list[T]], T] | None = None) -> T:
     """Reduce N components to one using strategy, __reduce_many__, or sequential merge.
 
     Tries in order:

@@ -31,6 +31,7 @@ from agentecs.core.component.models import (
     NonSplittableHandling,
     Splittable,
 )
+from agentecs.core.component.wrapper import ComponentWrapper
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
 from agentecs.core.types import Copy
@@ -79,7 +80,7 @@ class World:
         entity = self._storage.create_entity()
         seen_types: set[type] = set()
         for comp in components:
-            comp_type = type(comp)
+            comp_type = comp.component_type if isinstance(comp, ComponentWrapper) else type(comp)
             if comp_type in seen_types:
                 warnings.warn(
                     f"spawn() received multiple components of type {comp_type.__name__}. "
