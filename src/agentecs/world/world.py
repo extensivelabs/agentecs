@@ -20,7 +20,6 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-import copy
 import warnings
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -31,7 +30,7 @@ from agentecs.core.component.models import (
     NonSplittableHandling,
     Splittable,
 )
-from agentecs.core.component.wrapper import ComponentWrapper
+from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
 from agentecs.core.types import Copy
@@ -80,7 +79,7 @@ class World:
         entity = self._storage.create_entity()
         seen_types: set[type] = set()
         for comp in components:
-            comp_type = comp.component_type if isinstance(comp, ComponentWrapper) else type(comp)
+            comp_type = get_type(comp)
             if comp_type in seen_types:
                 warnings.warn(
                     f"spawn() received multiple components of type {comp_type.__name__}. "
@@ -103,8 +102,8 @@ class World:
         Returns a deep copy to prevent accidental mutation of world state.
         Modifications must be written back via world.set() or world[entity, Type] = component.
         """
-        component = self._storage.get_component(entity, component_type)
-        return copy.deepcopy(component) if component is not None else None
+        component = self._storage.get_component(entity, component_type, copy=True)
+        return component
 
     def set(self, entity: EntityId, component: Any) -> None:
         """Set component. For use outside systems."""
@@ -129,10 +128,8 @@ class World:
             ...     # Process entities with both Position and Velocity
             ...     pass
         """
-        for entity, components in self._storage.query(*component_types):
-            # Return copies to prevent accidental mutation
-            copied_components = tuple(copy.deepcopy(c) for c in components)
-            yield (entity, *copied_components)
+        for entity, components in self._storage.query(*component_types, copy=True):
+            yield (entity, *components)
 
     def merge_entities(
         self,
