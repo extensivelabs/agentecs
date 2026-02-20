@@ -183,7 +183,10 @@ class LocalStorage:
                 self._gc_shared(existing_id)
         else:
             if isinstance(component, Shared):
+                if self.has_component(entity, get_type(component)):
+                    self.remove_component(entity, get_type(component))
                 _set_shared(component, None)
+
             # TODO: What if shard via decorator? elif needed here?
             else:
                 self._components[entity][get_type(component)] = component
