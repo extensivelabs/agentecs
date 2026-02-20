@@ -247,7 +247,7 @@ class ScopedAccess:
             if component_type in self._readable:
                 raise AccessViolationError(
                     f"System '{self._descriptor.name}' cannot"
-                    f"write {component_type.__name__}: "
+                    f" write {component_type.__name__}: "
                     f"declared as read-only"
                 )
             raise AccessViolationError(
