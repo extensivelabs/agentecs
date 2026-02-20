@@ -7,9 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Generic, TypeVar
-
-T = TypeVar("T")
+from typing import Any
 
 
 class SearchMode(Enum):
@@ -21,7 +19,7 @@ class SearchMode(Enum):
 
 
 @dataclass(slots=True)
-class SearchResult(Generic[T]):
+class SearchResult[T]:
     """Result from a vector store search.
 
     Attributes:
@@ -38,7 +36,7 @@ class SearchResult(Generic[T]):
 
 
 @dataclass(slots=True)
-class VectorStoreItem(Generic[T]):
+class VectorStoreItem[T]:
     """Item to add to vector store.
 
     Attributes:

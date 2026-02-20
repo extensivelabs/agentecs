@@ -20,7 +20,6 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-import copy
 import warnings
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -31,8 +30,10 @@ from agentecs.core.component.models import (
     NonSplittableHandling,
     Splittable,
 )
+from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.core.types import Copy
 from agentecs.storage.local import LocalStorage
 from agentecs.storage.protocol import Storage
 from agentecs.world.access import ScopedAccess
@@ -78,7 +79,7 @@ class World:
         entity = self._storage.create_entity()
         seen_types: set[type] = set()
         for comp in components:
-            comp_type = type(comp)
+            comp_type = get_type(comp)
             if comp_type in seen_types:
                 warnings.warn(
                     f"spawn() received multiple components of type {comp_type.__name__}. "
@@ -93,28 +94,30 @@ class World:
         """Destroy entity. For use outside systems."""
         self._storage.destroy_entity(entity)
 
-    def get(self, entity: EntityId, component_type: type[ComponentT]) -> ComponentT | None:
+    def get_copy(
+        self, entity: EntityId, component_type: type[ComponentT]
+    ) -> Copy[ComponentT] | None:
         """Get component copy. For use outside systems.
 
         Returns a deep copy to prevent accidental mutation of world state.
         Modifications must be written back via world.set() or world[entity, Type] = component.
         """
-        component = self._storage.get_component(entity, component_type)
-        return copy.deepcopy(component) if component is not None else None
+        component = self._storage.get_component(entity, component_type, copy=True)
+        return component
 
     def set(self, entity: EntityId, component: Any) -> None:
         """Set component. For use outside systems."""
         self._storage.set_component(entity, component)
 
-    def singleton(self, component_type: type[ComponentT]) -> ComponentT | None:
+    def singleton_copy(self, component_type: type[ComponentT]) -> Copy[ComponentT] | None:
         """Get singleton component from WORLD entity."""
-        return self.get(SystemEntity.WORLD, component_type)
+        return self.get_copy(SystemEntity.WORLD, component_type)
 
     def set_singleton(self, component: Any) -> None:
         """Set singleton component on WORLD entity."""
         self.set(SystemEntity.WORLD, component)
 
-    def query(self, *component_types: type) -> Iterator[tuple[EntityId, ...]]:
+    def query_copies(self, *component_types: type) -> Iterator[tuple[EntityId, ...]]:
         """Query entities with specified component types. For use outside systems.
 
         Returns iterator of tuples: (entity, component1, component2, ...)
@@ -125,10 +128,8 @@ class World:
             ...     # Process entities with both Position and Velocity
             ...     pass
         """
-        for entity, components in self._storage.query(*component_types):
-            # Return copies to prevent accidental mutation
-            copied_components = tuple(copy.deepcopy(c) for c in components)
-            yield (entity, *copied_components)
+        for entity, components in self._storage.query(*component_types, copy=True):
+            yield (entity, *components)
 
     def merge_entities(
         self,
@@ -301,7 +302,7 @@ class World:
     async def _get_component_async(
         self, entity: EntityId, component_type: type[ComponentT]
     ) -> ComponentT | None:
-        return await self._storage.get_component_async(entity, component_type)
+        return await self._storage.get_component_async(entity, component_type, copy=True)
 
     async def _query_components_async(
         self,

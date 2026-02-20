@@ -39,7 +39,9 @@ class Storage(Protocol):
         """Iterate all living entities."""
         ...
 
-    def get_component(self, entity: EntityId, component_type: type[T]) -> T | None:
+    def get_component(
+        self, entity: EntityId, component_type: type[T], copy: bool = True
+    ) -> T | None:
         """Get component from entity."""
         ...
 
@@ -49,6 +51,10 @@ class Storage(Protocol):
 
     def remove_component(self, entity: EntityId, component_type: type) -> bool:
         """Remove component from entity. Returns True if existed."""
+        ...
+
+    def remove_component_from_all(self, component_type: type) -> None:
+        """Remove a component type from all entities."""
         ...
 
     def has_component(self, entity: EntityId, component_type: type) -> bool:
@@ -62,11 +68,14 @@ class Storage(Protocol):
     def query(
         self,
         *component_types: type,
+        copy: bool = True,
     ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
         """Find entities with all specified components."""
         ...
 
-    def query_single(self, component_type: type[T]) -> Iterator[tuple[EntityId, T]]:
+    def query_single(
+        self, component_type: type[T], copy: bool = True
+    ) -> Iterator[tuple[EntityId, T]]:
         """Optimized single-component query."""
         ...
 
@@ -90,13 +99,16 @@ class Storage(Protocol):
 
     # Async variants for distributed/remote storage backends
 
-    async def get_component_async(self, entity: EntityId, component_type: type[T]) -> T | None:
+    async def get_component_async(
+        self, entity: EntityId, component_type: type[T], copy: bool = True
+    ) -> T | None:
         """Get component from entity (async variant for remote storage)."""
         ...
 
     def query_async(
         self,
         *component_types: type,
+        copy: bool = True,
     ) -> AsyncIterator[tuple[EntityId, tuple[Any, ...]]] | Any:
         """Find entities with all specified components (async variant).
 

@@ -299,6 +299,31 @@ def decay_budget(world: ScopedAccess) -> None:
 !!! warning "Components are Copies"
     All reads return deep copies. Mutations won't persist unless you write back via `world[entity, Type] = value`.
 
+## Copy Semantics
+
+When you read a component, you get a **copy**:
+
+```python
+pos = world[entity, Position]  # Returns Copy[Position]
+pos.x = 100  # Modifies the copy, NOT world state
+```
+
+To persist changes, explicitly write back:
+
+```python
+pos = world[entity, Position]
+pos.x = 100
+world[entity, Position] = pos  # NOW world state is updated
+```
+
+This "copy semantics" pattern:
+
+- Prevents accidental mutation of world state
+- Enables snapshot isolation (systems see consistent state)
+- Works with any storage backend (local, remote, serialized)
+
+The `Copy[T]` type in return signatures signals this behavior.
+
 **Async Systems:**
 
 For I/O-bound operations (LLM calls, database queries):

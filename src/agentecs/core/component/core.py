@@ -22,14 +22,12 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from dataclasses import is_dataclass
-from typing import TypeVar
+from typing import overload
 
-from agentecs.core.component.models import ComponentMeta, Mergeable, Reducible
-
-T = TypeVar("T")
+from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducible
 
 
-def _stable_component_id(cls: type) -> int:
+def _stable_component_type_id(cls: type) -> int:
     """Generate deterministic ID from fully qualified class name.
 
     Uses SHA256 hash of the fully qualified name to ensure same IDs across
@@ -46,9 +44,9 @@ def _stable_component_id(cls: type) -> int:
 
 
 class ComponentRegistry:
-    """Process-local registry mapping component types to deterministic IDs.
+    """Process-local registry mapping component types to deterministic type IDs.
 
-    Maintains bidirectional mapping between component types and their IDs.
+    Maintains bidirectional mapping between component types and their type IDs.
     Deterministic IDs ensure same code produces same IDs across nodes.
 
     # TODO: Figure our distributed syncing of local registrys if needed.
@@ -56,14 +54,15 @@ class ComponentRegistry:
 
     def __init__(self) -> None:
         """Initialize empty component registry."""
-        self._by_type: dict[type, ComponentMeta] = {}
-        self._by_id: dict[int, type] = {}
+        self._by_type: dict[type, ComponentTypeMeta] = {}
+        self._by_type_id: dict[int, type] = {}
 
-    def register(self, cls: type) -> ComponentMeta:
+    def register(self, cls: type, shared: bool = False) -> ComponentTypeMeta:
         """Register a component type and return its metadata.
 
         Args:
             cls: Component class to register.
+            shared: If true component is shared type, only one instance will be kept.
 
         Returns:
             Component metadata including ID and type name.
@@ -74,23 +73,24 @@ class ComponentRegistry:
         if cls in self._by_type:
             return self._by_type[cls]
 
-        component_id = _stable_component_id(cls)
+        component_type_id = _stable_component_type_id(cls)
 
-        if component_id in self._by_id:
-            existing = self._by_id[component_id]
+        if component_type_id in self._by_type_id:
+            existing = self._by_type_id[component_type_id]
             raise RuntimeError(
-                f"Component ID collision: {cls} and {existing} hash to {component_id}"
+                f"Component ID collision: {cls} and {existing} hash to {component_type_id}"
             )
 
-        meta = ComponentMeta(
-            component_id=component_id,
+        meta = ComponentTypeMeta(
+            component_type_id=component_type_id,
             type_name=f"{cls.__module__}.{cls.__qualname__}",
+            shared=shared,
         )
         self._by_type[cls] = meta
-        self._by_id[component_id] = cls
+        self._by_type_id[component_type_id] = cls
         return meta
 
-    def get_meta(self, cls: type) -> ComponentMeta | None:
+    def get_meta(self, cls: type) -> ComponentTypeMeta | None:
         """Get metadata for a registered component type.
 
         Args:
@@ -101,16 +101,16 @@ class ComponentRegistry:
         """
         return self._by_type.get(cls)
 
-    def get_type(self, component_id: int) -> type | None:
-        """Get component type by its ID.
+    def get_type(self, component_type_id: int) -> type | None:
+        """Get component type by its type ID.
 
         Args:
-            component_id: Component ID to look up.
+            component_type_id: Component type ID to look up.
 
         Returns:
             Component class if found, None otherwise.
         """
-        return self._by_id.get(component_id)
+        return self._by_type_id.get(component_type_id)
 
     def is_registered(self, cls: type) -> bool:
         """Check if a type is registered as a component.
@@ -152,14 +152,28 @@ def _is_pydantic(cls: type) -> bool:
     return False
 
 
-def component(cls: type) -> type:
+@overload
+def component(cls: type) -> type: ...
+
+
+@overload
+def component(cls: None = None, *, shared: bool = False) -> Callable[[type], type]: ...
+
+
+def component(cls: type | None = None, *, shared: bool = False) -> type | Callable[[type], type]:
     """Register a dataclass or Pydantic model as a component type.
 
+    Supports three forms:
+        @component                    # bare decorator
+        @component()                  # parenthesized, no args
+        @component(shared=True)       # factory with args
+
     Args:
-        cls: Dataclass or Pydantic model to register as component.
+        cls: The class to register, or None if called with arguments.
+        shared: If True, component is shared type (one instance kept).
 
     Returns:
-        The decorated class with __component_meta__ attribute added.
+        Decorated class or decorator function.
 
     Raises:
         TypeError: If class is neither a dataclass nor Pydantic model.
@@ -172,18 +186,26 @@ def component(cls: type) -> type:
         ... class MyComponent:
         ...     value: int
     """
-    if not (is_dataclass(cls) or _is_pydantic(cls)):
-        raise TypeError(
-            f"Component {cls.__name__} must be a dataclass or Pydantic model. "
-            f"Did you forget @dataclass decorator?"
-        )
 
-    meta = _registry.register(cls)
-    cls.__component_meta__ = meta  # type: ignore
-    return cls
+    def decorator(c: type) -> type:
+        if not (is_dataclass(c) or _is_pydantic(c)):
+            raise TypeError(
+                f"Component {c.__name__} must be a dataclass or Pydantic model. "
+                f"Did you forget @dataclass decorator?"
+            )
+        meta = _registry.register(c, shared=shared)
+        c.__component_meta__ = meta  # type: ignore
+        return c
+
+    if cls is None:
+        # Called with args: @component() or @component(shared=True)
+        return decorator
+    else:
+        # Called bare: @component
+        return decorator(cls)
 
 
-def merge_components(a: T, b: T, strategy: Callable[[T, T], T] | None = None) -> T:
+def merge_components[T](a: T, b: T, strategy: Callable[[T, T], T] | None = None) -> T:
     """Merge two components using custom strategy or component's __merge__ method.
 
     Args:
@@ -202,11 +224,11 @@ def merge_components(a: T, b: T, strategy: Callable[[T, T], T] | None = None) ->
     if isinstance(a, Mergeable):
         # a and b are same type T, and a is Mergeable, so b is too
         # __merge__ uses Self type annotation, returns same type
-        return a.__merge__(b)  # type: ignore[return-value]
+        return a.__merge__(b)
     raise TypeError(f"{type(a).__name__} is not Mergeable and no strategy provided")
 
 
-def reduce_components(items: list[T], strategy: Callable[[list[T]], T] | None = None) -> T:
+def reduce_components[T](items: list[T], strategy: Callable[[list[T]], T] | None = None) -> T:
     """Reduce N components to one using strategy, __reduce_many__, or sequential merge.
 
     Tries in order:

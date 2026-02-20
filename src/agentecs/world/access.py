@@ -25,15 +25,18 @@ from __future__ import annotations
 
 import copy
 import warnings
-from collections.abc import AsyncIterator, Iterable, Iterator
+from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
+from agentecs.core.component.wrapper import get_component, get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
+from agentecs.core.types import Copy
 from agentecs.world.sync_runner import SyncRunner
 
 if TYPE_CHECKING:
     from agentecs.world.result import SystemResult
+    from agentecs.world.world import World
 
 T = TypeVar("T")
 
@@ -201,7 +204,7 @@ class ScopedAccess:
 
     def __init__(
         self,
-        world: Any,  # World instance (avoid circular import)
+        world: World,  # World instance (avoid circular import)
         descriptor: SystemDescriptor,
         buffer: SystemResult,
     ):
@@ -212,41 +215,47 @@ class ScopedAccess:
         self._writable = descriptor.writable_types()
         self._sync_runner: SyncRunner = SyncRunner.get()
 
-    def _check_readable(self, *types: type) -> None:
+    def _check_readable(self, *types: type | Any) -> None:
         if self._descriptor.is_dev_mode():
             return
         for t in types:
-            if self._readable and t not in self._readable:
+            component_type = get_type(t) if not isinstance(t, type) else t
+            if self._readable and component_type not in self._readable:
                 raise AccessViolationError(
-                    f"System '{self._descriptor.name}' cannot read {t.__name__}: "
+                    f"System '{self._descriptor.name}' cannot read {component_type.__name__}: "
                     f"not in readable types"
                 )
 
-    def _check_writable(self, t: type) -> None:
+    def _check_writable(self, component: type | Any) -> None:
         from ..core.system import SystemMode
 
         if self._descriptor.is_dev_mode():
             return
 
+        component_type: type = get_type(component) if not isinstance(component, type) else component
+
         # READONLY mode cannot write at all
         if self._descriptor.mode == SystemMode.READONLY:
             raise AccessViolationError(
-                f"System '{self._descriptor.name}' is READONLY and cannot write {t.__name__}"
+                f"System '{self._descriptor.name}' is READONLY"
+                f" and cannot write {component_type.__name__}"
             )
 
         if not self._writable:  # Empty = dev mode
             return
-        if t not in self._writable:
-            if t in self._readable:
+        if component_type not in self._writable:
+            if component_type in self._readable:
                 raise AccessViolationError(
-                    f"System '{self._descriptor.name}' cannot write {t.__name__}: "
+                    f"System '{self._descriptor.name}' cannot"
+                    f" write {component_type.__name__}: "
                     f"declared as read-only"
                 )
             raise AccessViolationError(
-                f"System '{self._descriptor.name}' cannot write {t.__name__}: not in writable types"
+                f"System '{self._descriptor.name}': "
+                f"{component_type.__name__}: not in writable types"
             )
 
-    def __getitem__(self, key: tuple[EntityId, type[T]]) -> T:
+    def __getitem__(self, key: tuple[EntityId, type[T]]) -> Copy[T]:
         """Get directly the component T for the entity in key.
 
         Example: world[entity, Position] -> Position
@@ -290,34 +299,26 @@ class ScopedAccess:
         """
         return self.entities()
 
-    def get(self, entity: EntityId, component_type: type[T]) -> T:
+    def get(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component copy (from buffer or storage).
 
         ALWAYS returns a copy to prevent accidental mutation of world state.
         Modifications must be written back explicitly via world[entity, Type] = component.
         """
-        self._check_readable(component_type)
-
-        if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
-            return cast(T, copy.deepcopy(self._buffer.updates[entity][component_type]))
-
-        if component := self._world._get_component(entity, component_type):
-            return cast(T, copy.deepcopy(component))
-        else:
-            raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
+        return cast(T, self._sync_runner.run(self.get_async(entity, component_type)))
 
     def has(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has a specific component type."""
         self._check_readable(component_type)
 
         if entity in self._buffer.inserts and any(
-            type(c) is component_type for c in self._buffer.inserts[entity]
+            get_type(c) is component_type for c in self._buffer.inserts[entity]
         ):
             return True
         if entity in self._buffer.removes and component_type in self._buffer.removes[entity]:
             return False
 
-        return cast(bool, self._world._has_component(entity, component_type))
+        return self._world._has_component(entity, component_type)
 
     def _query_raw(
         self,
@@ -343,6 +344,8 @@ class ScopedAccess:
 
         async for entity, components in self._world._query_components_async(*component_types):
             should_skip = False
+            if entity in self._buffer.destroys:
+                continue
             for comp_type in component_types:
                 if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
                     should_skip = True
@@ -353,14 +356,19 @@ class ScopedAccess:
             result = []
             for comp_type, comp in zip(component_types, components, strict=False):
                 if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    result.append(self._buffer.updates[entity][comp_type])
+                    result.append(
+                        copy.deepcopy(get_component(self._buffer.updates[entity][comp_type]))
+                    )
                 else:
-                    result.append(comp)
+                    result.append(copy.deepcopy(get_component(comp)))
             yielded_entities.add(entity)
+            # Yield either from storage or updated from buffer
             yield entity, tuple(result)
 
+        # At this point we have yielded all entities that has components matching in storage.
+        # Now we check inserted or updated components.
         for entity in list(self._buffer.updates.keys()) + list(self._buffer.inserts.keys()):
-            if entity in yielded_entities:
+            if entity in yielded_entities or entity in self._buffer.destroys:
                 continue
 
             has_all = True
@@ -372,7 +380,7 @@ class ScopedAccess:
                     comp = self._buffer.updates[entity][comp_type]
                 elif entity in self._buffer.inserts:
                     for inserted_comp in self._buffer.inserts[entity]:
-                        if type(inserted_comp) is comp_type:
+                        if get_type(inserted_comp) is comp_type:
                             comp = inserted_comp
                             break
                 if comp is None:
@@ -386,7 +394,7 @@ class ScopedAccess:
                     has_all = False
                     break
 
-                result.append(comp)
+                result.append(copy.deepcopy(get_component(comp)))
 
             if has_all:
                 yielded_entities.add(entity)
@@ -411,7 +419,7 @@ class ScopedAccess:
         async for entity, components in self._query_raw_async(*component_types):
             yield entity, components
 
-    async def get_async(self, entity: EntityId, component_type: type[T]) -> T:
+    async def get_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component asynchronously, checking buffer first (read own writes).
 
         Async variant for use in async systems. For distributed storage, this enables
@@ -430,14 +438,23 @@ class ScopedAccess:
         self._check_readable(component_type)
 
         if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
-            return cast(T, copy.deepcopy(self._buffer.updates[entity][component_type]))
+            return cast(
+                T, copy.deepcopy(get_component(self._buffer.updates[entity][component_type]))
+            )
+
+        if entity in self._buffer.inserts:
+            for comp in self._buffer.inserts[entity]:
+                if get_type(comp) is component_type:
+                    return cast(T, copy.deepcopy(get_component(comp)))
 
         if component := await self._world._get_component_async(entity, component_type):
-            return cast(T, copy.deepcopy(component))
+            return copy.deepcopy(component)
+        elif entity in self._buffer.destroys:
+            raise KeyError(f"Entity {entity} has been destroyed")
         else:
             raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
 
-    def singleton(self, component_type: type[T]) -> T:
+    def singleton(self, component_type: type[T]) -> Copy[T]:
         """Get singleton component from WORLD entity."""
         result = self.get(SystemEntity.WORLD, component_type)
         if result is None:
@@ -446,7 +463,7 @@ class ScopedAccess:
 
     def entities(self) -> Iterator[EntityId]:
         """Iterate all entities."""
-        return cast(Iterator[EntityId], self._world._all_entities())
+        return self._world._all_entities()
 
     def entity(self, entity_id: EntityId) -> EntityHandle:
         """Get handle for convenient single-entity operations."""
@@ -454,8 +471,8 @@ class ScopedAccess:
 
     def update(self, entity: EntityId, component: Any) -> None:
         """Update/set component on entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        comp_type = get_type(component)
+        self._check_writable(component)
 
         if entity not in self._buffer.updates:
             self._buffer.updates[entity] = {}
@@ -463,8 +480,8 @@ class ScopedAccess:
 
     def update_singleton(self, component: Any) -> None:
         """Update/set singleton component on WORLD entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        comp_type = get_type(component)
+        self._check_writable(component)
 
         if SystemEntity.WORLD not in self._buffer.updates:
             self._buffer.updates[SystemEntity.WORLD] = {}
@@ -472,8 +489,7 @@ class ScopedAccess:
 
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
-        comp_type = type(component)
-        self._check_writable(comp_type)
+        self._check_writable(component)
 
         if entity not in self._buffer.inserts:
             self._buffer.inserts[entity] = []
@@ -491,8 +507,8 @@ class ScopedAccess:
         """Spawn new entity with components. Returns provisional ID."""
         seen_types: set[type] = set()
         for comp in components:
-            comp_type = type(comp)
-            self._check_writable(comp_type)
+            comp_type = get_type(comp)
+            self._check_writable(comp)
             if comp_type in seen_types:
                 warnings.warn(
                     f"spawn() received multiple components of type {comp_type.__name__}. "
@@ -508,16 +524,6 @@ class ScopedAccess:
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
         self._buffer.destroys.append(entity)
-
-    def insert_shared(self, entities: Iterable[EntityId], component: Any) -> None:
-        """Multiple entities share same component instance.
-
-        Gotcha: Modifications affect all sharing entities.
-        """
-        comp_type = type(component)
-        self._check_writable(comp_type)
-        # TODO: Implement via SharedComponentRef in storage
-        raise NotImplementedError("Shared components not yet implemented")
 
     def merge_entities(
         self,
@@ -536,6 +542,29 @@ class ScopedAccess:
         """Split entity into two using Splittable components."""
         # TODO: Implement using component protocols
         raise NotImplementedError("Entity splitting not yet implemented")
+
+    def get_copy(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy. Alias for get() with explicit naming."""
+        return self.get(entity, component_type)
+
+    async def get_copy_async(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
+        """Get component copy asynchronously. Alias for get_async()."""
+        return await self.get_async(entity, component_type)
+
+    def query_copies(
+        self,
+        *component_types: type,
+    ) -> Iterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities returning component copies. Alias for query()."""
+        return self.query(*component_types)
+
+    async def query_copies_async(
+        self,
+        *component_types: type,
+    ) -> AsyncIterator[tuple[EntityId, tuple[Any, ...]]]:
+        """Query entities asynchronously returning copies. Alias for query_async()."""
+        async for item in self.query_async(*component_types):
+            yield item
 
 
 # TODO: Implement PureReadAccess (ScopedAccess without write methods)

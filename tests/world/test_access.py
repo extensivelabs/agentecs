@@ -182,7 +182,7 @@ def test_dev_mode_can_access_anything(world):
     world.tick()
 
     assert values_seen == [10, 20]
-    assert world.get(entity, TestValue).value == 99  # type: ignore
+    assert world.get_copy(entity, TestValue).value == 99  # type: ignore
 
 
 def test_write_implies_read_access(world):
@@ -230,9 +230,9 @@ def test_query_sees_initial_snapshot(world):
     assert sorted(seen_values) == [1, 2, 3]
 
     # But modifications are applied after tick
-    assert world.get(e1, TestValue).value == 10  # type: ignore
-    assert world.get(e2, TestValue).value == 20  # type: ignore
-    assert world.get(e3, TestValue).value == 30  # type: ignore
+    assert world.get_copy(e1, TestValue).value == 10  # type: ignore
+    assert world.get_copy(e2, TestValue).value == 20  # type: ignore
+    assert world.get_copy(e3, TestValue).value == 30  # type: ignore
 
 
 # Result validation tests
@@ -336,7 +336,7 @@ def test_spawn_duplicate_keeps_last(world):
         warnings.simplefilter("ignore")
         entity = world.spawn(TestValue(1), TestValue(2), TestValue(42))
 
-    val = world.get(entity, TestValue)
+    val = world.get_copy(entity, TestValue)
     assert val is not None
     assert val.value == 42
 

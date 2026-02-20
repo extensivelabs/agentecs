@@ -104,8 +104,17 @@ class Interpolatable(Protocol):
 
 
 @dataclass(slots=True, frozen=True)
-class ComponentMeta:
+class ComponentTypeMeta:
     """Metadata for registered component types."""
 
-    component_id: int
+    component_type_id: int
     type_name: str
+    shared: bool = False
+
+
+@dataclass(slots=True)
+class ComponentRef:
+    """Tracks a shared component."""
+
+    instance_id: int
+    component_type: type

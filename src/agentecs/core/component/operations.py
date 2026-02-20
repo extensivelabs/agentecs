@@ -7,17 +7,14 @@ for merging and splitting components during entity operations.
 from __future__ import annotations
 
 import copy
-from typing import TypeVar, cast
+from typing import cast
 
 from agentecs.core.component.models import Mergeable, Splittable
-
-T = TypeVar("T")
-
 
 # Merge strategies
 
 
-def merge_using_protocol(comp1: T, comp2: T) -> T:
+def merge_using_protocol[T](comp1: T, comp2: T) -> T:
     """Merge two components using the Mergeable protocol.
 
     Args:
@@ -32,10 +29,10 @@ def merge_using_protocol(comp1: T, comp2: T) -> T:
     """
     if not isinstance(comp1, Mergeable):
         raise TypeError(f"{type(comp1).__name__} does not implement Mergeable protocol")
-    return comp1.__merge__(comp2)  # type: ignore[return-value]
+    return comp1.__merge__(comp2)
 
 
-def merge_take_first(comp1: T, comp2: T) -> T:
+def merge_take_first[T](comp1: T, comp2: T) -> T:
     """Take the first component, discard the second.
 
     Args:
@@ -48,7 +45,7 @@ def merge_take_first(comp1: T, comp2: T) -> T:
     return comp1
 
 
-def merge_take_second(comp1: T, comp2: T) -> T:
+def merge_take_second[T](comp1: T, comp2: T) -> T:
     """Take the second component, discard the first.
 
     Args:
@@ -61,7 +58,7 @@ def merge_take_second(comp1: T, comp2: T) -> T:
     return comp2
 
 
-def merge_skip(comp1: T, comp2: T) -> None:
+def merge_skip[T](comp1: T, comp2: T) -> None:
     """Skip both components (exclude from merged entity).
 
     Args:
@@ -74,7 +71,7 @@ def merge_skip(comp1: T, comp2: T) -> None:
     return None
 
 
-def merge_error(comp1: T, comp2: T) -> T:
+def merge_error[T](comp1: T, comp2: T) -> T:
     """Raise an error for non-mergeable components.
 
     Args:
@@ -93,7 +90,7 @@ def merge_error(comp1: T, comp2: T) -> T:
 # Split strategies
 
 
-def split_using_protocol(comp: T, ratio: float) -> tuple[T, T]:
+def split_using_protocol[T](comp: T, ratio: float) -> tuple[T, T]:
     """Split a component using the Splittable protocol.
 
     Args:
@@ -111,7 +108,7 @@ def split_using_protocol(comp: T, ratio: float) -> tuple[T, T]:
     return cast(tuple[T, T], comp.__split__(ratio))
 
 
-def split_to_first(comp: T, ratio: float) -> tuple[T | None, None]:
+def split_to_first[T](comp: T, ratio: float) -> tuple[T | None, None]:
     """Give component to first entity only.
 
     Args:
@@ -124,7 +121,7 @@ def split_to_first(comp: T, ratio: float) -> tuple[T | None, None]:
     return (comp, None)
 
 
-def split_to_both(comp: T, ratio: float) -> tuple[T, T]:
+def split_to_both[T](comp: T, ratio: float) -> tuple[T, T]:
     """Clone component to both entities.
 
     Args:
@@ -137,7 +134,7 @@ def split_to_both(comp: T, ratio: float) -> tuple[T, T]:
     return (copy.deepcopy(comp), copy.deepcopy(comp))
 
 
-def split_skip(comp: T, ratio: float) -> tuple[None, None]:
+def split_skip[T](comp: T, ratio: float) -> tuple[None, None]:
     """Skip component (exclude from both split entities).
 
     Args:
@@ -150,7 +147,7 @@ def split_skip(comp: T, ratio: float) -> tuple[None, None]:
     return (None, None)
 
 
-def split_error(comp: T, ratio: float) -> tuple[T, T]:
+def split_error[T](comp: T, ratio: float) -> tuple[T, T]:
     """Raise an error for non-splittable components.
 
     Args:
