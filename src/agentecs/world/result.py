@@ -176,7 +176,8 @@ def validate_result_access(
         for comp in component_list:
             if get_type(comp) not in writable:
                 raise AccessViolationError(
-                    f"System '{system_name}' inserted {type(comp).__name__}: not in writable types"
+                    f"System '{system_name}' inserted {get_type(comp).__name__}:"
+                    f" not in writable types"
                 )
 
 

@@ -48,12 +48,6 @@ class LocalStorage:
 
         self._shared_refs: dict[tuple[EntityId, type], int] = {}
         self._shared_components: dict[int, Any] = {}
-        self._shared_type_instance_id: dict[type, int] = {}
-        """Shared component storage:
-        _shared_refs: maps (entity, type) → instance_id of the shared component.
-        _shared_components: maps instance_id → actual shared component instance.
-        _shared_type_instance_id: maps per-type shared types → their instance_id.
-        """
 
     def _locate_component(self, entity: EntityId, component_type: type) -> tuple[int | None, bool]:
         """Find where a component lives for an entity.
@@ -175,7 +169,7 @@ class LocalStorage:
         if existing_id is not None:
             if isinstance(component, Shared):
                 _set_shared(component, existing_id)
-            # TODO: What if shard via decorator? elif needed here?
+            # TODO: What if shared via decorator? elif needed here?
             else:
                 # Component type was previously shared but now regular - remove old shared ref
                 del self._shared_refs[(entity, get_type(component))]
@@ -187,7 +181,7 @@ class LocalStorage:
                     self.remove_component(entity, get_type(component))
                 _set_shared(component, None)
 
-            # TODO: What if shard via decorator? elif needed here?
+            # TODO: What if shared via decorator? elif needed here?
             else:
                 self._components[entity][get_type(component)] = component
 
@@ -221,14 +215,6 @@ class LocalStorage:
         Args:
             component_type: Type of component to remove from all entities.
         """
-        # Clean per-type shared ref
-        if component_type in self._shared_type_instance_id:
-            instance_id = self._shared_type_instance_id.pop(component_type)
-            to_remove = [key for key, iid in self._shared_refs.items() if iid == instance_id]
-            for key in to_remove:
-                del self._shared_refs[key]
-            self._shared_components.pop(instance_id, None)
-
         # Clean per-instance shared refs for this type
         to_remove_inst = [
             (key, iid) for key, iid in self._shared_refs.items() if key[1] == component_type
@@ -380,7 +366,6 @@ class LocalStorage:
                 "allocator_next": self._allocator._next_index,
                 "shared_refs": self._shared_refs,
                 "shared_components": self._shared_components,
-                "shared_type_instance_id": self._shared_type_instance_id,
             }
         )
 
@@ -396,7 +381,6 @@ class LocalStorage:
         self._allocator._next_index = state["allocator_next"]
         self._shared_refs = state["shared_refs"]
         self._shared_components = state["shared_components"]
-        self._shared_type_instance_id = state["shared_type_instance_id"]
 
     # Async variants - for LocalStorage these just wrap sync methods
     # Future distributed storage backends can implement truly async versions

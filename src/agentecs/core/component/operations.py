@@ -7,12 +7,9 @@ for merging and splitting components during entity operations.
 from __future__ import annotations
 
 import copy
-from typing import TypeVar, cast
+from typing import cast
 
 from agentecs.core.component.models import Mergeable, Splittable
-
-T = TypeVar("T")
-
 
 # Merge strategies
 

@@ -7,9 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, TypeVar
-
-T = TypeVar("T")
+from typing import Any
 
 
 class SearchMode(Enum):

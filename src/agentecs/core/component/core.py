@@ -22,11 +22,9 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Callable
 from dataclasses import is_dataclass
-from typing import TypeVar, overload
+from typing import overload
 
 from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducible
-
-T = TypeVar("T")
 
 
 def _stable_component_type_id(cls: type) -> int:
