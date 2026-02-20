@@ -302,7 +302,7 @@ class World:
     async def _get_component_async(
         self, entity: EntityId, component_type: type[ComponentT]
     ) -> ComponentT | None:
-        return await self._storage.get_component_async(entity, component_type)
+        return await self._storage.get_component_async(entity, component_type, copy=True)
 
     async def _query_components_async(
         self,

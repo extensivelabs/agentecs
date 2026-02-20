@@ -49,3 +49,10 @@ def get_type(component: Any | WrappedComponent[Any]) -> type:
     if isinstance(component, WrappedComponent):
         return component.component_type
     return type(component)
+
+
+def get_component(component: Any | WrappedComponent[Any]) -> Any:
+    """Get the underlying component instance, unwrapping if necessary."""
+    if isinstance(component, WrappedComponent):
+        return component.unwrap()
+    return component

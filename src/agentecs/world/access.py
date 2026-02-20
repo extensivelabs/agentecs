@@ -28,7 +28,7 @@ import warnings
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
-from agentecs.core.component.wrapper import get_type
+from agentecs.core.component.wrapper import get_component, get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
 from agentecs.core.types import Copy
@@ -312,7 +312,7 @@ class ScopedAccess:
         self._check_readable(component_type)
 
         if entity in self._buffer.inserts and any(
-            type(c) is component_type for c in self._buffer.inserts[entity]
+            get_type(c) is component_type for c in self._buffer.inserts[entity]
         ):
             return True
         if entity in self._buffer.removes and component_type in self._buffer.removes[entity]:
@@ -356,16 +356,17 @@ class ScopedAccess:
             result = []
             for comp_type, comp in zip(component_types, components, strict=False):
                 if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    result.append(copy.deepcopy(self._buffer.updates[entity][comp_type]))
+                    result.append(
+                        copy.deepcopy(get_component(self._buffer.updates[entity][comp_type]))
+                    )
                 else:
-                    result.append(copy.deepcopy(comp))
+                    result.append(copy.deepcopy(get_component(comp)))
             yielded_entities.add(entity)
             # Yield either from storage or updated from buffer
             yield entity, tuple(result)
 
         # At this point we have yielded all entities that has components matching in storage.
-        # However, if we have added new components,
-        # then these might now match and need to be yielded also.
+        # Now we check inserted or updated components.
         for entity in list(self._buffer.updates.keys()) + list(self._buffer.inserts.keys()):
             if entity in yielded_entities or entity in self._buffer.destroys:
                 continue
@@ -379,7 +380,7 @@ class ScopedAccess:
                     comp = self._buffer.updates[entity][comp_type]
                 elif entity in self._buffer.inserts:
                     for inserted_comp in self._buffer.inserts[entity]:
-                        if type(inserted_comp) is comp_type:
+                        if get_type(inserted_comp) is comp_type:
                             comp = inserted_comp
                             break
                 if comp is None:
@@ -393,7 +394,7 @@ class ScopedAccess:
                     has_all = False
                     break
 
-                result.append(copy.deepcopy(comp))
+                result.append(copy.deepcopy(get_component(comp)))
 
             if has_all:
                 yielded_entities.add(entity)
@@ -437,12 +438,14 @@ class ScopedAccess:
         self._check_readable(component_type)
 
         if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
-            return cast(T, copy.deepcopy(self._buffer.updates[entity][component_type]))
+            return cast(
+                T, copy.deepcopy(get_component(self._buffer.updates[entity][component_type]))
+            )
 
         if entity in self._buffer.inserts:
             for comp in self._buffer.inserts[entity]:
                 if get_type(comp) is component_type:
-                    return cast(T, copy.deepcopy(comp))
+                    return cast(T, copy.deepcopy(get_component(comp)))
 
         if component := await self._world._get_component_async(entity, component_type):
             return copy.deepcopy(component)

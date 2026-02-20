@@ -17,7 +17,7 @@ from typing import Any, TypeVar, cast
 
 from agentecs import Copy
 from agentecs.core import Shared
-from agentecs.core.component.wrapper import WrappedComponent
+from agentecs.core.component.wrapper import WrappedComponent, get_component, get_type
 from agentecs.core.identity import EntityId
 from agentecs.storage.allocator import EntityAllocator
 
@@ -163,18 +163,30 @@ class LocalStorage:
         if entity not in self._components:
             self._components[entity] = {}
 
-        if isinstance(component, Shared):
+        def _set_shared(component: Shared[Any], prior_instance_id: int | None) -> None:
+            """Helper to correctly set a shared component."""
             instance_id = component.ref_id
-            self._shared_components[instance_id] = component
-            self._shared_refs[(entity, component.component_type)] = instance_id
-            if component.component_type in self._components[entity]:
-                del self._components[entity][component.component_type]
-        else:
-            existing_id, _ = self._locate_component(entity, type(component))
-            if existing_id is not None:
-                self._shared_components[existing_id] = component
+            self._shared_refs[(entity, get_type(component))] = instance_id
+            self._shared_components[instance_id] = component.unwrap()
+            if prior_instance_id is not None and prior_instance_id != instance_id:
+                self._gc_shared(prior_instance_id)
+
+        existing_id, _ = self._locate_component(entity, get_type(component))
+        if existing_id is not None:
+            if isinstance(component, Shared):
+                _set_shared(component, existing_id)
+            # TODO: What if shard via decorator? elif needed here?
             else:
-                self._components[entity][type(component)] = component
+                # Component type was previously shared but now regular - remove old shared ref
+                del self._shared_refs[(entity, get_type(component))]
+                self._components[entity][get_type(component)] = get_component(component)
+                self._gc_shared(existing_id)
+        else:
+            if isinstance(component, Shared):
+                _set_shared(component, None)
+            # TODO: What if shard via decorator? elif needed here?
+            else:
+                self._components[entity][get_type(component)] = component
 
     def remove_component(self, entity: EntityId, component_type: type) -> bool:
         """Remove a component from an entity.

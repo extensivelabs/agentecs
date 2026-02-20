@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId
 
 if TYPE_CHECKING:
@@ -173,7 +174,7 @@ def validate_result_access(
 
     for _, component_list in result.inserts.items():
         for comp in component_list:
-            if type(comp) not in writable:
+            if get_type(comp) not in writable:
                 raise AccessViolationError(
                     f"System '{system_name}' inserted {type(comp).__name__}: not in writable types"
                 )
