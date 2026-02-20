@@ -238,7 +238,7 @@ class ScopedAccess:
         if self._descriptor.mode == SystemMode.READONLY:
             raise AccessViolationError(
                 f"System '{self._descriptor.name}' is READONLY"
-                f"and cannot write {component_type.__name__}"
+                f" and cannot write {component_type.__name__}"
             )
 
         if not self._writable:  # Empty = dev mode
