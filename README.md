@@ -63,26 +63,6 @@ This enables:
 │      Sequential within groups, parallel across groups           │
 └─────────────────────────────────────────────────────────────────┘
 ```
-## Development Setup
-
-This project supports [direnv](https://direnv.net/) for automatic environment management:
-
-```bash
-# Install direnv and configure your shell (one-time)
-# See: https://direnv.net/docs/installation.html
-
-# Trust the .envrc file (one-time per clone)
-direnv allow
-
-# Environment auto-loads when you cd into the project
-# - Activates .venv
-# - Loads .env (API keys, config)
-# - Sets PYTHONPATH
-```
-
-Without direnv, manually activate: `source .venv/bin/activate`
-
-For detailed setup instructions, see the [Getting Started guide](https://extensivelabs.github.io/agentecs/start-up/installation/).
 
 ## Quick Start
 
@@ -154,6 +134,41 @@ world.tick()
 world.ticket() # ...
 ```
 
+## Development
+
+### AI Usage
+
+Different from associated repos (such as agentecs-viz), AI use in this repo is contained to:
+
+- documentation
+- project management (issues, PRs, project board)
+- code review
+- chores
+- some test writing
+
+To ensure the framework is as sound as can be, actual code is written by humans.
+Artisanal and all that.
+
+### Development Setup
+
+This project supports [direnv](https://direnv.net/) for automatic environment management:
+
+```bash
+# Install direnv and configure your shell (one-time)
+# See: https://direnv.net/docs/installation.html
+
+# Trust the .envrc file (one-time per clone)
+direnv allow
+
+# Environment auto-loads when you cd into the project
+# - Activates .venv
+# - Loads .env (API keys, config)
+# - Sets PYTHONPATH
+```
+
+Without direnv, manually activate: `source .venv/bin/activate`
+
+For detailed setup instructions, see the [Getting Started guide](https://extensivelabs.github.io/agentecs/start-up/installation/).
 ## Future Work
 
 - **Distributed scaling**: Sharded storage, cross-node queries

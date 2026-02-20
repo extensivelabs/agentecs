@@ -70,6 +70,11 @@ tasks:
     cmds:
       - '{{.UV}} run ruff check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
 
+  lint:imports:
+    desc: Run import direction linting
+    cmds:
+      - '{{.UV}} run lint-imports --config .importlinter'
+
   lint:fix:
     desc: Run ruff linting and auto-fix issues
     cmds:
@@ -91,10 +96,11 @@ tasks:
       - '{{.UV}} run mypy {{.SRC_DIR}}'
 
   check:
-    desc: Run all checks (lint, format, type, test)
+    desc: Run all checks (format, lint, imports, type, test)
     cmds:
       - task: format:check
       - task: lint
+      - task: lint:imports
       - task: type:check
       - task: test
       - echo "✓ All checks passed!"

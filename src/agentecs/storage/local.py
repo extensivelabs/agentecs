@@ -15,10 +15,9 @@ import pickle  # nosec B403 - Used only for local testing/prototyping, not produ
 from collections.abc import AsyncIterator, Iterator
 from typing import Any, TypeVar, cast
 
-from agentecs import Copy
-from agentecs.core import Shared
-from agentecs.core.component.wrapper import WrappedComponent, get_component, get_type
+from agentecs.core.component.wrapper import Shared, WrappedComponent, get_component, get_type
 from agentecs.core.identity import EntityId
+from agentecs.core.types import Copy
 from agentecs.storage.allocator import EntityAllocator
 
 T = TypeVar("T")
