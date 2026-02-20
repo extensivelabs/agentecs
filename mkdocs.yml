@@ -101,6 +101,7 @@ nav:
       - Overview: system/index.md
       - Design Philosophy: system/design-philosophy.md
       - Architecture: system/architecture.md
+      - Development & Code Architecture: system/development-architecture.md
       - Components: system/components.md
       - Systems: system/systems.md
       - Queries: system/queries.md

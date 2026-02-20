@@ -1,0 +1,33 @@
+[importlinter]
+root_package = agentecs
+
+[importlinter:contract:runtime_layers]
+name = Runtime layer dependency direction
+type = layers
+layers =
+    agentecs.adapters
+    agentecs.world : agentecs.scheduling
+    agentecs.storage
+    agentecs.core
+
+[importlinter:contract:no_root_facade_imports]
+name = Internal modules avoid root facade imports
+type = forbidden
+source_modules =
+    agentecs.core
+    agentecs.storage
+    agentecs.world
+    agentecs.scheduling
+    agentecs.adapters
+forbidden_modules =
+    agentecs
+as_packages = false
+
+[importlinter:contract:storage_core_leaf_imports]
+name = Storage avoids core package facade imports
+type = forbidden
+source_modules =
+    agentecs.storage
+forbidden_modules =
+    agentecs.core
+as_packages = false
