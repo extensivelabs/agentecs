@@ -168,7 +168,6 @@ class LocalStorage:
         if existing_id is not None:
             if isinstance(component, Shared):
                 _set_shared(component, existing_id)
-            # TODO: What if shared via decorator? elif needed here?
             else:
                 # Component type was previously shared but now regular - remove old shared ref
                 del self._shared_refs[(entity, get_type(component))]
@@ -180,7 +179,6 @@ class LocalStorage:
                     self.remove_component(entity, get_type(component))
                 _set_shared(component, None)
 
-            # TODO: What if shared via decorator? elif needed here?
             else:
                 self._components[entity][get_type(component)] = component
 

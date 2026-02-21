@@ -49,7 +49,7 @@ class ComponentRegistry:
     Maintains bidirectional mapping between component types and their type IDs.
     Deterministic IDs ensure same code produces same IDs across nodes.
 
-    # TODO: Figure our distributed syncing of local registrys if needed.
+    # TODO: Figure out distributed syncing of local registries if needed.
     """
 
     def __init__(self) -> None:
@@ -57,12 +57,11 @@ class ComponentRegistry:
         self._by_type: dict[type, ComponentTypeMeta] = {}
         self._by_type_id: dict[int, type] = {}
 
-    def register(self, cls: type, shared: bool = False) -> ComponentTypeMeta:
+    def register(self, cls: type) -> ComponentTypeMeta:
         """Register a component type and return its metadata.
 
         Args:
             cls: Component class to register.
-            shared: If true component is shared type, only one instance will be kept.
 
         Returns:
             Component metadata including ID and type name.
@@ -84,7 +83,6 @@ class ComponentRegistry:
         meta = ComponentTypeMeta(
             component_type_id=component_type_id,
             type_name=f"{cls.__module__}.{cls.__qualname__}",
-            shared=shared,
         )
         self._by_type[cls] = meta
         self._by_type_id[component_type_id] = cls
@@ -157,20 +155,18 @@ def component(cls: type) -> type: ...
 
 
 @overload
-def component(cls: None = None, *, shared: bool = False) -> Callable[[type], type]: ...
+def component(cls: None = None) -> Callable[[type], type]: ...
 
 
-def component(cls: type | None = None, *, shared: bool = False) -> type | Callable[[type], type]:
+def component(cls: type | None = None) -> type | Callable[[type], type]:
     """Register a dataclass or Pydantic model as a component type.
 
-    Supports three forms:
+    Supports two forms:
         @component                    # bare decorator
         @component()                  # parenthesized, no args
-        @component(shared=True)       # factory with args
 
     Args:
         cls: The class to register, or None if called with arguments.
-        shared: If True, component is shared type (one instance kept).
 
     Returns:
         Decorated class or decorator function.
@@ -193,12 +189,12 @@ def component(cls: type | None = None, *, shared: bool = False) -> type | Callab
                 f"Component {c.__name__} must be a dataclass or Pydantic model. "
                 f"Did you forget @dataclass decorator?"
             )
-        meta = _registry.register(c, shared=shared)
+        meta = _registry.register(c)
         c.__component_meta__ = meta  # type: ignore
         return c
 
     if cls is None:
-        # Called with args: @component() or @component(shared=True)
+        # Called with args: @component()
         return decorator
     else:
         # Called bare: @component
@@ -222,8 +218,6 @@ def merge_components[T](a: T, b: T, strategy: Callable[[T, T], T] | None = None)
     if strategy:
         return strategy(a, b)
     if isinstance(a, Mergeable):
-        # a and b are same type T, and a is Mergeable, so b is too
-        # __merge__ uses Self type annotation, returns same type
         return a.__merge__(b)
     raise TypeError(f"{type(a).__name__} is not Mergeable and no strategy provided")
 

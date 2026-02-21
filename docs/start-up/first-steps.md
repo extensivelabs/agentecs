@@ -146,7 +146,7 @@ for entity, task, budget in world(Task, TokenBudget):
 
 ### Copy-on-Read Pattern
 
-**Important:** All reads return **copies**. You must write back changes:
+**Important:** Reads return **copies** by default. You must write back changes:
 
 ```python
 # task is a COPY, not a reference
@@ -155,6 +155,8 @@ world[entity, Task] = new_task  # Write back required
 ```
 
 This prevents accidental shared state and enables safe parallelization.
+
+If you need intentional shared component storage, use `Shared(...)` when inserting components.
 
 ## Adding More Agents
 
@@ -359,7 +361,7 @@ You've learned the basics:
 - **Systems** define behavior (process tasks, track context, monitor resources)
 - **Entities** combine components
 - **Queries** find patterns
-- **Copy-on-read** prevents shared state
+- **Copy-on-read** prevents accidental shared state (with explicit `Shared(...)` opt-in available)
 
 Ready to dive deeper?
 
