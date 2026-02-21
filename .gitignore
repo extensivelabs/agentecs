@@ -157,6 +157,9 @@ venv.bak/
 # AI agents (developers should add these to global gitignore: ~/.config/git/ignore)
 .claude/
 .kiro/
+.agents/
+.archive/
+.opencode/
 
 # Rope project settings
 .ropeproject
