@@ -297,7 +297,7 @@ def decay_budget(world: ScopedAccess) -> None:
 ```
 
 !!! warning "Components are Copies"
-    All reads return deep copies. Mutations won't persist unless you write back via `world[entity, Type] = value`.
+    Reads return deep copies by default. Mutations won't persist unless you write back via `world[entity, Type] = value`.
 
 ## Copy Semantics
 
@@ -321,6 +321,8 @@ This "copy semantics" pattern:
 - Prevents accidental mutation of world state
 - Enables snapshot isolation (systems see consistent state)
 - Works with any storage backend (local, remote, serialized)
+
+Need intentional sharing across entities? Insert components with `Shared(...)` to opt into shared storage semantics.
 
 The `Copy[T]` type in return signatures signals this behavior.
 
@@ -400,8 +402,8 @@ Global state as components on system entities:
 # Set global config
 world.set_singleton(LLMConfig(temperature=0.7, max_tokens=2000))
 
-# Read in any system
-config = world.singleton(LLMConfig)
+# Read outside systems
+config = world.singleton_copy(LLMConfig)
 ```
 
 See [World Management](../system/world_management.md) for details.

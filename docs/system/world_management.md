@@ -335,10 +335,10 @@ a2 = world.spawn(Credits(50), AgentTag("Bob"))
 # Merge - Credits sum, AgentTag uses FIRST strategy
 merged = world.merge_entities(a1, a2, on_non_mergeable=NonMergeableHandling.FIRST)
 
-credits = world.get(merged, Credits)
+credits = world.get_copy(merged, Credits)
 print(credits.amount)  # 150
 
-tag = world.get(merged, AgentTag)
+tag = world.get_copy(merged, AgentTag)
 print(tag.name)  # "Alice" (from first entity)
 ```
 
@@ -424,15 +424,15 @@ left, right = world.split_entity(
     on_non_splittable=NonSplittableHandling.BOTH
 )
 
-left_credits = world.get(left, Credits)
+left_credits = world.get_copy(left, Credits)
 print(left_credits.amount)  # 60
 
-right_credits = world.get(right, Credits)
+right_credits = world.get_copy(right, Credits)
 print(right_credits.amount)  # 40
 
 # Both have Position (cloned)
-assert world.get(left, Position).x == 10
-assert world.get(right, Position).x == 10
+assert world.get_copy(left, Position).x == 10
+assert world.get_copy(right, Position).x == 10
 ```
 
 !!! tip "Use Cases for Merge/Split"
@@ -539,7 +539,8 @@ def movement(world: ScopedAccess) -> None:
 `ScopedAccess` provides magic methods for direct component access:
 
 !!! warning "Reads Return Copies"
-    `world[entity, Type]` and `world.get()` return **deep copies**. You must write back any changes via `world[entity, Type] = value`.
+    `world[entity, Type]` and `world.get()` return **deep copies** by default. You must write back any changes via `world[entity, Type] = value`.
+    Use `Shared(...)` wrappers during insertion when you want intentional shared storage semantics.
 
 **Magic Method Reference:**
 
@@ -606,7 +607,7 @@ world = World()
 entity = world.spawn(Position(0, 0), Velocity(1, 0))
 
 # Get component (returns copy)
-pos = world.get(entity, Position)
+pos = world.get_copy(entity, Position)
 
 # Set component
 world.set(entity, Position(10, 10))
@@ -616,7 +617,7 @@ world.destroy(entity)
 
 # Singletons
 world.set_singleton(GlobalConfig(temperature=0.7))
-config = world.singleton(GlobalConfig)
+config = world.singleton_copy(GlobalConfig)
 ```
 
 **System API (Inside Systems):**

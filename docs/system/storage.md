@@ -104,6 +104,9 @@ storage.set_component(entity, Position(10, 20))
 # Component type inferred from instance
 ```
 
+!!! note "Shared Wrapper Support"
+    Shared component storage is explicit: pass `Shared(component)` when inserting/updating components that should share a backing storage instance.
+
 **remove_component(entity: EntityId, component_type: type) → bool**
 
 Delete a component from an entity:

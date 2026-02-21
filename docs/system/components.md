@@ -68,6 +68,32 @@ class AgentTag:
 
     The reverse order will raise a `TypeError`.
 
+### Shared Components (Wrapper-Based)
+
+AgentECS supports explicit shared component storage through the `Shared(...)` wrapper.
+
+```python
+from dataclasses import dataclass
+from agentecs import World, component
+from agentecs.core.component import Shared
+
+@component
+@dataclass(slots=True)
+class PromptTemplate:
+    text: str
+
+world = World()
+shared_template = Shared(PromptTemplate("You are a helpful assistant."))
+
+agent_a = world.spawn(shared_template)
+agent_b = world.spawn(shared_template)
+```
+
+Use this when multiple entities should reference the same backing component instance in storage.
+
+!!! note
+    Sharing is wrapper-only. `@component(shared=True)` is not supported.
+
 ### What Happens During Registration
 
 When you decorate a class with `@component`, AgentECS:
@@ -366,8 +392,8 @@ from agentecs import SystemEntity
 # Set global configuration
 world.set_singleton(GlobalConfig(temperature=0.7))
 
-# Read global configuration in a system
-config = world.singleton(GlobalConfig)
+# Read global configuration outside systems
+config = world.singleton_copy(GlobalConfig)
 if config:
     print(f"Temperature: {config.temperature}")
 ```
