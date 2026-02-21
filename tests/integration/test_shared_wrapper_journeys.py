@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import cast
 
+import pytest
+
 from agentecs import ScopedAccess, World, component, system
 from agentecs.core.component import Shared
 from agentecs.storage.local import LocalStorage
@@ -54,12 +56,20 @@ def test_different_objects_with_same_value_do_not_share_instance() -> None:
     assert len(storage._shared_components) == 2
 
 
-def test_wrapping_world_get_copy_creates_new_shared_group() -> None:
-    """Documents UX pitfall: re-wrapping world copy creates a distinct shared group."""
+@pytest.mark.xfail(
+    reason=(
+        "World reads return deep copies, so wrapping a read copy does not keep shared identity yet"
+    ),
+    strict=False,
+)
+def test_wrapping_world_get_copy_reuses_existing_shared_group() -> None:
+    """Captures desired UX: wrapping a world read copy should preserve shared grouping."""
     world = World()
     storage = cast(LocalStorage, world._storage)
 
-    entity_a = world.spawn(Shared(SharedCounter(3)))
+    counter = SharedCounter(3)
+    entity_a = world.spawn(Shared(counter))
+    entity_b = world.spawn(Shared(counter))
     entity_x = world.spawn()
 
     copied_counter = world.get_copy(entity_a, SharedCounter)
@@ -68,18 +78,27 @@ def test_wrapping_world_get_copy_creates_new_shared_group() -> None:
     world.set(entity_x, Shared(copied_counter))
 
     raw_a = _raw_counter(storage, entity_a)
+    raw_b = _raw_counter(storage, entity_b)
     raw_x = _raw_counter(storage, entity_x)
 
-    assert raw_a is not raw_x
-    assert len(storage._shared_components) == 2
+    assert raw_a is raw_b is raw_x
+    assert len(storage._shared_components) == 1
 
 
-def test_wrapping_query_copy_creates_new_shared_group() -> None:
-    """Locks query-copy behavior: wrapping queried copies does not preserve sharing."""
+@pytest.mark.xfail(
+    reason=(
+        "Query reads return deep copies, so wrapping a queried copy cannot reuse shared group yet"
+    ),
+    strict=False,
+)
+def test_wrapping_query_copy_reuses_existing_shared_group() -> None:
+    """Captures desired UX: wrapping a query result should preserve shared grouping."""
     world = World()
     storage = cast(LocalStorage, world._storage)
 
-    entity_a = world.spawn(Shared(SharedCounter(4)))
+    counter = SharedCounter(4)
+    entity_a = world.spawn(Shared(counter))
+    entity_b = world.spawn(Shared(counter))
     entity_x = world.spawn()
 
     queried_counter = None
@@ -93,18 +112,28 @@ def test_wrapping_query_copy_creates_new_shared_group() -> None:
     world.set(entity_x, Shared(queried_counter))
 
     raw_a = _raw_counter(storage, entity_a)
+    raw_b = _raw_counter(storage, entity_b)
     raw_x = _raw_counter(storage, entity_x)
 
-    assert raw_a is not raw_x
-    assert len(storage._shared_components) == 2
+    assert raw_a is raw_b is raw_x
+    assert len(storage._shared_components) == 1
 
 
-def test_wrapping_scoped_read_copy_creates_new_shared_group() -> None:
-    """Covers system journey: ScopedAccess reads are copies, so sharing is not reused."""
+@pytest.mark.xfail(
+    reason=(
+        "ScopedAccess reads return deep copies, so wrapping read values "
+        "cannot preserve shared group yet"
+    ),
+    strict=False,
+)
+def test_wrapping_scoped_read_copy_reuses_existing_shared_group() -> None:
+    """Captures desired UX: wrapping system-read copies should preserve shared grouping."""
     world = World()
     storage = cast(LocalStorage, world._storage)
 
-    source = world.spawn(Shared(SharedCounter(9)))
+    counter = SharedCounter(9)
+    source = world.spawn(Shared(counter))
+    buddy = world.spawn(Shared(counter))
     target = world.spawn()
 
     @system(reads=(SharedCounter,), writes=(SharedCounter,))
@@ -116,10 +145,11 @@ def test_wrapping_scoped_read_copy_creates_new_shared_group() -> None:
     world.tick()
 
     raw_source = _raw_counter(storage, source)
+    raw_buddy = _raw_counter(storage, buddy)
     raw_target = _raw_counter(storage, target)
 
-    assert raw_source is not raw_target
-    assert len(storage._shared_components) == 2
+    assert raw_source is raw_buddy is raw_target
+    assert len(storage._shared_components) == 1
 
 
 def test_shared_slot_garbage_collected_after_last_reference_removed() -> None:
