@@ -2291,7 +2291,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Components are Copies</p>
-<p>All reads return deep copies. Mutations won't persist unless you write back via <code>world[entity, Type] = value</code>.</p>
+<p>Reads return deep copies by default. Mutations won't persist unless you write back via <code>world[entity, Type] = value</code>.</p>
 </div>
 <h2 id="copy-semantics">Copy Semantics<a class="headerlink" href="#copy-semantics" title="Permanent link">&para;</a></h2>
 <p>When you read a component, you get a <strong>copy</strong>:</p>
@@ -2309,6 +2309,7 @@
 <li>Enables snapshot isolation (systems see consistent state)</li>
 <li>Works with any storage backend (local, remote, serialized)</li>
 </ul>
+<p>Need intentional sharing across entities? Insert components with <code>Shared(...)</code> to opt into shared storage semantics.</p>
 <p>The <code>Copy[T]</code> type in return signatures signals this behavior.</p>
 <p><strong>Async Systems:</strong></p>
 <p>For I/O-bound operations (LLM calls, database queries):</p>
@@ -2370,8 +2371,8 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Set global config</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">LLMConfig</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2000</span><span class="p">))</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Read in any system</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton</span><span class="p">(</span><span class="n">LLMConfig</span><span class="p">)</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Read outside systems</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">LLMConfig</span><span class="p">)</span>
 </span></code></pre></div>
 <p>See <a href="../../system/world_management/">World Management</a> for details.</p>
 <h2 id="execution-model">Execution Model<a class="headerlink" href="#execution-model" title="Permanent link">&para;</a></h2>

@@ -2116,6 +2116,10 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">storage</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Position</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># Component type inferred from instance</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Shared Wrapper Support</p>
+<p>Shared component storage is explicit: pass <code>Shared(component)</code> when inserting/updating components that should share a backing storage instance.</p>
+</div>
 <p><strong>remove_component(entity: EntityId, component_type: type) → bool</strong></p>
 <p>Delete a component from an entity:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">removed</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">remove_component</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">)</span>

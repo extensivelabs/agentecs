@@ -1958,12 +1958,13 @@
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="c1"># Only entities with Task AND TokenBudget</span>
 </span></code></pre></div>
 <h3 id="copy-on-read-pattern">Copy-on-Read Pattern<a class="headerlink" href="#copy-on-read-pattern" title="Permanent link">&para;</a></h3>
-<p><strong>Important:</strong> All reads return <strong>copies</strong>. You must write back changes:</p>
+<p><strong>Important:</strong> Reads return <strong>copies</strong> by default. You must write back changes:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># task is a COPY, not a reference</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">new_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">world</span><span class="p">[</span><span class="n">entity</span><span class="p">,</span> <span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_task</span>  <span class="c1"># Write back required</span>
 </span></code></pre></div>
 <p>This prevents accidental shared state and enables safe parallelization.</p>
+<p>If you need intentional shared component storage, use <code>Shared(...)</code> when inserting components.</p>
 <h2 id="adding-more-agents">Adding More Agents<a class="headerlink" href="#adding-more-agents" title="Permanent link">&para;</a></h2>
 <p>Let's add multiple agents with different capabilities:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
@@ -2152,7 +2153,7 @@
 <li><strong>Systems</strong> define behavior (process tasks, track context, monitor resources)</li>
 <li><strong>Entities</strong> combine components</li>
 <li><strong>Queries</strong> find patterns</li>
-<li><strong>Copy-on-read</strong> prevents shared state</li>
+<li><strong>Copy-on-read</strong> prevents accidental shared state (with explicit <code>Shared(...)</code> opt-in available)</li>
 </ul>
 <p>Ready to dive deeper?</p>
 <ul>
