@@ -7,7 +7,14 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from agentecs import Query, component
-from agentecs.core.query import AllAccess, TypeAccess, normalize_access, queries_disjoint
+from agentecs.core.query import (
+    AllAccess,
+    NoAccess,
+    TypeAccess,
+    normalize_access,
+    normalize_reads_and_writes,
+    queries_disjoint,
+)
 
 
 # Test component types for queries
@@ -267,3 +274,40 @@ def test_normalize_access_variants(input_val, expected_type, check_fn):
     else:
         assert isinstance(pattern, expected_type)
     assert check_fn(pattern)
+
+
+def test_normalize_access_empty_tuple_returns_no_access():
+    """normalize_access(()) returns NoAccess."""
+    pattern = normalize_access(())
+
+    assert isinstance(pattern, NoAccess)
+
+
+def test_normalize_access_none_returns_all_access():
+    """normalize_access(None) returns AllAccess."""
+    pattern = normalize_access(None)
+
+    assert isinstance(pattern, AllAccess)
+
+
+def test_normalize_reads_and_writes_defaults_full_when_both_omitted():
+    """normalize_reads_and_writes(None, None) gives unrestricted access."""
+    reads, writes = normalize_reads_and_writes(None, None)
+
+    assert isinstance(reads, AllAccess)
+    assert isinstance(writes, AllAccess)
+
+
+def test_normalize_reads_and_writes_defaults_missing_side_to_no_access():
+    """When one side is omitted, the omitted side normalizes to NoAccess."""
+    reads, writes = normalize_reads_and_writes((CompA,), None)
+
+    assert isinstance(reads, TypeAccess)
+    assert reads.types == frozenset([CompA])
+    assert isinstance(writes, NoAccess)
+
+    reads2, writes2 = normalize_reads_and_writes(None, (CompB,))
+
+    assert isinstance(reads2, NoAccess)
+    assert isinstance(writes2, TypeAccess)
+    assert writes2.types == frozenset([CompB])

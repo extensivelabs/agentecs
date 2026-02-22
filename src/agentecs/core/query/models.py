@@ -64,7 +64,14 @@ class Query:
 
 @dataclass(frozen=True)
 class AllAccess:
-    """Dev mode: unrestricted access, disables parallelization for this system."""
+    """Unrestricted component access."""
+
+    pass
+
+
+@dataclass(frozen=True)
+class NoAccess:
+    """No component access."""
 
     pass
 
@@ -93,4 +100,4 @@ class QueryAccess:
         return frozenset(result)
 
 
-AccessPattern = AllAccess | TypeAccess | QueryAccess
+AccessPattern = AllAccess | TypeAccess | QueryAccess | NoAccess

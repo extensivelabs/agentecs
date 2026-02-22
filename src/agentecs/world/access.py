@@ -211,8 +211,6 @@ class ScopedAccess:
         self._world = world
         self._descriptor = descriptor
         self._buffer = buffer
-        self._readable = descriptor.readable_types()
-        self._writable = descriptor.writable_types()
         self._sync_runner: SyncRunner = SyncRunner.get()
 
     def _check_readable(self, *types: type | Any) -> None:
@@ -220,7 +218,7 @@ class ScopedAccess:
             return
         for t in types:
             component_type = get_type(t) if not isinstance(t, type) else t
-            if self._readable and component_type not in self._readable:
+            if not self._descriptor.can_read_type(component_type):
                 raise AccessViolationError(
                     f"System '{self._descriptor.name}' cannot read {component_type.__name__}: "
                     f"not in readable types"
@@ -241,19 +239,17 @@ class ScopedAccess:
                 f" and cannot write {component_type.__name__}"
             )
 
-        if not self._writable:  # Empty = dev mode
+        if self._descriptor.can_write_type(component_type):
             return
-        if component_type not in self._writable:
-            if component_type in self._readable:
-                raise AccessViolationError(
-                    f"System '{self._descriptor.name}' cannot"
-                    f" write {component_type.__name__}: "
-                    f"declared as read-only"
-                )
+        if self._descriptor.can_read_type(component_type):
             raise AccessViolationError(
-                f"System '{self._descriptor.name}': "
-                f"{component_type.__name__}: not in writable types"
+                f"System '{self._descriptor.name}' cannot"
+                f" write {component_type.__name__}: "
+                f"declared as read-only"
             )
+        raise AccessViolationError(
+            f"System '{self._descriptor.name}': {component_type.__name__}: not in writable types"
+        )
 
     def __getitem__(self, key: tuple[EntityId, type[T]]) -> Copy[T]:
         """Get directly the component T for the entity in key.

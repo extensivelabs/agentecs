@@ -17,7 +17,7 @@ from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId
 
 if TYPE_CHECKING:
-    pass
+    from agentecs.core.query import AccessPattern
 else:
     # Import at runtime to avoid circular dependency
     def __getattr__(name: str) -> Any:
@@ -147,23 +147,34 @@ def normalize_result(raw: SystemReturn) -> SystemResult:
 
 def validate_result_access(
     result: SystemResult,
-    writable: frozenset[type],
+    writes: AccessPattern,
     system_name: str,
 ) -> None:
     """Validate that all written component types are declared.
 
     Args:
         result: System execution result to validate.
-        writable: Set of component types system declared as writable.
+        writes: Declared write access contract for the system.
         system_name: Name of system for error messages.
 
     Raises:
         AccessViolationError: If system wrote undeclared component type.
     """
+    from agentecs.core.query.models import AllAccess, NoAccess, QueryAccess, TypeAccess
     from agentecs.world.access import AccessViolationError
 
-    if not writable:  # Empty = all (dev mode)
+    if isinstance(writes, AllAccess):
         return
+
+    writable: frozenset[type] = frozenset()
+    if isinstance(writes, NoAccess):
+        pass  # empty frozenset rejects all writes
+    elif isinstance(writes, TypeAccess):
+        writable = writes.types
+    elif isinstance(writes, QueryAccess):
+        writable = writes.types()
+    else:
+        raise TypeError(f"Unrecognized AccessPattern: {type(writes)}")
 
     for _, components in result.updates.items():
         for comp_type in components:

@@ -31,7 +31,13 @@ import inspect
 from collections.abc import Callable
 from typing import Any
 
-from agentecs.core.query import AllAccess, Query, QueryAccess, TypeAccess, normalize_access
+from agentecs.core.query import (
+    AllAccess,
+    NoAccess,
+    Query,
+    normalize_access,
+    normalize_reads_and_writes,
+)
 from agentecs.core.system.models import SystemDescriptor, SystemMode
 
 
@@ -40,8 +46,8 @@ class _SystemDecorator:
 
     def __call__(
         self,
-        reads: tuple[type, ...] | Query | None = None,
-        writes: tuple[type, ...] | Query | None = None,
+        reads: tuple[type, ...] | tuple[Query, ...] | Query | AllAccess | NoAccess | None = None,
+        writes: tuple[type, ...] | tuple[Query, ...] | Query | AllAccess | NoAccess | None = None,
         mode: SystemMode = SystemMode.INTERACTIVE,
         frequency: float = 1.0,
         phase: str = "update",
@@ -85,17 +91,12 @@ class _SystemDecorator:
         """
 
         def decorator(fn: Callable[..., Any]) -> SystemDescriptor:
-            if mode == SystemMode.READONLY and writes:
+            if mode == SystemMode.READONLY and writes not in (None, (), NoAccess()):
                 raise ValueError("READONLY systems cannot declare writes")
 
-            # Both None → full access mode (participates in parallel)
-            if reads is None and writes is None:
-                reads_access: AllAccess | TypeAccess | QueryAccess = AllAccess()
-                writes_access: AllAccess | TypeAccess | QueryAccess = AllAccess()
-            else:
-                # If one is specified, other defaults to empty
-                reads_access = normalize_access(reads or ())
-                writes_access = normalize_access(writes or ())
+            reads_access, writes_access = normalize_reads_and_writes(reads, writes)
+            if mode == SystemMode.READONLY:
+                writes_access = NoAccess()
 
             return SystemDescriptor(
                 name=fn.__name__,
@@ -142,7 +143,7 @@ class _SystemDecorator:
 
     def readonly(
         self,
-        reads: tuple[type, ...] | Query = (),
+        reads: tuple[type, ...] | Query | None = None,
         frequency: float = 1.0,
         phase: str = "update",
     ) -> Callable[[Callable[..., Any]], SystemDescriptor]:
@@ -158,7 +159,7 @@ class _SystemDecorator:
                 name=fn.__name__,
                 run=fn,
                 reads=normalize_access(reads),
-                writes=TypeAccess(frozenset()),
+                writes=NoAccess(),
                 mode=SystemMode.READONLY,
                 is_async=inspect.iscoroutinefunction(fn),
                 frequency=frequency,
@@ -178,7 +179,7 @@ def check_read_access(
     """Check if system is allowed to read this component type."""
     if descriptor.is_dev_mode():
         return True
-    return component_type in descriptor.readable_types()
+    return descriptor.can_read_type(component_type)
 
 
 def check_write_access(
@@ -190,4 +191,4 @@ def check_write_access(
         return True
     if descriptor.mode == SystemMode.READONLY:
         return False
-    return component_type in descriptor.writable_types()
+    return descriptor.can_write_type(component_type)

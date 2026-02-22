@@ -40,33 +40,31 @@ class SystemDescriptor:
     phase: str = "update"
     runs_alone: bool = False  # If True, runs in its own execution group (dev mode)
 
-    def readable_types(self) -> frozenset[type]:
-        """Get all component types this system can read.
+    def can_read_type(self, component_type: type) -> bool:
+        """Check whether this system can read the given component type.
 
-        Returns:
-            Set of component types system has read or write access to.
-            Write access implies read access.
+        Write access implies read access.
         """
-        r = self._extract_types(self.reads)
-        w = self._extract_types(self.writes)
-        return r | w  # Write implies read
+        return self._pattern_allows(self.reads, component_type) or self._pattern_allows(
+            self.writes, component_type
+        )
 
-    def writable_types(self) -> frozenset[type]:
-        """Get all component types this system can write.
+    def can_write_type(self, component_type: type) -> bool:
+        """Check whether this system can write the given component type."""
+        return self._pattern_allows(self.writes, component_type)
 
-        Returns:
-            Set of component types system has write access to.
-        """
-        return self._extract_types(self.writes)
+    def _pattern_allows(self, pattern: AccessPattern, component_type: type) -> bool:
+        from agentecs.core.query.models import AllAccess, NoAccess, QueryAccess, TypeAccess
 
-    def _extract_types(self, pattern: AccessPattern) -> frozenset[type]:
-        from agentecs.core.query.models import QueryAccess, TypeAccess
-
+        if isinstance(pattern, AllAccess):
+            return True
+        if isinstance(pattern, NoAccess):
+            return False
         if isinstance(pattern, TypeAccess):
-            return pattern.types
+            return component_type in pattern.types
         if isinstance(pattern, QueryAccess):
-            return pattern.types()
-        return frozenset()  # Sentinel: empty means "all"
+            return component_type in pattern.types()
+        return False
 
     def is_dev_mode(self) -> bool:
         """Check if system should run in isolation (dev mode).

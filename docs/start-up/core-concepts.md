@@ -270,7 +270,9 @@ def process_tasks(world: ScopedAccess) -> None:
 
 - `reads`: Component types the system reads
 - `writes`: Component types the system writes
-- Both are **optional**—omit for full access during prototyping
+- Both are optional. `@system()` means full read/write access.
+- If you declare only one side, the omitted side defaults to no access.
+- `writes=()` means no write access.
 
 **Querying Entities:**
 
@@ -502,6 +504,12 @@ Systems can optionally declare which components they access for validation and d
 def prototype(world: ScopedAccess) -> None:
     # Can read/write anything
     pass
+
+# Reads declared, writes omitted -> no writes allowed
+@system(reads=(Task,))
+def observer(world: ScopedAccess) -> None:
+    for _, task in world(Task):
+        _ = task
 
 # Production: declared access for validation
 @system(reads=(Task, TokenBudget), writes=(Task, TokenBudget))
