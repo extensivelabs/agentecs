@@ -27,10 +27,12 @@ from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.query import (
     AccessPattern,
     AllAccess,
+    NoAccess,
     Query,
     QueryAccess,
     TypeAccess,
     normalize_access,
+    normalize_reads_and_writes,
     queries_disjoint,
 )
 from agentecs.core.system import (
@@ -76,8 +78,10 @@ __all__ = [
     "Query",
     "AccessPattern",
     "AllAccess",
+    "NoAccess",
     "TypeAccess",
     "QueryAccess",
     "queries_disjoint",
     "normalize_access",
+    "normalize_reads_and_writes",
 ]

@@ -344,7 +344,7 @@ class World:
 
         validate_result_access(
             result_buffer,
-            descriptor.writable_types(),
+            descriptor.writes,
             descriptor.name,
         )
 

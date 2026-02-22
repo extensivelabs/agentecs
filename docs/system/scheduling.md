@@ -245,6 +245,12 @@ def debug_system(access):
     pass
 ```
 
+Defaulting behavior:
+
+- `@system()` -> full read/write access
+- `@system(reads=(Position,))` -> reads `Position`, writes nothing
+- `writes=()` -> explicit no-write access
+
 !!! tip "When to Declare Access"
     - **Always declare** when you want validation and documentation
     - **Skip declarations** for quick prototyping or simple scripts

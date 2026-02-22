@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from agentecs import ScopedAccess, World, component, system
+from agentecs import ScopedAccess, SystemMode, World, component, system
 from agentecs.world import AccessViolationError
 
 
@@ -161,6 +161,34 @@ def test_cannot_write_undeclared_component(world):
         world.tick()
 
 
+def test_omitted_writes_defaults_to_no_access(world):
+    """If reads are declared and writes omitted, writes default to no access."""
+    entity = world.spawn(TestValue(10))
+
+    @system(reads=(TestValue,))
+    def try_write_without_writes_declared(access: ScopedAccess) -> None:
+        access[entity, TestValue] = TestValue(99)
+
+    world.register_system(try_write_without_writes_declared)
+
+    with pytest.raises(AccessViolationError, match="declared as read-only|not in writable types"):
+        world.tick()
+
+
+def test_empty_writes_declaration_blocks_writes(world):
+    """writes=() normalizes to no write access."""
+    entity = world.spawn(TestValue(10))
+
+    @system(reads=(TestValue,), writes=())
+    def try_write_with_empty_writes(access: ScopedAccess) -> None:
+        access[entity, TestValue] = TestValue(99)
+
+    world.register_system(try_write_with_empty_writes)
+
+    with pytest.raises(AccessViolationError, match="declared as read-only|not in writable types"):
+        world.tick()
+
+
 def test_dev_mode_can_access_anything(world):
     """Dev mode systems bypass access control."""
     entity = world.spawn(TestValue(10), OtherValue(20))
@@ -270,6 +298,34 @@ def test_readonly_system_cannot_write(world):
 
     # Should raise because readonly systems can't write
     with pytest.raises(AccessViolationError):
+        world.tick()
+
+
+def test_readonly_system_cannot_return_writes(world):
+    """Read-only systems cannot mutate by returning result updates."""
+    entity = world.spawn(TestValue(10))
+
+    @system.readonly(reads=(TestValue,))
+    def readonly_returns_update(access: ScopedAccess) -> dict:
+        return {entity: {TestValue: TestValue(99)}}
+
+    world.register_system(readonly_returns_update)
+
+    with pytest.raises(AccessViolationError, match="not in writable types"):
+        world.tick()
+
+
+def test_readonly_mode_cannot_return_writes_when_declarations_omitted(world):
+    """READONLY mode blocks returned writes even when reads/writes are omitted."""
+    entity = world.spawn(TestValue(10))
+
+    @system(mode=SystemMode.READONLY)
+    def readonly_mode_returns_update(access: ScopedAccess) -> dict:
+        return {entity: {TestValue: TestValue(99)}}
+
+    world.register_system(readonly_mode_returns_update)
+
+    with pytest.raises(AccessViolationError, match="not in writable types"):
         world.tick()
 
 

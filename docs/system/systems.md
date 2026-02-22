@@ -137,6 +137,13 @@ def quick_prototype(world: ScopedAccess) -> None:
     pass
 ```
 
+Defaulting rules are explicit:
+
+- `@system()` (both omitted) -> full read and write access
+- If one side is declared and the other omitted, the omitted side becomes no access
+- `writes=()` is an explicit no-write declaration
+- `@system.readonly()` defaults to full read access, writes are always blocked
+
 !!! tip "When to Declare Access"
     - **Skip declarations** for quick prototyping or simple scripts
     - **Add declarations** when you want validation and documentation

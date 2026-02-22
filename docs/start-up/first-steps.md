@@ -373,7 +373,7 @@ Ready to dive deeper?
 
 **Q: Do I need to specify `reads` and `writes`?**
 
-No! They're optional. For prototyping, just use `@system()`. Add declarations later for documentation and optimization.
+No. For prototyping, use `@system()` for full read/write access. If you declare only one side, the omitted side defaults to no access (for example `@system(reads=(Task,))` means read-only for `Task` unless you also declare writes).
 
 **Q: Can systems be async?**
 
