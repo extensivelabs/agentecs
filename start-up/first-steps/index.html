@@ -2163,7 +2163,7 @@
 </ul>
 <h2 id="common-questions">Common Questions<a class="headerlink" href="#common-questions" title="Permanent link">&para;</a></h2>
 <p><strong>Q: Do I need to specify <code>reads</code> and <code>writes</code>?</strong></p>
-<p>No! They're optional. For prototyping, just use <code>@system()</code>. Add declarations later for documentation and optimization.</p>
+<p>No. For prototyping, use <code>@system()</code> for full read/write access. If you declare only one side, the omitted side defaults to no access (for example <code>@system(reads=(Task,))</code> means read-only for <code>Task</code> unless you also declare writes).</p>
 <p><strong>Q: Can systems be async?</strong></p>
 <p>Yes! Just define them with <code>async def</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Task</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Response</span><span class="p">,))</span>

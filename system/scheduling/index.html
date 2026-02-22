@@ -2373,6 +2373,12 @@
 </span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">debug_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
 </span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">pass</span>
 </span></code></pre></div>
+<p>Defaulting behavior:</p>
+<ul>
+<li><code>@system()</code> -&gt; full read/write access</li>
+<li><code>@system(reads=(Position,))</code> -&gt; reads <code>Position</code>, writes nothing</li>
+<li><code>writes=()</code> -&gt; explicit no-write access</li>
+</ul>
 <div class="admonition tip">
 <p class="admonition-title">When to Declare Access</p>
 <ul>
