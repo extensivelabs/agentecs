@@ -11,6 +11,7 @@ Usage:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 from agentecs.core.component.wrapper import get_type
@@ -28,15 +29,154 @@ else:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-@dataclass
+class OpKind(StrEnum):
+    """Operations available to perform."""
+
+    UPDATE = "update"
+    INSERT = "insert"
+    REMOVE = "remove"
+    SPAWN = "spawn"
+    DESTROY = "destroy"
+
+
+@dataclass(frozen=True, slots=True)
+class MutationOp:
+    """Dataclass to store one mutation operation."""
+
+    op_seq: int
+    kind: OpKind
+    entity: EntityId | None = None
+    component: Any | None = None
+    component_type: type | None = None
+    spawn_components: tuple[Any, ...] | None = None
+
+
+@dataclass(slots=True)
 class SystemResult:
     """Accumulated changes from system execution."""
 
-    updates: dict[EntityId, dict[type, Any]] = field(default_factory=dict)
-    inserts: dict[EntityId, list[Any]] = field(default_factory=dict)
-    removes: dict[EntityId, list[type]] = field(default_factory=dict)
-    spawns: list[tuple[Any, ...]] = field(default_factory=list)
-    destroys: list[EntityId] = field(default_factory=list)
+    _ops: list[MutationOp] = field(default_factory=list)
+    _next_op_seq: int = 0
+    _update_indecies: list[int] = field(default_factory=list)
+    _insert_indecies: list[int] = field(default_factory=list)
+    _remove_indecies: list[int] = field(default_factory=list)
+    _spawn_indecies: list[int] = field(default_factory=list)
+    _destroy_indecies: list[int] = field(default_factory=list)
+
+    def record_update(self, entity: EntityId, component: Any) -> None:
+        """Record an update operation for an entity's component."""
+        op = MutationOp(
+            op_seq=self._next_op_seq,
+            kind=OpKind.UPDATE,
+            entity=entity,
+            component=component,
+        )
+        self._ops.append(op)
+        self._update_indecies.append(self._next_op_seq)
+        self._next_op_seq += 1
+
+    def record_insert(self, entity: EntityId, component: Any) -> None:
+        """Record an insert operation for an entity's component."""
+        op = MutationOp(
+            op_seq=self._next_op_seq,
+            kind=OpKind.INSERT,
+            entity=entity,
+            component=component,
+        )
+        self._ops.append(op)
+        self._insert_indecies.append(self._next_op_seq)
+        self._next_op_seq += 1
+
+    def record_remove(self, entity: EntityId, component_type: type) -> None:
+        """Record a remove operation for an entity's component type."""
+        op = MutationOp(
+            op_seq=self._next_op_seq,
+            kind=OpKind.REMOVE,
+            entity=entity,
+            component_type=component_type,
+        )
+        self._ops.append(op)
+        self._remove_indecies.append(self._next_op_seq)
+        self._next_op_seq += 1
+
+    def record_spawn(self, *components: Any) -> None:
+        """Record a spawn operation for a new entity with given components."""
+        op = MutationOp(
+            op_seq=self._next_op_seq,
+            kind=OpKind.SPAWN,
+            spawn_components=components,
+        )
+        self._ops.append(op)
+        self._spawn_indecies.append(self._next_op_seq)
+        self._next_op_seq += 1
+
+    def record_destroy(self, entity: EntityId) -> None:
+        """Record a destroy operation for an entity."""
+        op = MutationOp(
+            op_seq=self._next_op_seq,
+            kind=OpKind.DESTROY,
+            entity=entity,
+        )
+        self._ops.append(op)
+        self._destroy_indecies.append(self._next_op_seq)
+        self._next_op_seq += 1
+
+    @property
+    def ops(self) -> tuple[MutationOp, ...]:
+        """Returns all ops."""
+        return tuple(self._ops)
+
+    @property
+    def updates(self) -> dict[EntityId, dict[type, Any]]:
+        """Returns all updates as {entity: {Type: component}}."""
+        result: dict[EntityId, dict[type, Any]] = {}
+        ops = [self._ops[i] for i in self._update_indecies]
+        for op in ops:
+            if op.entity is not None and op.component is not None:
+                if op.entity not in result:
+                    result[op.entity] = {}
+                result[op.entity][get_type(op.component)] = op.component
+        return result
+
+    @property
+    def inserts(self) -> dict[EntityId, list[Any]]:
+        """Returns all inserts as {entity: [components]}."""
+        result: dict[EntityId, list[Any]] = {}
+        ops = [self._ops[i] for i in self._insert_indecies]
+        for op in ops:
+            if op.entity is not None and op.component is not None:
+                if op.entity not in result:
+                    result[op.entity] = []
+                result[op.entity].append(op.component)
+        return result
+
+    @property
+    def removes(self) -> dict[EntityId, list[type]]:
+        """Returns all removes as {entity: [component types]}."""
+        result: dict[EntityId, list[type]] = {}
+        ops = [self._ops[i] for i in self._remove_indecies]
+        for op in ops:
+            if op.entity is not None and op.component_type is not None:
+                if op.entity not in result:
+                    result[op.entity] = []
+                result[op.entity].append(op.component_type)
+        return result
+
+    @property
+    def spawns(self) -> list[tuple[Any, ...]]:
+        """Returns all spawns as list of component tuples."""
+        return [
+            spawn_components
+            for i in self._spawn_indecies
+            if (spawn_components := self._ops[i].spawn_components) is not None
+        ]
+
+    @property
+    def destroys(self) -> list[EntityId]:
+        """Returns all destroys as list of entity IDs."""
+        return [
+            entity for i in self._destroy_indecies if (entity := self._ops[i].entity) is not None
+        ]
 
     def is_empty(self) -> bool:
         """Check if this result contains no changes.
@@ -44,40 +184,36 @@ class SystemResult:
         Returns:
             True if result has no updates, inserts, removes, spawns, or destroys.
         """
-        return (
-            not self.updates
-            and not self.inserts
-            and not self.removes
-            and not self.spawns
-            and not self.destroys
-        )
+        return not self._ops
 
     def merge(self, other: SystemResult) -> None:
         """Merge other result into this one.
 
-        Combines all changes from other into self, mutating self in place.
-        Component updates are merged per-entity, per-type.
+        ADDS all ops from other into this result.
+        Does NOT check for conflicts or merge individual ops
+        caller is responsible for ensuring this is safe.
 
         Args:
             other: SystemResult to merge into this one.
         """
-        for entity, components in other.updates.items():
-            if entity not in self.updates:
-                self.updates[entity] = {}
-            self.updates[entity].update(components)
-
-        for entity, component_list in other.inserts.items():
-            if entity not in self.inserts:
-                self.inserts[entity] = []
-            self.inserts[entity].extend(component_list)
-
-        for entity, types in other.removes.items():
-            if entity not in self.removes:
-                self.removes[entity] = []
-            self.removes[entity].extend(types)
-
-        self.spawns.extend(other.spawns)
-        self.destroys.extend(other.destroys)
+        for op in other._ops:
+            if op.kind == "update":
+                if op.entity is not None and op.component is not None:
+                    self.record_update(op.entity, op.component)
+            elif op.kind == "insert":
+                if op.entity is not None and op.component is not None:
+                    self.record_insert(op.entity, op.component)
+            elif op.kind == "remove":
+                if op.entity is not None and op.component_type is not None:
+                    self.record_remove(op.entity, op.component_type)
+            elif op.kind == "spawn":
+                if op.spawn_components is not None:
+                    self.record_spawn(*op.spawn_components)
+            elif op.kind == "destroy":
+                if op.entity is not None:
+                    self.record_destroy(op.entity)
+            else:
+                raise ValueError(f"Unknown op kind: {op.kind}")
 
 
 SystemReturn = (
@@ -117,29 +253,21 @@ def normalize_result(raw: SystemReturn) -> SystemResult:
     if isinstance(raw, dict):
         result = SystemResult()
         for entity, value in raw.items():
-            if not isinstance(entity, EntityId):
-                raise TypeError(f"Expected EntityId key, got {type(entity)}")
-
             if isinstance(value, dict):
-                # {entity: {Type: component}}
-                result.updates[entity] = value
+                for _, comp in value.items():
+                    result.record_update(entity, comp)
             else:
-                # {entity: component} - infer type
-                result.updates[entity] = {type(value): value}
+                result.record_update(entity, value)
         return result
 
     if isinstance(raw, list):
         result = SystemResult()
         for item in raw:
-            if not isinstance(item, tuple) or len(item) != 2:
-                raise TypeError(f"Expected (EntityId, component) tuple, got {item}")
-            entity, component = item
-            if not isinstance(entity, EntityId):
-                raise TypeError(f"Expected EntityId, got {type(entity)}")
-
-            if entity not in result.updates:
-                result.updates[entity] = {}
-            result.updates[entity][type(component)] = component
+            if isinstance(item, tuple) and len(item) == 2:
+                entity, comp = item
+                result.record_update(entity, comp)
+            else:
+                raise TypeError(f"Invalid list item format: {item}")
         return result
 
     raise TypeError(f"Invalid system return type: {type(raw)}")

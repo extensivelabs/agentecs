@@ -467,37 +467,23 @@ class ScopedAccess:
 
     def update(self, entity: EntityId, component: Any) -> None:
         """Update/set component on entity."""
-        comp_type = get_type(component)
         self._check_writable(component)
-
-        if entity not in self._buffer.updates:
-            self._buffer.updates[entity] = {}
-        self._buffer.updates[entity][comp_type] = component
+        self._buffer.record_update(entity=entity, component=component)
 
     def update_singleton(self, component: Any) -> None:
         """Update/set singleton component on WORLD entity."""
-        comp_type = get_type(component)
         self._check_writable(component)
-
-        if SystemEntity.WORLD not in self._buffer.updates:
-            self._buffer.updates[SystemEntity.WORLD] = {}
-        self._buffer.updates[SystemEntity.WORLD][comp_type] = component
+        self._buffer.record_update(entity=SystemEntity.WORLD, component=component)
 
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
         self._check_writable(component)
-
-        if entity not in self._buffer.inserts:
-            self._buffer.inserts[entity] = []
-        self._buffer.inserts[entity].append(component)
+        self._buffer.record_insert(entity=entity, component=component)
 
     def remove(self, entity: EntityId, component_type: type) -> None:
         """Remove component from entity."""
         self._check_writable(component_type)
-
-        if entity not in self._buffer.removes:
-            self._buffer.removes[entity] = []
-        self._buffer.removes[entity].append(component_type)
+        self._buffer.record_remove(entity=entity, component_type=component_type)
 
     def spawn(self, *components: Any) -> EntityId:
         """Spawn new entity with components. Returns provisional ID."""
@@ -513,13 +499,13 @@ class ScopedAccess:
                 )
             seen_types.add(comp_type)
 
-        self._buffer.spawns.append(components)
+        self._buffer.record_spawn(*components)
         # Return provisional ID - actual ID assigned at apply time
         return EntityId(shard=0, index=-len(self._buffer.spawns), generation=0)
 
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
-        self._buffer.destroys.append(entity)
+        self._buffer.record_destroy(entity=entity)
 
     def merge_entities(
         self,

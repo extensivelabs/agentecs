@@ -32,27 +32,7 @@ def merge_last_writer_wins(
     merged = SystemResult()
 
     for result in results:
-        # Updates: later overwrites earlier (dict.update semantics)
-        for entity, components in result.updates.items():
-            if entity not in merged.updates:
-                merged.updates[entity] = {}
-            merged.updates[entity].update(components)
-
-        # Inserts: accumulate all
-        for entity, component_list in result.inserts.items():
-            if entity not in merged.inserts:
-                merged.inserts[entity] = []
-            merged.inserts[entity].extend(component_list)
-
-        # Removes: accumulate all
-        for entity, types in result.removes.items():
-            if entity not in merged.removes:
-                merged.removes[entity] = []
-            merged.removes[entity].extend(types)
-
-        # Spawns and destroys: accumulate
-        merged.spawns.extend(result.spawns)
-        merged.destroys.extend(result.destroys)
+        merged.merge(result)
 
     return merged
 
@@ -76,27 +56,21 @@ def merge_mergeable_first(
     """
     merged = SystemResult()
 
-    # Track all writes per (entity, type) to detect conflicts
     writes: dict[tuple[EntityId, type], list[tuple[int, Any]]] = {}
 
     for i, result in enumerate(results):
-        for entity, components in result.updates.items():
-            for comp_type, comp in components.items():
+        for entity, component_map in result.updates.items():
+            for comp_type, comp in component_map.items():
                 key = (entity, comp_type)
                 if key not in writes:
                     writes[key] = []
                 writes[key].append((i, comp))
 
-    # Resolve each (entity, type)
-    for (entity, comp_type), write_list in writes.items():
+    for (entity, _comp_type), write_list in writes.items():
         if len(write_list) == 1:
-            # No conflict
             _, comp = write_list[0]
-            if entity not in merged.updates:
-                merged.updates[entity] = {}
-            merged.updates[entity][comp_type] = comp
+            merged.record_update(entity, comp)
         else:
-            # Multiple writes - try Mergeable, else last wins
             _, first_comp = write_list[0]
             result_comp = first_comp
 
@@ -104,27 +78,24 @@ def merge_mergeable_first(
                 if isinstance(result_comp, Mergeable):
                     result_comp = result_comp.__merge__(next_comp)
                 else:
-                    # Fall back to overwrite
                     result_comp = next_comp
 
-            if entity not in merged.updates:
-                merged.updates[entity] = {}
-            merged.updates[entity][comp_type] = result_comp
+            merged.record_update(entity, result_comp)
 
-    # Handle inserts, removes, spawns, destroys (same as last_writer_wins)
     for result in results:
         for entity, component_list in result.inserts.items():
-            if entity not in merged.inserts:
-                merged.inserts[entity] = []
-            merged.inserts[entity].extend(component_list)
+            for component in component_list:
+                merged.record_insert(entity, component)
 
         for entity, types in result.removes.items():
-            if entity not in merged.removes:
-                merged.removes[entity] = []
-            merged.removes[entity].extend(types)
+            for component_type in types:
+                merged.record_remove(entity, component_type)
 
-        merged.spawns.extend(result.spawns)
-        merged.destroys.extend(result.destroys)
+        for components in result.spawns:
+            merged.record_spawn(*components)
+
+        for entity in result.destroys:
+            merged.record_destroy(entity)
 
     return merged
 
