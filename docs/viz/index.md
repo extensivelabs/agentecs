@@ -31,8 +31,8 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 # Install viz if not already installed
 pip install agentecs-viz
 
-# Run the task dispatch example with visualization
-python examples/task_dispatch_app/main.py --viz
+# Run the task dispatch example with visualization (from agentecs-examples repo)
+python examples/task_dispatch/main.py --viz
 ```
 
 ### Visualize Your World

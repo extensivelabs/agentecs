@@ -367,7 +367,7 @@ Ready to dive deeper?
 
 - **[Core Concepts](core-concepts.md)**: Learn about snapshot isolation, parallel execution, and async systems
 - **[Cookbook](../cookbook/index.md)**: Practical patterns and examples
-- **[Task Dispatch Example](../../examples/task_dispatch/)**: See a complete LLM-based agent system
+- **[Examples](https://github.com/extensivelabs/agentecs-examples)**: See complete examples including an LLM-based agent system
 
 ## Common Questions
 

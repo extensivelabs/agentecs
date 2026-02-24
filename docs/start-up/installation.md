@@ -156,10 +156,10 @@ Run tests to verify everything works:
 task test
 ```
 
-Run a simple example:
+Run the tests to verify the installation:
 
 ```bash
-uv run python examples/simple_agents.py
+task test
 ```
 
 ### Development Tasks

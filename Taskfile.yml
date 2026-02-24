@@ -5,7 +5,7 @@ vars:
   UV: uv
   SRC_DIR: src
   TEST_DIR: tests
-  EXAMPLES_DIR: examples
+  # Examples moved to https://github.com/extensivelabs/agentecs-examples
 
 tasks:
 
@@ -68,7 +68,7 @@ tasks:
   lint:
     desc: Run ruff linting
     cmds:
-      - '{{.UV}} run ruff check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+      - '{{.UV}} run ruff check {{.SRC_DIR}} {{.TEST_DIR}}'
 
   lint:imports:
     desc: Run import direction linting
@@ -78,17 +78,17 @@ tasks:
   lint:fix:
     desc: Run ruff linting and auto-fix issues
     cmds:
-      - '{{.UV}} run ruff check --fix {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+      - '{{.UV}} run ruff check --fix {{.SRC_DIR}} {{.TEST_DIR}}'
 
   format:
     desc: Auto-format code with ruff
     cmds:
-      - '{{.UV}} run ruff format {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+      - '{{.UV}} run ruff format {{.SRC_DIR}} {{.TEST_DIR}}'
 
   format:check:
     desc: Check code formatting without changes
     cmds:
-      - '{{.UV}} run ruff format --check {{.SRC_DIR}} {{.TEST_DIR}} {{.EXAMPLES_DIR}}'
+      - '{{.UV}} run ruff format --check {{.SRC_DIR}} {{.TEST_DIR}}'
 
   type:check:
     desc: Run mypy type checking
@@ -106,7 +106,7 @@ tasks:
       - echo "✓ All checks passed!"
 
   run:
-    desc: "Run an example script (usage: task run -- examples/simple_agents.py)"
+    desc: "Run a Python script (usage: task run -- script.py)"
     cmds:
       - '{{.UV}} run {{.PYTHON}} {{.CLI_ARGS}}'
 
@@ -158,14 +158,5 @@ tasks:
     cmds:
       - '{{.UV}} run agentecs-viz serve --mock {{.CLI_ARGS}}'
 
-  # === Example Tasks ===
-
-  example:task_dispatch:
-    desc: Run task dispatch example with visualization (requires agentecs-viz)
-    cmds:
-      - '{{.UV}} run python examples/task_dispatch_app/main.py --viz {{.CLI_ARGS}}'
-
-  example:task_dispatch:headless:
-    desc: Run task dispatch example in headless mode (no viz)
-    cmds:
-      - '{{.UV}} run python examples/task_dispatch_app/main.py --headless {{.CLI_ARGS}}'
+  # Examples are in the separate agentecs-examples repository:
+  # https://github.com/extensivelabs/agentecs-examples

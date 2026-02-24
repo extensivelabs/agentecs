@@ -663,7 +663,7 @@ Now that you understand the basics:
 - **Deep Dive**: Read [Systems](../system/systems.md) for detailed system documentation
 - **Learn Components**: Explore [Component Protocols](../system/components.md)
 - **Understand Scheduling**: Read [Execution Groups](../system/scheduling.md)
-- **See Real Examples**: Check [Task Dispatch Example](../../examples/task_dispatch/)
+- **See Real Examples**: Check [agentecs-examples](https://github.com/extensivelabs/agentecs-examples)
 - **Practical Patterns**: Browse [Cookbook](../cookbook/index.md)
 
 ## Common Patterns

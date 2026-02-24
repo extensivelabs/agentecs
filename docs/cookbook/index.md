@@ -10,4 +10,4 @@
 - Advanced Patterns (coming soon)
 - Testing Patterns (coming soon)
 
-For now, see the [examples/](https://github.com/extensivelabs/agentecs/tree/main/examples) directory in the repository.
+For now, see the [agentecs-examples](https://github.com/extensivelabs/agentecs-examples) repository.
