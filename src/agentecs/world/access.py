@@ -306,12 +306,12 @@ class ScopedAccess:
     def has(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has a specific component type."""
         self._check_readable(component_type)
+        inserts = self._buffer.inserts
+        removes = self._buffer.removes
 
-        if entity in self._buffer.inserts and any(
-            get_type(c) is component_type for c in self._buffer.inserts[entity]
-        ):
+        if entity in inserts and any(get_type(c) is component_type for c in inserts[entity]):
             return True
-        if entity in self._buffer.removes and component_type in self._buffer.removes[entity]:
+        if entity in removes and component_type in removes[entity]:
             return False
 
         return self._world._has_component(entity, component_type)
@@ -338,12 +338,30 @@ class ScopedAccess:
         """Internal async query returning (entity, (comp1, comp2, ...))."""
         yielded_entities = set()
 
+        buffer_version = -1
+        buffer_updates: dict[EntityId, dict[type, Any]] = {}
+        buffer_inserts: dict[EntityId, list[Any]] = {}
+        buffer_removes: dict[EntityId, list[type]] = {}
+        buffer_destroys: set[EntityId] = set()
+
+        def refresh_buffer_views() -> None:
+            nonlocal buffer_version, buffer_updates, buffer_inserts, buffer_removes, buffer_destroys
+            if buffer_version == self._buffer._next_op_seq:
+                return
+
+            buffer_updates = self._buffer.updates
+            buffer_inserts = self._buffer.inserts
+            buffer_removes = self._buffer.removes
+            buffer_destroys = set(self._buffer.destroys)
+            buffer_version = self._buffer._next_op_seq
+
         async for entity, components in self._world._query_components_async(*component_types):
+            refresh_buffer_views()
             should_skip = False
-            if entity in self._buffer.destroys:
+            if entity in buffer_destroys:
                 continue
             for comp_type in component_types:
-                if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
+                if entity in buffer_removes and comp_type in buffer_removes[entity]:
                     should_skip = True
                     break
             if should_skip:
@@ -351,10 +369,8 @@ class ScopedAccess:
 
             result = []
             for comp_type, comp in zip(component_types, components, strict=False):
-                if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    result.append(
-                        copy.deepcopy(get_component(self._buffer.updates[entity][comp_type]))
-                    )
+                if entity in buffer_updates and comp_type in buffer_updates[entity]:
+                    result.append(copy.deepcopy(get_component(buffer_updates[entity][comp_type])))
                 else:
                     result.append(copy.deepcopy(get_component(comp)))
             yielded_entities.add(entity)
@@ -363,8 +379,11 @@ class ScopedAccess:
 
         # At this point we have yielded all entities that has components matching in storage.
         # Now we check inserted or updated components.
-        for entity in list(self._buffer.updates.keys()) + list(self._buffer.inserts.keys()):
-            if entity in yielded_entities or entity in self._buffer.destroys:
+        refresh_buffer_views()
+        for entity in list(buffer_updates.keys()) + list(buffer_inserts.keys()):
+            refresh_buffer_views()
+
+            if entity in yielded_entities or entity in buffer_destroys:
                 continue
 
             has_all = True
@@ -372,17 +391,17 @@ class ScopedAccess:
             for comp_type in component_types:
                 comp = None
 
-                if entity in self._buffer.updates and comp_type in self._buffer.updates[entity]:
-                    comp = self._buffer.updates[entity][comp_type]
-                elif entity in self._buffer.inserts:
-                    for inserted_comp in self._buffer.inserts[entity]:
+                if entity in buffer_updates and comp_type in buffer_updates[entity]:
+                    comp = buffer_updates[entity][comp_type]
+                elif entity in buffer_inserts:
+                    for inserted_comp in buffer_inserts[entity]:
                         if get_type(inserted_comp) is comp_type:
                             comp = inserted_comp
                             break
                 if comp is None:
                     comp = await self._world._get_component_async(entity, comp_type)
 
-                if entity in self._buffer.removes and comp_type in self._buffer.removes[entity]:
+                if entity in buffer_removes and comp_type in buffer_removes[entity]:
                     has_all = False
                     break
 
@@ -432,20 +451,21 @@ class ScopedAccess:
             KeyError: If entity does not have the component.
         """
         self._check_readable(component_type)
+        updates = self._buffer.updates
+        inserts = self._buffer.inserts
+        destroys = self._buffer.destroys
 
-        if entity in self._buffer.updates and component_type in self._buffer.updates[entity]:
-            return cast(
-                T, copy.deepcopy(get_component(self._buffer.updates[entity][component_type]))
-            )
+        if entity in updates and component_type in updates[entity]:
+            return cast(T, copy.deepcopy(get_component(updates[entity][component_type])))
 
-        if entity in self._buffer.inserts:
-            for comp in self._buffer.inserts[entity]:
+        if entity in inserts:
+            for comp in inserts[entity]:
                 if get_type(comp) is component_type:
                     return cast(T, copy.deepcopy(get_component(comp)))
 
         if component := await self._world._get_component_async(entity, component_type):
             return copy.deepcopy(component)
-        elif entity in self._buffer.destroys:
+        elif entity in destroys:
             raise KeyError(f"Entity {entity} has been destroyed")
         else:
             raise KeyError(f"Entity {entity} has no component {component_type.__name__}")
@@ -467,37 +487,23 @@ class ScopedAccess:
 
     def update(self, entity: EntityId, component: Any) -> None:
         """Update/set component on entity."""
-        comp_type = get_type(component)
         self._check_writable(component)
-
-        if entity not in self._buffer.updates:
-            self._buffer.updates[entity] = {}
-        self._buffer.updates[entity][comp_type] = component
+        self._buffer.record_update(entity=entity, component=component)
 
     def update_singleton(self, component: Any) -> None:
         """Update/set singleton component on WORLD entity."""
-        comp_type = get_type(component)
         self._check_writable(component)
-
-        if SystemEntity.WORLD not in self._buffer.updates:
-            self._buffer.updates[SystemEntity.WORLD] = {}
-        self._buffer.updates[SystemEntity.WORLD][comp_type] = component
+        self._buffer.record_update(entity=SystemEntity.WORLD, component=component)
 
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
         self._check_writable(component)
-
-        if entity not in self._buffer.inserts:
-            self._buffer.inserts[entity] = []
-        self._buffer.inserts[entity].append(component)
+        self._buffer.record_insert(entity=entity, component=component)
 
     def remove(self, entity: EntityId, component_type: type) -> None:
         """Remove component from entity."""
         self._check_writable(component_type)
-
-        if entity not in self._buffer.removes:
-            self._buffer.removes[entity] = []
-        self._buffer.removes[entity].append(component_type)
+        self._buffer.record_remove(entity=entity, component_type=component_type)
 
     def spawn(self, *components: Any) -> EntityId:
         """Spawn new entity with components. Returns provisional ID."""
@@ -513,13 +519,13 @@ class ScopedAccess:
                 )
             seen_types.add(comp_type)
 
-        self._buffer.spawns.append(components)
+        self._buffer.record_spawn(*components)
         # Return provisional ID - actual ID assigned at apply time
-        return EntityId(shard=0, index=-len(self._buffer.spawns), generation=0)
+        return EntityId(shard=0, index=-self._buffer.spawn_count, generation=0)
 
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
-        self._buffer.destroys.append(entity)
+        self._buffer.record_destroy(entity=entity)
 
     def merge_entities(
         self,

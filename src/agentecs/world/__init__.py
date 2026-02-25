@@ -14,7 +14,14 @@ from agentecs.world.access import (
     ReadOnlyAccess,
     ScopedAccess,
 )
-from agentecs.world.result import ConflictError, SystemResult, SystemReturn, normalize_result
+from agentecs.world.result import (
+    ConflictError,
+    MutationOp,
+    OpKind,
+    SystemResult,
+    SystemReturn,
+    normalize_result,
+)
 from agentecs.world.world import World
 
 __all__ = [
@@ -24,6 +31,8 @@ __all__ = [
     "AccessViolationError",
     "QueryResult",
     "SystemResult",
+    "MutationOp",
+    "OpKind",
     "SystemReturn",
     "normalize_result",
     "ConflictError",
