@@ -65,6 +65,8 @@ from agentecs.tracing import (
 # World and access
 from agentecs.world import (
     AccessViolationError,
+    MutationOp,
+    OpKind,
     ReadOnlyAccess,
     ScopedAccess,
     SystemResult,
@@ -96,6 +98,8 @@ __all__ = [
     "ScopedAccess",
     "ReadOnlyAccess",
     "SystemResult",
+    "MutationOp",
+    "OpKind",
     "AccessViolationError",
     # Storage
     "Storage",
