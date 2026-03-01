@@ -365,9 +365,17 @@ class World:
                 op.kind == OpKind.REMOVE and op.component_type is not None and op.entity is not None
             ):
                 self._storage.remove_component(op.entity, op.component_type)
+                deleted_key = (op.entity, op.component_type)
+                if deleted_key in written:
+                    del written[deleted_key]
             elif op.kind == OpKind.DESTROY and op.entity is not None:
                 self._storage.destroy_entity(op.entity)
-
+                # Remove all pending writes for this entity
+                keys_to_delete = [k for k in written if k[0] == op.entity]
+                for k in keys_to_delete:
+                    del written[k]
+            else:
+                raise ValueError(f"Invalid operation in system result: {op}")
         return new_entities
 
     def apply_result(self, result: SystemResult) -> list[EntityId]:
