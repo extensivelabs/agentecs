@@ -6,12 +6,13 @@ for merging and splitting components during entity operations.
 
 from __future__ import annotations
 
+import copy
 from typing import cast
 
 from agentecs.core.component.models import Combinable, Splittable
 
 
-def combine_using_protocol[T](comp1: T, comp2: T) -> T:
+def combine_protocol_or_fallback[T](comp1: T, comp2: T) -> T:
     """Combine two components using the Mergeable protocol.
 
     Args:
@@ -27,7 +28,7 @@ def combine_using_protocol[T](comp1: T, comp2: T) -> T:
         return comp1.__combine__(comp2)
 
 
-def split_using_protocol[T](comp: T) -> tuple[T, T]:
+def split_protocol_or_fallback[T](comp: T) -> tuple[T, T]:
     """Split a component using the Splittable protocol.
 
     Args:
@@ -40,7 +41,7 @@ def split_using_protocol[T](comp: T) -> tuple[T, T]:
         TypeError: If comp doesn't implement Splittable.
     """
     if not isinstance(comp, Splittable):
-        return (comp, comp)
+        return (copy.deepcopy(comp), copy.deepcopy(comp))
     return cast(tuple[T, T], comp.__split__())
 
 
@@ -66,5 +67,5 @@ def reduce_components[T](items: list[T]) -> T:
         return items[0]
     result = items[0]
     for item in items[1:]:
-        result = combine_using_protocol(result, item)
+        result = combine_protocol_or_fallback(result, item)
     return result

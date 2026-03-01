@@ -26,9 +26,11 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 from agentecs.core.component.models import (
     Combinable,
-    Splittable,
 )
-from agentecs.core.component.operations import combine_using_protocol, split_using_protocol
+from agentecs.core.component.operations import (
+    combine_protocol_or_fallback,
+    split_protocol_or_fallback,
+)
 from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
@@ -173,7 +175,7 @@ class World:
             comp2 = self._storage.get_component(entity2, comp_type)
 
             if comp1 is not None and comp2 is not None:
-                merged = combine_using_protocol(comp1, comp2)
+                merged = combine_protocol_or_fallback(comp1, comp2)
 
                 if merged is not None:
                     merged_components.append(merged)
@@ -229,8 +231,7 @@ class World:
                 continue
 
             # Split using protocol or strategy
-            if isinstance(comp, Splittable):
-                left, right = split_using_protocol(comp)
+            left, right = split_protocol_or_fallback(comp)
             if left is not None:
                 first_components.append(left)
             if right is not None:
@@ -355,7 +356,7 @@ class World:
             ):
                 key = (op.entity, op.component_type)
                 if key in written and isinstance(op.component, Combinable):
-                    written[key] = combine_using_protocol(written[key], op.component)
+                    written[key] = combine_protocol_or_fallback(written[key], op.component)
                 else:
                     written[key] = op.component
                 self._storage.set_component(op.entity, component=written[key])
