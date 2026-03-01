@@ -91,7 +91,7 @@ def inactive_agents(world): ...
 
 ```python
 from agentecs import World
-from agentecs.scheduling import SimpleScheduler, SchedulerConfig, MergeStrategy
+from agentecs.scheduling import SimpleScheduler, SchedulerConfig
 
 # Create world with scheduler
 world = World(execution=SimpleScheduler())
@@ -100,7 +100,6 @@ world = World(execution=SimpleScheduler())
 world = World(
     execution=SimpleScheduler(
         config=SchedulerConfig(
-            merge_strategy=MergeStrategy.LAST_WRITER_WINS,
             max_concurrent=10
         )
     )

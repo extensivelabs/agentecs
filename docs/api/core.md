@@ -42,7 +42,7 @@ Define components with optional operation protocols.
 
 Components can optionally implement these protocols to enable advanced operations:
 
-::: agentecs.core.component.Mergeable
+::: agentecs.core.component.Combinable
     options:
       show_root_heading: true
       show_source: true
@@ -52,36 +52,14 @@ Components can optionally implement these protocols to enable advanced operation
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.component.Reducible
-    options:
-      show_root_heading: true
-      show_source: true
-
-::: agentecs.core.component.Diffable
-    options:
-      show_root_heading: true
-      show_source: true
-
-::: agentecs.core.component.Interpolatable
-    options:
-      show_root_heading: true
-      show_source: true
-
-### Strategy Enums
-
-::: agentecs.core.component.NonMergeableHandling
-    options:
-      show_root_heading: true
-      show_source: true
-
-::: agentecs.core.component.NonSplittableHandling
-    options:
-      show_root_heading: true
-      show_source: true
-
 ### Utility Functions
 
-::: agentecs.core.component.merge_components
+::: agentecs.core.component.operations.combine_protocol_or_fallback
+    options:
+      show_root_heading: true
+      show_source: true
+
+::: agentecs.core.component.operations.split_protocol_or_fallback
     options:
       show_root_heading: true
       show_source: true

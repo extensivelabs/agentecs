@@ -10,7 +10,7 @@ AgentECS follows a layered architecture separating **stateless functionalities**
 Pure, stateless building blocks for entities, components, systems, and queries. These are the fundamental abstractions that make up the ECS framework.
 
 **Key modules:**
-- **Component**: Define components with operation protocols (Mergeable, Splittable, etc.)
+- **Component**: Define components with operation protocols (Combinable, Splittable)
 - **Identity**: Entity IDs with generational indices and shard support
 - **Query**: Query builder for filtering entities by component types
 - **System**: Define systems with access patterns for parallelization
@@ -43,10 +43,10 @@ Storage backend interface and implementations. AgentECS uses a pluggable storage
 ---
 
 ### Scheduling API
-Parallel execution engine with configurable merge strategies. The scheduler runs systems in parallel with snapshot isolation and merges results using configurable strategies.
+Parallel execution engine. The scheduler runs systems in parallel with snapshot isolation, concatenates results in registration order, and relies on world application for Combinable folding and LWW fallback.
 
 **Key classes:**
-- **SimpleScheduler**: Parallel execution with configurable merge strategies
+- **SimpleScheduler**: Parallel execution with group-based orchestration
 - **SequentialScheduler**: Alias for SimpleScheduler with max_concurrent=1
 
 [→ View Scheduling API](scheduling.md)

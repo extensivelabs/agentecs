@@ -71,7 +71,7 @@ Ticks are the fundamental unit of simulation time in AgentECS. Each tick execute
 1. **Build execution plan** (group systems by execution strategy)
 2. **For each execution group:**
    - Execute systems in parallel with snapshot isolation
-   - Merge results using configured strategy
+   - Concatenate results in registration order
    - Apply changes atomically to storage
 3. **Next group sees applied changes**
 
@@ -262,40 +262,11 @@ AgentECS supports dynamic entity composition through merge and split operations:
 Combine two entities into one new entity:
 
 ```python
-from agentecs import NonMergeableHandling
-
-# Merge two agents
-merged = world.merge_entities(
-    agent1,
-    agent2,
-    on_non_mergeable=NonMergeableHandling.FIRST
-)
+merged = world.merge_entities(agent1, agent2)
 
 # agent1 and agent2 are destroyed
 # merged is a new entity with combined components
 ```
-
-**Merge Strategies:**
-
-<div class="grid cards" markdown>
-
-- :material-numeric-1-box: **FIRST**
-
-    Keep component from first entity
-
-- :material-numeric-2-box: **SECOND**
-
-    Keep component from second entity
-
-- :material-close-box: **SKIP**
-
-    Exclude component from merged entity
-
-- :material-alert-box: **ERROR**
-
-    Raise TypeError if component not Mergeable
-
-</div>
 
 **Merge Behavior:**
 
@@ -309,7 +280,7 @@ graph LR
     style C fill:#c8e6c9
 ```
 
-Components implementing `Mergeable` protocol are merged via `__merge__()`. Non-mergeable components use the specified strategy.
+Components implementing `Combinable` are merged via `__combine__()`. Non-combinable components use last-writer-wins (entity2 value).
 
 **Example:**
 
@@ -319,27 +290,27 @@ Components implementing `Mergeable` protocol are merged via `__merge__()`. Non-m
 class Credits:
     amount: float
 
-    def __merge__(self, other: "Credits") -> "Credits":
+    def __combine__(self, other: "Credits") -> "Credits":
         return Credits(self.amount + other.amount)
 
 @component
 @dataclass
 class AgentTag:
     name: str
-    # No __merge__ - not mergeable
+    # No __combine__ - LWW fallback
 
 # Create agents
 a1 = world.spawn(Credits(100), AgentTag("Alice"))
 a2 = world.spawn(Credits(50), AgentTag("Bob"))
 
-# Merge - Credits sum, AgentTag uses FIRST strategy
-merged = world.merge_entities(a1, a2, on_non_mergeable=NonMergeableHandling.FIRST)
+# Merge - Credits combine, AgentTag uses LWW (entity2)
+merged = world.merge_entities(a1, a2)
 
 credits = world.get_copy(merged, Credits)
 print(credits.amount)  # 150
 
 tag = world.get_copy(merged, AgentTag)
-print(tag.name)  # "Alice" (from first entity)
+print(tag.name)  # "Bob" (from entity2)
 ```
 
 #### Split Entity
@@ -347,52 +318,26 @@ print(tag.name)  # "Alice" (from first entity)
 Divide one entity into two new entities:
 
 ```python
-from agentecs import NonSplittableHandling
-
-# Split agent 70/30
-left, right = world.split_entity(
-    agent,
-    ratio=0.7,
-    on_non_splittable=NonSplittableHandling.BOTH
-)
+# Split agent
+left, right = world.split_entity(agent)
 
 # agent is destroyed
-# left gets 70%, right gets 30%
+# left and right receive split/copied components
 ```
-
-**Split Strategies:**
-
-<div class="grid cards" markdown>
-
-- :material-arrow-left-bold: **FIRST**
-
-    Give component to first entity only
-
-- :material-arrow-split-horizontal: **BOTH**
-
-    Deep copy component to both entities
-
-- :material-close-box: **SKIP**
-
-    Exclude from both entities
-
-- :material-alert-box: **ERROR**
-
-    Raise TypeError if component not Splittable
-
-</div>
 
 **Split Behavior:**
 
 ```mermaid
 graph LR
-    A["Agent<br/>Position(10, 10)<br/>Credits: 100"] -->|split 0.7| B["Left Agent<br/>Position(10, 10)<br/>Credits: 70"]
-    A -->|split 0.3| C["Right Agent<br/>Position(10, 10)<br/>Credits: 30"]
+    A["Agent<br/>Position(10, 10)<br/>Credits: 100"] -->|split| B["Left Agent<br/>Position(10, 10)<br/>Credits: 50"]
+    A -->|split| C["Right Agent<br/>Position(10, 10)<br/>Credits: 50"]
 
     style A fill:#ffcdd2
     style B fill:#c8e6c9
     style C fill:#c8e6c9
 ```
+
+Components implementing `Splittable` are split via `__split__()`. Non-splittable components are deep-copied to both entities.
 
 **Example:**
 
@@ -402,9 +347,10 @@ graph LR
 class Credits:
     amount: float
 
-    def __split__(self, ratio: float = 0.5) -> tuple["Credits", "Credits"]:
-        left = Credits(self.amount * ratio)
-        right = Credits(self.amount * (1 - ratio))
+    def __split__(self) -> tuple["Credits", "Credits"]:
+        half = self.amount / 2
+        left = Credits(half)
+        right = Credits(self.amount - half)
         return left, right
 
 @component
@@ -412,23 +358,19 @@ class Credits:
 class Position:
     x: float
     y: float
-    # No __split__ - not splittable
+    # No __split__ - deepcopy fallback
 
 # Create agent
 agent = world.spawn(Credits(100), Position(10, 10))
 
-# Split 60/40 - Credits split, Position cloned to both
-left, right = world.split_entity(
-    agent,
-    ratio=0.6,
-    on_non_splittable=NonSplittableHandling.BOTH
-)
+# Split - Credits split, Position cloned to both
+left, right = world.split_entity(agent)
 
 left_credits = world.get_copy(left, Credits)
-print(left_credits.amount)  # 60
+print(left_credits.amount)  # 50
 
 right_credits = world.get_copy(right, Credits)
-print(right_credits.amount)  # 40
+print(right_credits.amount)  # 50
 
 # Both have Position (cloned)
 assert world.get_copy(left, Position).x == 10
@@ -642,7 +584,7 @@ def system_updates(world: ScopedAccess) -> None:
 
 ### Result Application Workflow
 
-After each execution group completes, results are merged and applied:
+After each execution group completes, results are concatenated and applied:
 
 ```mermaid
 sequenceDiagram
@@ -657,7 +599,7 @@ sequenceDiagram
     SA->>SA: Write to buffer
     Sys-->>Sched: Return SystemResults
 
-    Note over Sched: Merge results (strategy)
+    Note over Sched: Concatenate results
     Sched->>W: apply_result_async(merged)
     W->>S: Apply updates
     S->>S: Update storage
@@ -711,7 +653,7 @@ world.restore(data)
     EntityIds use generational indices. An ID may be recycled for a different entity after destruction. Always check `world.has()` before use.
 
 !!! tip "Use Merge/Split Strategically"
-    Merge/split operations destroy original entities. Design your components and strategies carefully to preserve important data.
+    Merge/split operations destroy original entities. Design your component protocols and fallbacks carefully to preserve important data.
 
 !!! info "Singletons for Global State"
     Use `world.set_singleton()` for configuration, shared resources, or environment parameters. Access via `SystemEntity.WORLD` in systems.
