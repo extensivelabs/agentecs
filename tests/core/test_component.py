@@ -1,12 +1,17 @@
 """Tests for component system."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from unittest.mock import patch
 
 import pytest
 
-from agentecs import component, merge_components, reduce_components
-from agentecs.core.component import ComponentRegistry
+from agentecs import component
+from agentecs.core.component import (
+    ComponentRegistry,
+    combine_protocol_or_fallback,
+    reduce_components,
+    split_protocol_or_fallback,
+)
 
 
 @pytest.fixture
@@ -110,94 +115,123 @@ def test_component_requires_dataclass():
             value: int
 
 
-def test_merge_with_mergeable_protocol():
-    """merge_components uses __merge__ if available."""
+def test_combine_protocol_or_fallback_with_combinable():
+    """combine_protocol_or_fallback uses __combine__ when available."""
+    calls: list[tuple[int, int]] = []
 
     @component
     @dataclass
-    class MergeableComp:
+    class CombinableComp:
         value: int
 
-        def __merge__(self, other: "MergeableComp") -> "MergeableComp":
-            return MergeableComp(self.value + other.value)
+        def __combine__(self, other: "CombinableComp") -> "CombinableComp":
+            calls.append((self.value, other.value))
+            return CombinableComp(self.value + other.value)
 
-    comp1 = MergeableComp(10)
-    comp2 = MergeableComp(20)
+    comp1 = CombinableComp(10)
+    comp2 = CombinableComp(20)
 
-    result = merge_components(comp1, comp2)
+    result = combine_protocol_or_fallback(comp1, comp2)
 
+    assert calls == [(10, 20)]
     assert result.value == 30
 
 
-def test_merge_without_mergeable_raises():
-    """merge_components raises if component doesn't implement Mergeable."""
+def test_combine_protocol_or_fallback_without_combinable():
+    """combine_protocol_or_fallback falls back to second component."""
 
     @component
     @dataclass
-    class NonMergeableComp:
+    class PlainComp:
         value: int
 
-    comp1 = NonMergeableComp(10)
-    comp2 = NonMergeableComp(20)
+    comp1 = PlainComp(10)
+    comp2 = PlainComp(20)
 
-    with pytest.raises(TypeError, match="not Mergeable"):
-        merge_components(comp1, comp2)
+    result = combine_protocol_or_fallback(comp1, comp2)
+
+    assert result is comp2
 
 
-def test_merge_with_strategy():
-    """merge_components uses custom strategy if provided."""
+def test_split_protocol_or_fallback_with_splittable():
+    """split_protocol_or_fallback uses __split__ when available."""
+    calls: list[int] = []
 
     @component
     @dataclass
-    class StrategyComp:
+    class SplitComp:
         value: int
 
-    comp1 = StrategyComp(10)
-    comp2 = StrategyComp(20)
+        def __split__(self) -> tuple["SplitComp", "SplitComp"]:
+            calls.append(self.value)
+            return (SplitComp(self.value // 2), SplitComp(self.value - (self.value // 2)))
 
-    def max_strategy(a: StrategyComp, b: StrategyComp) -> StrategyComp:
-        return StrategyComp(max(a.value, b.value))
+    comp = SplitComp(7)
 
-    result = merge_components(comp1, comp2, strategy=max_strategy)
+    left, right = split_protocol_or_fallback(comp)
 
-    assert result.value == 20
+    assert calls == [7]
+    assert left.value == 3
+    assert right.value == 4
 
 
-def test_reduce_components_with_reduce_many():
-    """reduce_components uses __reduce_many__ if available."""
+def test_split_protocol_or_fallback_without_splittable():
+    """split_protocol_or_fallback returns two independent deep copies."""
 
     @component
     @dataclass
-    class ReducibleComp:
-        value: int
+    class PlainSplitComp:
+        values: list[int] = field(default_factory=list)
 
-        @classmethod
-        def __reduce_many__(cls, items: list["ReducibleComp"]) -> "ReducibleComp":
-            return ReducibleComp(sum(c.value for c in items))
+    comp = PlainSplitComp([1, 2])
 
-    comps = [ReducibleComp(10), ReducibleComp(20), ReducibleComp(30)]
+    left, right = split_protocol_or_fallback(comp)
+
+    assert left == comp
+    assert right == comp
+    assert left is not comp
+    assert right is not comp
+    assert left is not right
+
+    left.values.append(3)
+    assert comp.values == [1, 2]
+    assert right.values == [1, 2]
+
+
+def test_reduce_components_with_combinable_folding():
+    """reduce_components folds values by sequential __combine__ calls."""
+    calls: list[tuple[str, str]] = []
+
+    @component
+    @dataclass
+    class FoldComp:
+        value: str
+
+        def __combine__(self, other: "FoldComp") -> "FoldComp":
+            calls.append((self.value, other.value))
+            return FoldComp(f"{self.value}>{other.value}")
+
+    comps = [FoldComp("a"), FoldComp("b"), FoldComp("c")]
 
     result = reduce_components(comps)
 
-    assert result.value == 60
+    assert result.value == "a>b>c"
+    assert calls == [("a", "b"), ("a>b", "c")]
 
 
-def test_reduce_components_fallback_to_merge():
-    """reduce_components falls back to sequential merge."""
+def test_reduce_components_fallback_to_last_writer_wins():
+    """reduce_components returns the last value for non-combinables."""
 
     @component
     @dataclass
-    class SeqMergeComp:
+    class PlainReduceComp:
         value: int
 
-        def __merge__(self, other: "SeqMergeComp") -> "SeqMergeComp":
-            return SeqMergeComp(self.value + other.value)
-
-    comps = [SeqMergeComp(1), SeqMergeComp(2), SeqMergeComp(3)]
+    comps = [PlainReduceComp(1), PlainReduceComp(2), PlainReduceComp(3)]
 
     result = reduce_components(comps)
 
-    assert result.value == 6  # 1+2+3
+    assert result is comps[-1]
 
 
 def test_reduce_empty_list_raises():

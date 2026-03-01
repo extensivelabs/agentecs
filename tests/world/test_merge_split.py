@@ -1,28 +1,23 @@
 """Tests for entity merge and split operations."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
-from agentecs import (
-    NonMergeableHandling,
-    NonSplittableHandling,
-    World,
-    component,
-)
+from agentecs import AccessViolationError, EntityId, ScopedAccess, World, component, system
 
 
 @component
 @dataclass(slots=True)
-class MergeablePosition:
-    """Position component with merge support."""
+class CombinablePosition:
+    """Position component with combine support."""
 
     x: float
     y: float
 
-    def __merge__(self, other: "MergeablePosition") -> "MergeablePosition":
-        """Merge by averaging positions."""
-        return MergeablePosition(
+    def __combine__(self, other: "CombinablePosition") -> "CombinablePosition":
+        """Combine by averaging positions."""
+        return CombinablePosition(
             x=(self.x + other.x) / 2,
             y=(self.y + other.y) / 2,
         )
@@ -31,121 +26,109 @@ class MergeablePosition:
 @component
 @dataclass(slots=True)
 class SplittableCredits:
-    """Credits component with split support."""
+    """Credits component with combine and split support."""
 
     amount: float
 
-    def __merge__(self, other: "SplittableCredits") -> "SplittableCredits":
-        """Merge by summing credits."""
+    def __combine__(self, other: "SplittableCredits") -> "SplittableCredits":
+        """Combine by summing credits."""
         return SplittableCredits(amount=self.amount + other.amount)
 
-    def __split__(self, ratio: float = 0.5) -> tuple["SplittableCredits", "SplittableCredits"]:
-        """Split credits by ratio."""
-        left_amount = self.amount * ratio
-        right_amount = self.amount * (1 - ratio)
-        return SplittableCredits(left_amount), SplittableCredits(right_amount)
+    def __split__(self) -> tuple["SplittableCredits", "SplittableCredits"]:
+        """Split credits equally."""
+        half = self.amount / 2
+        return SplittableCredits(half), SplittableCredits(self.amount - half)
 
 
 @component
 @dataclass(slots=True)
-class NonMergeableTag:
-    """Simple tag without merge support."""
+class PlainTag:
+    """Simple tag without combine support."""
 
     name: str
 
 
 @component
 @dataclass(slots=True)
-class NonSplittableHealth:
+class PlainHealth:
     """Health without split support."""
 
     hp: int
+    notes: list[str] = field(default_factory=list)
 
 
 class TestMergeEntities:
     """Tests for World.merge_entities()."""
 
-    def test_merge_with_mergeable_components(self) -> None:
-        """Mergeable components are merged via __merge__."""
+    def test_merge_entities_with_combinable(self) -> None:
+        """Combinable components are combined via __combine__."""
         world = World()
-        e1 = world.spawn(MergeablePosition(0, 0))
-        e2 = world.spawn(MergeablePosition(10, 20))
+        e1 = world.spawn(CombinablePosition(0, 0))
+        e2 = world.spawn(CombinablePosition(10, 20))
 
         merged = world.merge_entities(e1, e2)
 
-        pos = world.get_copy(merged, MergeablePosition)
+        pos = world.get_copy(merged, CombinablePosition)
         assert pos is not None
-        assert pos.x == 5.0  # (0 + 10) / 2
-        assert pos.y == 10.0  # (0 + 20) / 2
+        assert pos.x == 5.0
+        assert pos.y == 10.0
 
-    def test_merge_destroys_original_entities(self) -> None:
+    def test_merge_entities_destroys_originals(self) -> None:
         """Original entities are destroyed after merge."""
         world = World()
-        e1 = world.spawn(MergeablePosition(0, 0))
-        e2 = world.spawn(MergeablePosition(10, 10))
+        e1 = world.spawn(CombinablePosition(0, 0))
+        e2 = world.spawn(CombinablePosition(10, 10))
 
         merged = world.merge_entities(e1, e2)
 
-        # Original entities should not exist
-        assert world.get_copy(e1, MergeablePosition) is None
-        assert world.get_copy(e2, MergeablePosition) is None
-        # Merged entity should exist
-        assert world.get_copy(merged, MergeablePosition) is not None
+        assert world.get_copy(e1, CombinablePosition) is None
+        assert world.get_copy(e2, CombinablePosition) is None
+        assert world.get_copy(merged, CombinablePosition) is not None
 
-    def test_merge_combines_different_components(self) -> None:
-        """Components unique to one entity are included in merged."""
+    def test_merge_entities_combines_different_components(self) -> None:
+        """Components unique to one entity are retained in merged entity."""
         world = World()
-        e1 = world.spawn(MergeablePosition(0, 0), NonMergeableTag("alice"))
-        e2 = world.spawn(MergeablePosition(10, 10), NonSplittableHealth(100))
+        e1 = world.spawn(CombinablePosition(0, 0), PlainTag("alice"))
+        e2 = world.spawn(CombinablePosition(10, 10), PlainHealth(100, ["ok"]))
 
         merged = world.merge_entities(e1, e2)
 
-        # All components should be present
-        assert world.get_copy(merged, MergeablePosition) is not None
-        assert world.get_copy(merged, NonMergeableTag) is not None
-        assert world.get_copy(merged, NonSplittableHealth) is not None
+        assert world.get_copy(merged, CombinablePosition) is not None
+        assert world.get_copy(merged, PlainTag) is not None
+        assert world.get_copy(merged, PlainHealth) is not None
 
-    @pytest.mark.parametrize(
-        ("handling", "expected_name"),
-        [
-            (NonMergeableHandling.FIRST, "alice"),
-            (NonMergeableHandling.SECOND, "bob"),
-            (NonMergeableHandling.SKIP, None),
-        ],
-    )
-    def test_merge_non_mergeable_handling(
-        self, handling: NonMergeableHandling, expected_name: str | None
-    ) -> None:
-        """Non-mergeable handling strategies work correctly."""
+    def test_merge_entities_non_combinable_lww(self) -> None:
+        """Non-combinable components use last-writer-wins."""
         world = World()
-        e1 = world.spawn(NonMergeableTag("alice"))
-        e2 = world.spawn(NonMergeableTag("bob"))
+        e1 = world.spawn(PlainTag("alice"))
+        e2 = world.spawn(PlainTag("bob"))
 
-        merged = world.merge_entities(e1, e2, on_non_mergeable=handling)
+        merged = world.merge_entities(e1, e2)
 
-        tag = world.get_copy(merged, NonMergeableTag)
-        if expected_name is None:
-            assert tag is None
-        else:
-            assert tag is not None
-            assert tag.name == expected_name
+        tag = world.get_copy(merged, PlainTag)
+        assert tag is not None
+        assert tag.name == "bob"
 
-    def test_merge_non_mergeable_error(self) -> None:
-        """Non-mergeable with ERROR raises TypeError."""
+    def test_merge_entities_only_one_has_component(self) -> None:
+        """Merged entity keeps components that appear on only one source entity."""
         world = World()
-        e1 = world.spawn(NonMergeableTag("alice"))
-        e2 = world.spawn(NonMergeableTag("bob"))
+        e1 = world.spawn(PlainTag("alice"))
+        e2 = world.spawn(PlainHealth(100, ["stable"]))
 
-        with pytest.raises(TypeError, match="not Mergeable"):
-            world.merge_entities(e1, e2, on_non_mergeable=NonMergeableHandling.ERROR)
+        merged = world.merge_entities(e1, e2)
 
-    def test_merge_nonexistent_entity_raises(self) -> None:
+        tag = world.get_copy(merged, PlainTag)
+        health = world.get_copy(merged, PlainHealth)
+        assert tag is not None and tag.name == "alice"
+        assert health is not None and health.hp == 100
+
+    def test_merge_entities_nonexistent_raises(self) -> None:
         """Merging nonexistent entity raises ValueError."""
         world = World()
-        e1 = world.spawn(MergeablePosition(0, 0))
+        e1 = world.spawn(CombinablePosition(0, 0))
         world.destroy(e1)
 
-        e2 = world.spawn(MergeablePosition(10, 10))
+        e2 = world.spawn(CombinablePosition(10, 10))
 
         with pytest.raises(ValueError, match="does not exist"):
             world.merge_entities(e1, e2)
@@ -154,83 +137,68 @@ class TestMergeEntities:
 class TestSplitEntity:
     """Tests for World.split_entity()."""
 
-    def test_split_with_splittable_components(self) -> None:
+    def test_split_entity_with_splittable(self) -> None:
         """Splittable components are split via __split__."""
         world = World()
         entity = world.spawn(SplittableCredits(100.0))
 
-        left, right = world.split_entity(entity, ratio=0.7)
+        left, right = world.split_entity(entity)
 
         left_credits = world.get_copy(left, SplittableCredits)
         right_credits = world.get_copy(right, SplittableCredits)
         assert left_credits is not None
         assert right_credits is not None
-        assert left_credits.amount == pytest.approx(70.0)
-        assert right_credits.amount == pytest.approx(30.0)
+        assert left_credits.amount == pytest.approx(50.0)
+        assert right_credits.amount == pytest.approx(50.0)
 
-    def test_split_destroys_original_entity(self) -> None:
+    def test_split_entity_destroys_original(self) -> None:
         """Original entity is destroyed after split."""
         world = World()
         entity = world.spawn(SplittableCredits(100.0))
 
         left, right = world.split_entity(entity)
 
-        # Original should not exist
         assert world.get_copy(entity, SplittableCredits) is None
-        # Split entities should exist
         assert world.get_copy(left, SplittableCredits) is not None
         assert world.get_copy(right, SplittableCredits) is not None
 
-    @pytest.mark.parametrize(
-        ("handling", "left_has", "right_has"),
-        [
-            (NonSplittableHandling.BOTH, True, True),
-            (NonSplittableHandling.FIRST, True, False),
-            (NonSplittableHandling.SKIP, False, False),
-        ],
-    )
-    def test_split_non_splittable_handling(
-        self, handling: NonSplittableHandling, left_has: bool, right_has: bool
-    ) -> None:
-        """Non-splittable handling strategies work correctly."""
+    def test_split_entity_non_splittable_deepcopy(self) -> None:
+        """Non-splittable components are deep-copied to both entities."""
         world = World()
-        entity = world.spawn(NonSplittableHealth(100))
+        entity = world.spawn(PlainHealth(100, ["stable"]))
 
-        left, right = world.split_entity(entity, on_non_splittable=handling)
+        left, right = world.split_entity(entity)
 
-        left_hp = world.get_copy(left, NonSplittableHealth)
-        right_hp = world.get_copy(right, NonSplittableHealth)
+        left_health = world.get_copy(left, PlainHealth)
+        right_health = world.get_copy(right, PlainHealth)
 
-        if left_has:
-            assert left_hp is not None and left_hp.hp == 100
-        else:
-            assert left_hp is None
+        assert left_health is not None
+        assert right_health is not None
+        assert left_health.hp == 100
+        assert right_health.hp == 100
 
-        if right_has:
-            assert right_hp is not None and right_hp.hp == 100
-        else:
-            assert right_hp is None
+        left_raw = world._storage.get_component(left, PlainHealth, copy=False)
+        right_raw = world._storage.get_component(right, PlainHealth, copy=False)
+        assert left_raw is not None
+        assert right_raw is not None
+        assert left_raw is not right_raw
 
-    def test_split_non_splittable_error(self) -> None:
-        """Non-splittable with ERROR raises TypeError."""
+    def test_split_entity_non_splittable_independence(self) -> None:
+        """Mutating one split copy does not affect the other copy."""
         world = World()
-        entity = world.spawn(NonSplittableHealth(100))
+        entity = world.spawn(PlainHealth(100, ["stable"]))
 
-        with pytest.raises(TypeError, match="not Splittable"):
-            world.split_entity(entity, on_non_splittable=NonSplittableHandling.ERROR)
+        left, right = world.split_entity(entity)
 
-    def test_split_invalid_ratio_raises(self) -> None:
-        """Invalid ratio raises ValueError."""
-        world = World()
-        entity = world.spawn(SplittableCredits(100.0))
+        left_raw = world._storage.get_component(left, PlainHealth, copy=False)
+        right_raw = world._storage.get_component(right, PlainHealth, copy=False)
+        assert left_raw is not None
+        assert right_raw is not None
 
-        with pytest.raises(ValueError, match="between 0.0 and 1.0"):
-            world.split_entity(entity, ratio=1.5)
+        left_raw.notes.append("damaged")
+        assert right_raw.notes == ["stable"]
 
-        with pytest.raises(ValueError, match="between 0.0 and 1.0"):
-            world.split_entity(entity, ratio=-0.1)
-
-    def test_split_nonexistent_entity_raises(self) -> None:
+    def test_split_entity_nonexistent_raises(self) -> None:
         """Splitting nonexistent entity raises ValueError."""
         world = World()
         entity = world.spawn(SplittableCredits(100.0))
@@ -239,54 +207,102 @@ class TestSplitEntity:
         with pytest.raises(ValueError, match="does not exist"):
             world.split_entity(entity)
 
-    def test_split_equal_ratio(self) -> None:
-        """Default 0.5 ratio splits equally."""
-        world = World()
-        entity = world.spawn(SplittableCredits(100.0))
-
-        left, right = world.split_entity(entity)
-
-        left_credits = world.get_copy(left, SplittableCredits)
-        right_credits = world.get_copy(right, SplittableCredits)
-        assert left_credits is not None and left_credits.amount == 50.0
-        assert right_credits is not None and right_credits.amount == 50.0
-
 
 class TestMergeSplitRoundtrip:
     """Tests verifying merge and split are compatible."""
 
-    def test_split_then_merge_restores_value(self) -> None:
-        """Splitting then merging should restore original value."""
+    def test_split_then_merge_roundtrip(self) -> None:
+        """Split then merge preserves component values for this setup."""
         world = World()
-        entity = world.spawn(SplittableCredits(100.0))
+        entity = world.spawn(CombinablePosition(10, 20), SplittableCredits(100.0))
 
         left, right = world.split_entity(entity)
         merged = world.merge_entities(left, right)
 
+        pos = world.get_copy(merged, CombinablePosition)
         credits = world.get_copy(merged, SplittableCredits)
+
+        assert pos is not None
         assert credits is not None
-        assert credits.amount == 100.0  # 50 + 50
+        assert pos.x == pytest.approx(10.0)
+        assert pos.y == pytest.approx(20.0)
+        assert credits.amount == pytest.approx(100.0)
 
-    def test_multiple_splits_and_merges(self) -> None:
-        """Multiple splits and merges maintain consistency."""
-        world = World()
-        entity = world.spawn(SplittableCredits(100.0))
 
-        # Split into 4
-        l1, r1 = world.split_entity(entity)
-        l2, l3 = world.split_entity(l1)
-        r2, r3 = world.split_entity(r1)
+@pytest.mark.asyncio
+async def test_scoped_access_merge_entities() -> None:
+    """ScopedAccess can queue merge operations with provisional IDs."""
+    world = World()
+    e1 = world.spawn(CombinablePosition(0, 0), PlainTag("alice"))
+    e2 = world.spawn(CombinablePosition(10, 20), PlainTag("bob"))
 
-        # Each should have 25
-        for e in [l2, l3, r2, r3]:
-            c = world.get_copy(e, SplittableCredits)
-            assert c is not None and c.amount == 25.0
+    provisional: EntityId | None = None
 
-        # Merge back
-        m1 = world.merge_entities(l2, l3)
-        m2 = world.merge_entities(r2, r3)
-        final = world.merge_entities(m1, m2)
+    @system(reads=(CombinablePosition, PlainTag), writes=(CombinablePosition, PlainTag))
+    def merge_system(access: ScopedAccess) -> None:
+        nonlocal provisional
+        provisional = access.merge_entities(e1, e2)
 
-        credits = world.get_copy(final, SplittableCredits)
-        assert credits is not None
-        assert credits.amount == 100.0
+    world.register_system(merge_system)
+    await world.tick_async()
+
+    assert provisional is not None
+    assert provisional.index < 0
+    assert world.get_copy(e1, CombinablePosition) is None
+    assert world.get_copy(e2, CombinablePosition) is None
+
+    merged_entities = list(world.query_copies(CombinablePosition, PlainTag))
+    assert len(merged_entities) == 1
+
+    _, pos, tag = merged_entities[0]
+    assert pos.x == pytest.approx(5.0)
+    assert pos.y == pytest.approx(10.0)
+    assert tag.name == "bob"
+
+
+@pytest.mark.asyncio
+async def test_scoped_access_split_entity() -> None:
+    """ScopedAccess can queue split operations with provisional IDs."""
+    world = World()
+    entity = world.spawn(SplittableCredits(100.0), PlainHealth(100, ["stable"]))
+
+    provisional: tuple[EntityId, EntityId] | None = None
+
+    @system(reads=(SplittableCredits, PlainHealth), writes=(SplittableCredits, PlainHealth))
+    def split_system(access: ScopedAccess) -> None:
+        nonlocal provisional
+        provisional = access.split_entity(entity)
+
+    world.register_system(split_system)
+    await world.tick_async()
+
+    assert provisional is not None
+    assert provisional[0].index < 0
+    assert provisional[1].index < 0
+    assert provisional[0] != provisional[1]
+    assert world.get_copy(entity, SplittableCredits) is None
+
+    split_entities = list(world.query_copies(SplittableCredits, PlainHealth))
+    assert len(split_entities) == 2
+
+    amounts = sorted(credits.amount for _, credits, _ in split_entities)
+    assert amounts == [50.0, 50.0]
+    assert all(health.hp == 100 for _, _, health in split_entities)
+    assert all(health.notes == ["stable"] for _, _, health in split_entities)
+
+
+@pytest.mark.asyncio
+async def test_scoped_access_merge_access_violation() -> None:
+    """Missing read access on merge target components raises AccessViolationError."""
+    world = World()
+    e1 = world.spawn(CombinablePosition(0, 0), PlainTag("alice"))
+    e2 = world.spawn(CombinablePosition(10, 20), PlainTag("bob"))
+
+    @system(reads=(CombinablePosition,), writes=(CombinablePosition,))
+    def merge_system(access: ScopedAccess) -> None:
+        access.merge_entities(e1, e2)
+
+    world.register_system(merge_system)
+
+    with pytest.raises(AccessViolationError, match="cannot read PlainTag"):
+        await world.tick_async()

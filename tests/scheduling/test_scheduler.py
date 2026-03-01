@@ -1,8 +1,8 @@
-"""Tests for scheduler execution and merge strategies.
+"""Tests for scheduler execution and result combination.
 
 Critical Invariants:
 - Parallel execution is deterministic (same result every run)
-- Merge strategies behave correctly
+- Combinable folds and LWW behave correctly
 - Dev mode systems run in isolation
 - Concurrency limiting works
 """
@@ -12,7 +12,6 @@ from dataclasses import dataclass
 import pytest
 
 from agentecs import (
-    MergeStrategy,
     SchedulerConfig,
     ScopedAccess,
     World,
@@ -30,13 +29,20 @@ class Counter:
 
 @component
 @dataclass
-class MergeableCounter:
-    """Counter that implements Mergeable - sums values when merged."""
+class CombinableCounter:
+    """Counter that sums values when combined."""
 
     value: int
 
-    def __merge__(self, other: "MergeableCounter") -> "MergeableCounter":
-        return MergeableCounter(self.value + other.value)
+    def __combine__(self, other: "CombinableCounter") -> "CombinableCounter":
+        return CombinableCounter(self.value + other.value)
+
+
+@component
+@dataclass
+class Position:
+    x: int
+    y: int
 
 
 @component
@@ -121,20 +127,16 @@ async def test_sequential_scheduler_same_as_max_concurrent_1():
         assert world.get_copy(entity, Counter).value == 1  # type: ignore
 
 
-# Merge strategy tests
+# Merge behavior tests
 
 
 @pytest.mark.asyncio
 async def test_last_writer_wins_merge():
     """LastWriterWins: later registered system overwrites earlier.
 
-    Why: Default merge strategy must be predictable and simple.
+    Why: Default merge behavior must be predictable and simple.
     """
-    world = World(
-        execution=SimpleScheduler(
-            config=SchedulerConfig(merge_strategy=MergeStrategy.LAST_WRITER_WINS)
-        )
-    )
+    world = World(execution=SimpleScheduler(config=SchedulerConfig()))
     entity = world.spawn(Counter(0))
 
     @system(reads=(Counter,), writes=(Counter,))
@@ -156,64 +158,86 @@ async def test_last_writer_wins_merge():
 
 
 @pytest.mark.asyncio
-async def test_mergeable_first_uses_protocol():
-    """MergeableFirst: uses __merge__ when component implements Mergeable.
+async def test_combinable_folds_writes():
+    """Combinable writes are folded with __combine__."""
+    world = World(execution=SimpleScheduler())
+    entity = world.spawn(CombinableCounter(0))
 
-    Why: Allows semantic merging (e.g., summing counters) instead of overwriting.
-    """
-    world = World(
-        execution=SimpleScheduler(
-            config=SchedulerConfig(merge_strategy=MergeStrategy.MERGEABLE_FIRST)
-        )
-    )
-    entity = world.spawn(MergeableCounter(0))
-
-    @system(reads=(MergeableCounter,), writes=(MergeableCounter,))
+    @system(reads=(CombinableCounter,), writes=(CombinableCounter,))
     def add_five(access: ScopedAccess) -> None:
-        for e, _ in access(MergeableCounter):
-            access[e, MergeableCounter] = MergeableCounter(5)
+        for e, _ in access(CombinableCounter):
+            access[e, CombinableCounter] = CombinableCounter(5)
 
-    @system(reads=(MergeableCounter,), writes=(MergeableCounter,))
+    @system(reads=(CombinableCounter,), writes=(CombinableCounter,))
     def add_three(access: ScopedAccess) -> None:
-        for e, _ in access(MergeableCounter):
-            access[e, MergeableCounter] = MergeableCounter(3)
+        for e, _ in access(CombinableCounter):
+            access[e, CombinableCounter] = CombinableCounter(3)
 
     world.register_system(add_five)
     world.register_system(add_three)
     await world.tick_async()
 
-    # MergeableCounter.__merge__ sums values: 5 + 3 = 8
-    assert world.get_copy(entity, MergeableCounter).value == 8  # type: ignore
+    assert world.get_copy(entity, CombinableCounter).value == 8  # type: ignore
 
 
 @pytest.mark.asyncio
-async def test_error_strategy_raises_on_conflict():
-    """ERROR strategy raises ConflictError when multiple systems write same component.
+async def test_combinable_and_non_combinable_mixed():
+    """Combinable folds while non-combinable still uses LWW."""
+    world = World(execution=SimpleScheduler())
+    entity = world.spawn(CombinableCounter(0), Position(0, 0))
 
-    Why: Useful for debugging to catch unintended concurrent writes.
-    """
-    from agentecs.world.result import ConflictError
+    @system(reads=(CombinableCounter, Position), writes=(CombinableCounter, Position))
+    def writer_one(access: ScopedAccess) -> None:
+        for e, _, _ in access(CombinableCounter, Position):
+            access[e, CombinableCounter] = CombinableCounter(2)
+            access[e, Position] = Position(1, 1)
 
-    world = World(
-        execution=SimpleScheduler(config=SchedulerConfig(merge_strategy=MergeStrategy.ERROR))
-    )
-    world.spawn(Counter(0))  # Need at least one entity
+    @system(reads=(CombinableCounter, Position), writes=(CombinableCounter, Position))
+    def writer_two(access: ScopedAccess) -> None:
+        for e, _, _ in access(CombinableCounter, Position):
+            access[e, CombinableCounter] = CombinableCounter(3)
+            access[e, Position] = Position(9, 9)
 
-    @system(reads=(Counter,), writes=(Counter,))
-    def writer1(access: ScopedAccess) -> None:
+    world.register_system(writer_one)
+    world.register_system(writer_two)
+    await world.tick_async()
+
+    combined = world.get_copy(entity, CombinableCounter)
+    position = world.get_copy(entity, Position)
+
+    assert combined is not None
+    assert position is not None
+    assert combined.value == 5
+    assert position == Position(9, 9)
+
+
+@pytest.mark.asyncio
+async def test_combinable_within_single_system():
+    """Within one system, repeated writes still fold for Combinable types."""
+    world = World(execution=SimpleScheduler())
+    combinable_entity = world.spawn(CombinableCounter(0))
+    plain_entity = world.spawn(Counter(0))
+
+    @system(reads=(CombinableCounter, Counter), writes=(CombinableCounter, Counter))
+    def writer(access: ScopedAccess) -> None:
+        for e, _ in access(CombinableCounter):
+            access[e, CombinableCounter] = CombinableCounter(4)
+            access[e, CombinableCounter] = CombinableCounter(6)
+
         for e, _ in access(Counter):
-            access[e, Counter] = Counter(1)
+            access[e, Counter] = Counter(4)
+            access[e, Counter] = Counter(6)
 
-    @system(reads=(Counter,), writes=(Counter,))
-    def writer2(access: ScopedAccess) -> None:
-        for e, _ in access(Counter):
-            access[e, Counter] = Counter(2)
+    world.register_system(writer)
+    await world.tick_async()
 
-    world.register_system(writer1)
-    world.register_system(writer2)
+    combinable = world.get_copy(combinable_entity, CombinableCounter)
+    plain = world.get_copy(plain_entity, Counter)
 
-    with pytest.raises(ConflictError):
-        await world.tick_async()
+    assert combinable is not None
+    assert plain is not None
+    assert combinable.value == 10
+    assert plain.value == 6
 
 
 # Dev mode tests
