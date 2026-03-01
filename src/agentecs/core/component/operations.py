@@ -6,96 +6,32 @@ for merging and splitting components during entity operations.
 
 from __future__ import annotations
 
-import copy
 from typing import cast
 
-from agentecs.core.component.models import Mergeable, Splittable
-
-# Merge strategies
+from agentecs.core.component.models import Combinable, Splittable
 
 
-def merge_using_protocol[T](comp1: T, comp2: T) -> T:
-    """Merge two components using the Mergeable protocol.
+def combine_using_protocol[T](comp1: T, comp2: T) -> T:
+    """Combine two components using the Mergeable protocol.
 
     Args:
-        comp1: First component (must implement Mergeable).
-        comp2: Second component.
+        comp1: First component (must implement Combinable).
+        comp2: Second component updating the first (must be same type as comp1).
 
     Returns:
-        Merged component via __merge__ method.
-
-    Raises:
-        TypeError: If comp1 doesn't implement Mergeable.
+        Merged component via __combine__ method or comp2.
     """
-    if not isinstance(comp1, Mergeable):
-        raise TypeError(f"{type(comp1).__name__} does not implement Mergeable protocol")
-    return comp1.__merge__(comp2)
+    if not isinstance(comp1, Combinable) or not isinstance(comp2, type(comp1)):
+        return comp2
+    else:
+        return comp1.__combine__(comp2)
 
 
-def merge_take_first[T](comp1: T, comp2: T) -> T:
-    """Take the first component, discard the second.
-
-    Args:
-        comp1: First component.
-        comp2: Second component (ignored).
-
-    Returns:
-        The first component unchanged.
-    """
-    return comp1
-
-
-def merge_take_second[T](comp1: T, comp2: T) -> T:
-    """Take the second component, discard the first.
-
-    Args:
-        comp1: First component (ignored).
-        comp2: Second component.
-
-    Returns:
-        The second component unchanged.
-    """
-    return comp2
-
-
-def merge_skip[T](comp1: T, comp2: T) -> None:
-    """Skip both components (exclude from merged entity).
-
-    Args:
-        comp1: First component (ignored).
-        comp2: Second component (ignored).
-
-    Returns:
-        None to indicate component should be skipped.
-    """
-    return None
-
-
-def merge_error[T](comp1: T, comp2: T) -> T:
-    """Raise an error for non-mergeable components.
-
-    Args:
-        comp1: First component.
-        comp2: Second component.
-
-    Returns:
-        Never returns.
-
-    Raises:
-        TypeError: Always raised to indicate incompatible components.
-    """
-    raise TypeError(f"Component {type(comp1).__name__} is not Mergeable and strategy is ERROR")
-
-
-# Split strategies
-
-
-def split_using_protocol[T](comp: T, ratio: float) -> tuple[T, T]:
+def split_using_protocol[T](comp: T) -> tuple[T, T]:
     """Split a component using the Splittable protocol.
 
     Args:
         comp: Component to split (must implement Splittable).
-        ratio: Split ratio (0.0 to 1.0).
 
     Returns:
         Tuple of (first_split, second_split) via __split__ method.
@@ -104,60 +40,31 @@ def split_using_protocol[T](comp: T, ratio: float) -> tuple[T, T]:
         TypeError: If comp doesn't implement Splittable.
     """
     if not isinstance(comp, Splittable):
-        raise TypeError(f"{type(comp).__name__} does not implement Splittable protocol")
-    return cast(tuple[T, T], comp.__split__(ratio))
+        return (comp, comp)
+    return cast(tuple[T, T], comp.__split__())
 
 
-def split_to_first[T](comp: T, ratio: float) -> tuple[T | None, None]:
-    """Give component to first entity only.
+def reduce_components[T](items: list[T]) -> T:
+    """Reduce a list of components into one.
 
-    Args:
-        comp: Component to assign.
-        ratio: Split ratio (ignored).
-
-    Returns:
-        Tuple of (comp, None).
-    """
-    return (comp, None)
-
-
-def split_to_both[T](comp: T, ratio: float) -> tuple[T, T]:
-    """Clone component to both entities.
+    Uses sequential combines:
+        if __combine__ is defined, merges items using that pairwise;
+        otherwise, takes the last item as the result.
 
     Args:
-        comp: Component to clone.
-        ratio: Split ratio (ignored).
+        items: List of components to reduce (must be same type).
 
     Returns:
-        Tuple of (deep_copy1, deep_copy2).
-    """
-    return (copy.deepcopy(comp), copy.deepcopy(comp))
-
-
-def split_skip[T](comp: T, ratio: float) -> tuple[None, None]:
-    """Skip component (exclude from both split entities).
-
-    Args:
-        comp: Component (ignored).
-        ratio: Split ratio (ignored).
-
-    Returns:
-        Tuple of (None, None) to indicate component should be skipped.
-    """
-    return (None, None)
-
-
-def split_error[T](comp: T, ratio: float) -> tuple[T, T]:
-    """Raise an error for non-splittable components.
-
-    Args:
-        comp: Component.
-        ratio: Split ratio (ignored).
-
-    Returns:
-        Never returns.
+        Single component resulting from reduction.
 
     Raises:
-        TypeError: Always raised to indicate incompatible component.
+        ValueError: If items list is empty.
     """
-    raise TypeError(f"Component {type(comp).__name__} is not Splittable and strategy is ERROR")
+    if not items:
+        raise ValueError("Cannot reduce empty list")
+    if len(items) == 1:
+        return items[0]
+    result = items[0]
+    for item in items[1:]:
+        result = combine_using_protocol(result, item)
+    return result

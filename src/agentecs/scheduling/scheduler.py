@@ -22,16 +22,10 @@ import asyncio
 from typing import TYPE_CHECKING, Protocol
 
 from agentecs.core.system import SystemDescriptor
-from agentecs.scheduling.merge_strategies import (
-    merge_error_on_conflict,
-    merge_last_writer_wins,
-    merge_mergeable_first,
-)
 from agentecs.scheduling.models import (
     ExecutionGroup,
     ExecutionGroupBuilder,
     ExecutionPlan,
-    MergeStrategy,
     RetryPolicy,
     SchedulerConfig,
     SingleGroupBuilder,
@@ -116,8 +110,7 @@ class SimpleScheduler:
         results = await self._execute_systems_async(world, group.systems)
 
         # Merge results using configured strategy
-        system_names = [s.name for s in group.systems]
-        merged = self._merge_results(results, system_names)
+        merged = self._merge_results(results)
 
         # Apply merged results
         await world.apply_result_async(merged)
@@ -190,18 +183,12 @@ class SimpleScheduler:
             reraise=False,
         )
 
-    def _merge_results(self, results: list[SystemResult], system_names: list[str]) -> SystemResult:
-        """Merge results using configured strategy."""
-        strategy = self._config.merge_strategy
-
-        if strategy == MergeStrategy.LAST_WRITER_WINS:
-            return merge_last_writer_wins(results, system_names)
-        elif strategy == MergeStrategy.MERGEABLE_FIRST:
-            return merge_mergeable_first(results, system_names)
-        elif strategy == MergeStrategy.ERROR:
-            return merge_error_on_conflict(results, system_names)
-        else:
-            raise ValueError(f"Unknown merge strategy: {strategy}")
+    def _merge_results(self, results: list[SystemResult]) -> SystemResult:
+        """Merge results in order of operation."""
+        merged = SystemResult()
+        for result in results:
+            merged.merge(result)
+        return merged
 
     def tick(self, world: World) -> None:
         """Synchronous wrapper for tick_async."""

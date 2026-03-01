@@ -24,7 +24,7 @@ from collections.abc import Callable
 from dataclasses import is_dataclass
 from typing import overload
 
-from agentecs.core.component.models import ComponentTypeMeta, Mergeable, Reducible
+from agentecs.core.component.models import ComponentTypeMeta
 
 
 def _stable_component_type_id(cls: type) -> int:
@@ -199,62 +199,3 @@ def component(cls: type | None = None) -> type | Callable[[type], type]:
     else:
         # Called bare: @component
         return decorator(cls)
-
-
-def merge_components[T](a: T, b: T, strategy: Callable[[T, T], T] | None = None) -> T:
-    """Merge two components using custom strategy or component's __merge__ method.
-
-    Args:
-        a: First component instance.
-        b: Second component instance (must be same type as a).
-        strategy: Optional custom merge function. If None, uses a.__merge__(b).
-
-    Returns:
-        Merged component instance.
-
-    Raises:
-        TypeError: If component doesn't implement Mergeable and no strategy provided.
-    """
-    if strategy:
-        return strategy(a, b)
-    if isinstance(a, Mergeable):
-        return a.__merge__(b)
-    raise TypeError(f"{type(a).__name__} is not Mergeable and no strategy provided")
-
-
-def reduce_components[T](items: list[T], strategy: Callable[[list[T]], T] | None = None) -> T:
-    """Reduce N components to one using strategy, __reduce_many__, or sequential merge.
-
-    Tries in order:
-    1. Custom strategy function if provided
-    2. Class __reduce_many__ method if component implements Reducible
-    3. Sequential pairwise merge using __merge__
-
-    Args:
-        items: List of component instances to reduce (must all be same type).
-        strategy: Optional custom reduction function.
-
-    Returns:
-        Single reduced component instance.
-
-    Raises:
-        ValueError: If items list is empty.
-        TypeError: If components don't implement Mergeable/Reducible and no strategy.
-    """
-    if not items:
-        raise ValueError("Cannot reduce empty list")
-    if len(items) == 1:
-        return items[0]
-
-    if strategy:
-        return strategy(items)
-
-    cls = type(items[0])
-    if isinstance(cls, type) and issubclass(cls, Reducible):
-        return cls.__reduce_many__(items)  # type: ignore
-
-    # Fallback to sequential merge
-    result = items[0]
-    for item in items[1:]:
-        result = merge_components(result, item)
-    return result

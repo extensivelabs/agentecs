@@ -25,11 +25,10 @@ from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from agentecs.core.component.models import (
-    Mergeable,
-    NonMergeableHandling,
-    NonSplittableHandling,
+    Combinable,
     Splittable,
 )
+from agentecs.core.component.operations import combine_using_protocol, split_using_protocol
 from agentecs.core.component.wrapper import get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
@@ -37,7 +36,7 @@ from agentecs.core.types import Copy
 from agentecs.storage.local import LocalStorage
 from agentecs.storage.protocol import Storage
 from agentecs.world.access import ScopedAccess
-from agentecs.world.result import SystemResult, normalize_result, validate_result_access
+from agentecs.world.result import OpKind, SystemResult, normalize_result, validate_result_access
 
 if TYPE_CHECKING:
     from agentecs.core.system import ExecutionStrategy
@@ -135,28 +134,21 @@ class World:
         self,
         entity1: EntityId,
         entity2: EntityId,
-        on_non_mergeable: NonMergeableHandling = NonMergeableHandling.FIRST,
     ) -> EntityId:
         """Merge two entities into a single new entity.
 
-        Components implementing Mergeable protocol are merged via __merge__.
-        Non-mergeable components are handled according to the strategy.
+        Components implementing Combinable protocol are merged via __combine__.
+        In other cases, entity2's component takes precedence.
 
         Args:
             entity1: First entity to merge.
             entity2: Second entity to merge.
-            on_non_mergeable: How to handle non-mergeable components.
-                - ERROR: Raise TypeError if any component not Mergeable
-                - FIRST: Keep component from entity1
-                - SECOND: Keep component from entity2
-                - SKIP: Don't include in merged entity
 
         Returns:
             EntityId of the newly created merged entity.
 
         Raises:
             ValueError: If either entity doesn't exist.
-            TypeError: If on_non_mergeable=ERROR and component not Mergeable.
 
         Example:
             >>> merged = world.merge_entities(agent1, agent2)
@@ -175,20 +167,13 @@ class World:
 
         # Merge components using strategy functions
         merged_components: list[Any] = []
-        non_mergeable_strategy = on_non_mergeable.get_strategy()
 
         for comp_type in all_types:
             comp1 = self._storage.get_component(entity1, comp_type)
             comp2 = self._storage.get_component(entity2, comp_type)
 
             if comp1 is not None and comp2 is not None:
-                # Both have this component - merge using protocol or strategy
-                if isinstance(comp1, Mergeable):
-                    from agentecs.core.component.operations import merge_using_protocol
-
-                    merged = merge_using_protocol(comp1, comp2)
-                else:
-                    merged = non_mergeable_strategy(comp1, comp2)
+                merged = combine_using_protocol(comp1, comp2)
 
                 if merged is not None:
                     merged_components.append(merged)
@@ -210,45 +195,31 @@ class World:
     def split_entity(
         self,
         entity: EntityId,
-        ratio: float = 0.5,
-        on_non_splittable: NonSplittableHandling = NonSplittableHandling.BOTH,
     ) -> tuple[EntityId, EntityId]:
         """Split one entity into two new entities.
 
         Components implementing Splittable protocol are split via __split__.
-        Non-splittable components are handled according to the strategy.
+        Non-splittable components are duplicated on a component-by-component basis.
 
         Args:
             entity: Entity to split.
-            ratio: Split ratio for Splittable components (0.0 to 1.0).
-                   0.5 means equal split.
-            on_non_splittable: How to handle non-splittable components.
-                - ERROR: Raise TypeError if any component not Splittable
-                - FIRST: Give component to first entity only
-                - BOTH: Clone component to both entities (default)
-                - SKIP: Don't include in either entity
 
         Returns:
             Tuple of (first_entity, second_entity) IDs.
 
         Raises:
-            ValueError: If entity doesn't exist or ratio out of range.
-            TypeError: If on_non_splittable=ERROR and component not Splittable.
+            ValueError: If entity doesn't exist
 
         Example:
-            >>> left, right = world.split_entity(agent, ratio=0.5)
+            >>> left, right = world.split_entity(agent)
             >>> # original agent is destroyed
             >>> # left and right have split components
         """
         if not self._storage.entity_exists(entity):
             raise ValueError(f"Entity {entity} does not exist")
-        if not 0.0 <= ratio <= 1.0:
-            raise ValueError(f"Ratio must be between 0.0 and 1.0, got {ratio}")
 
         # Collect all components and split using strategy functions
         comp_types = self._storage.get_component_types(entity)
-        non_splittable_strategy = on_non_splittable.get_strategy()
-
         first_components: list[Any] = []
         second_components: list[Any] = []
 
@@ -259,12 +230,7 @@ class World:
 
             # Split using protocol or strategy
             if isinstance(comp, Splittable):
-                from agentecs.core.component.operations import split_using_protocol
-
-                left, right = split_using_protocol(comp, ratio)
-            else:
-                left, right = non_splittable_strategy(comp, ratio)
-
+                left, right = split_using_protocol(comp)
             if left is not None:
                 first_components.append(left)
             if right is not None:
@@ -369,21 +335,37 @@ class World:
         Returns:
             List of newly created entity IDs from spawns.
         """
-        # Handle spawns first to get real entity IDs
+        written: dict[tuple[EntityId, type], Any] = {}
         new_entities: list[EntityId] = []
-        for components in result.spawns:
-            entity = self._storage.create_entity()
-            new_entities.append(entity)
-            for comp in components:
-                self._storage.set_component(entity, comp)
 
-        # Apply updates asynchronously
-        await self._storage.apply_updates_async(
-            updates=result.updates,
-            inserts=result.inserts,
-            removes=result.removes,
-            destroys=result.destroys,
-        )
+        for op in result.ops:
+            if op.kind == OpKind.SPAWN and op.spawn_components is not None:
+                # Spawn new entity with components
+                new_entity = self.spawn(*op.spawn_components)
+                new_entities.append(new_entity)
+                # Store mapping from temp ID to new entity ID for later ops
+                for comp in op.spawn_components:
+                    comp_type = get_type(comp)
+                    written[(new_entity, comp_type)] = comp
+            elif (
+                op.kind in (OpKind.UPDATE, OpKind.INSERT)
+                and op.component is not None
+                and op.component_type is not None
+                and op.entity is not None
+            ):
+                key = (op.entity, op.component_type)
+                if key in written and isinstance(op.component, Combinable):
+                    written[key] = combine_using_protocol(written[key], op.component)
+                else:
+                    written[key] = op.component
+                self._storage.set_component(op.entity, component=written[key])
+
+            elif (
+                op.kind == OpKind.REMOVE and op.component_type is not None and op.entity is not None
+            ):
+                self._storage.remove_component(op.entity, op.component_type)
+            elif op.kind == OpKind.DESTROY and op.entity is not None:
+                self._storage.destroy_entity(op.entity)
 
         return new_entities
 

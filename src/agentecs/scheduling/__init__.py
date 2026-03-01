@@ -4,7 +4,6 @@ from agentecs.scheduling.models import (
     ExecutionGroup,
     ExecutionGroupBuilder,
     ExecutionPlan,
-    MergeStrategy,
     RetryPolicy,
     SchedulerConfig,
     SingleGroupBuilder,
@@ -22,7 +21,6 @@ __all__ = [
     # Models
     "ExecutionGroup",
     "ExecutionPlan",
-    "MergeStrategy",
     "RetryPolicy",
     "SchedulerConfig",
     # Group Builders
