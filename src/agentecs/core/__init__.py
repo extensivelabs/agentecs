@@ -7,21 +7,17 @@ Architecture Note:
 """
 
 from agentecs.core.component import (
+    Combinable,
     ComponentRef,
     ComponentRegistry,
     ComponentTypeMeta,
-    Diffable,
-    Interpolatable,
-    Mergeable,
-    NonMergeableHandling,
-    NonSplittableHandling,
-    Reducible,
     Shared,
     Splittable,
+    combine_protocol_or_fallback,
     component,
     get_registry,
-    merge_components,
     reduce_components,
+    split_protocol_or_fallback,
 )
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.query import (
@@ -56,14 +52,10 @@ __all__ = [
     "get_registry",
     "ComponentTypeMeta",
     "ComponentRegistry",
-    "Mergeable",
+    "Combinable",
     "Splittable",
-    "Reducible",
-    "Diffable",
-    "Interpolatable",
-    "NonMergeableHandling",
-    "NonSplittableHandling",
-    "merge_components",
+    "combine_protocol_or_fallback",
+    "split_protocol_or_fallback",
     "reduce_components",
     "Shared",
     "ComponentRef",

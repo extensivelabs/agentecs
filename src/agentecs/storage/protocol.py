@@ -79,16 +79,6 @@ class Storage(Protocol):
         """Optimized single-component query."""
         ...
 
-    def apply_updates(
-        self,
-        updates: dict[EntityId, dict[type, Any]],
-        inserts: dict[EntityId, list[Any]],
-        removes: dict[EntityId, list[type]],
-        destroys: list[EntityId],
-    ) -> list[EntityId]:
-        """Apply batched changes. Returns list of newly created entity IDs."""
-        ...
-
     def snapshot(self) -> bytes:
         """Serialize entire storage state."""
         ...
@@ -115,14 +105,4 @@ class Storage(Protocol):
         Returns an async iterator (typically via async generator implementation).
         The `| Any` allows both async generators and awaitable-returning implementations.
         """
-        ...
-
-    async def apply_updates_async(
-        self,
-        updates: dict[EntityId, dict[type, Any]],
-        inserts: dict[EntityId, list[Any]],
-        removes: dict[EntityId, list[type]],
-        destroys: list[EntityId],
-    ) -> list[EntityId]:
-        """Apply batched changes asynchronously. Returns list of newly created entity IDs."""
         ...

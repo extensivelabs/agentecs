@@ -1,34 +1,15 @@
 """Scheduling models and configuration.
 
-Types for execution planning, merge strategies, and scheduler configuration.
+Types for execution planning and scheduler configuration.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from agentecs.core.system import SystemDescriptor
-
-
-class MergeStrategy(Enum):
-    """Strategy for resolving write conflicts when multiple systems update same (entity, component).
-
-    Under snapshot isolation, all systems in an execution group see the same initial state.
-    Conflicts are resolved at merge time using registration order.
-    """
-
-    LAST_WRITER_WINS = auto()
-    """Later system (by registration order) overwrites earlier. Default, simple, deterministic."""
-
-    MERGEABLE_FIRST = auto()
-    """Use Mergeable.__merge__ if available, otherwise fall back to LAST_WRITER_WINS."""
-
-    ERROR = auto()
-    """Raise ConflictError on conflict. Useful for debugging."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,19 +56,11 @@ class SchedulerConfig:
     Passed to scheduler at construction or via World.
     """
 
-    merge_strategy: MergeStrategy = MergeStrategy.LAST_WRITER_WINS
-    """How to resolve write conflicts. Default: later overwrites earlier."""
-
     max_concurrent: int | None = None
     """Max concurrent system executions. None = unlimited (default)."""
 
     retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
     """Retry policy for failed system executions. Default: no retry."""
-
-
-# Type for custom merge functions
-MergeFunction = Callable[[Any, Any], Any]
-"""Signature: (existing_value, new_value) -> merged_value"""
 
 
 # --- Execution Group Builders ---

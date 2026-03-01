@@ -28,6 +28,10 @@ import warnings
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
 
+from agentecs.core.component.operations import (
+    combine_protocol_or_fallback,
+    split_protocol_or_fallback,
+)
 from agentecs.core.component.wrapper import get_component, get_type
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.system import SystemDescriptor
@@ -303,6 +307,18 @@ class ScopedAccess:
         """
         return cast(T, self._sync_runner.run(self.get_async(entity, component_type)))
 
+    def _buffered_component_types(self, entity: EntityId) -> frozenset[type]:
+        """Component types for entity, accounting for buffered inserts/removes."""
+        base = set(self._world._storage.get_component_types(entity))
+        inserts = self._buffer.inserts
+        removes = self._buffer.removes
+        if entity in inserts:
+            for comp in inserts[entity]:
+                base.add(get_type(comp))
+        if entity in removes:
+            base -= set(removes[entity])
+        return frozenset(base)
+
     def has(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has a specific component type."""
         self._check_readable(component_type)
@@ -529,21 +545,49 @@ class ScopedAccess:
 
     def merge_entities(
         self,
-        entities: list[EntityId],
-        into: EntityId | None = None,
+        entity1: EntityId,
+        entity2: EntityId,
     ) -> EntityId:
-        """Merge multiple entities into one using Mergeable components."""
-        # TODO: Implement using merge_components from component.py
-        raise NotImplementedError("Entity merging not yet implemented")
+        """Merge two entities into one new provisional entity."""
+        types1 = self._buffered_component_types(entity1)
+        types2 = self._buffered_component_types(entity2)
+        all_types = types1 | types2
+
+        merged_components: list[Any] = []
+        for comp_type in all_types:
+            if comp_type in types1 and comp_type in types2:
+                comp1: Any = self.get(entity1, comp_type)
+                comp2: Any = self.get(entity2, comp_type)
+                merged_components.append(combine_protocol_or_fallback(comp1, comp2))
+            elif comp_type in types1:
+                merged_components.append(self.get(entity1, comp_type))
+            else:
+                merged_components.append(self.get(entity2, comp_type))
+
+        merged_entity = self.spawn(*merged_components)
+        self.destroy(entity1)
+        self.destroy(entity2)
+        return merged_entity
 
     def split_entity(
         self,
         entity: EntityId,
-        ratio: float = 0.5,
     ) -> tuple[EntityId, EntityId]:
-        """Split entity into two using Splittable components."""
-        # TODO: Implement using component protocols
-        raise NotImplementedError("Entity splitting not yet implemented")
+        """Split one entity into two new provisional entities."""
+        comp_types = self._buffered_component_types(entity)
+        first_components: list[Any] = []
+        second_components: list[Any] = []
+
+        for comp_type in comp_types:
+            comp: Any = self.get(entity, comp_type)
+            first, second = split_protocol_or_fallback(comp)
+            first_components.append(first)
+            second_components.append(second)
+
+        first_entity = self.spawn(*first_components)
+        second_entity = self.spawn(*second_components)
+        self.destroy(entity)
+        return first_entity, second_entity
 
     def get_copy(self, entity: EntityId, component_type: type[T]) -> Copy[T]:
         """Get component copy. Alias for get() with explicit naming."""

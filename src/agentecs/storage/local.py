@@ -307,47 +307,6 @@ class LocalStorage:
         for entity, components in iterator:
             yield entity, components[0]
 
-    def apply_updates(
-        self,
-        updates: dict[EntityId, dict[type, Any]],
-        inserts: dict[EntityId, list[Any]],
-        removes: dict[EntityId, list[type]],
-        destroys: list[EntityId],
-    ) -> list[EntityId]:
-        """Apply batched changes atomically.
-
-        Args:
-            updates: Entity -> component type -> component updates.
-            inserts: Entity -> list of components to insert.
-            removes: Entity -> list of component types to remove.
-            destroys: List of entities to destroy.
-
-        Returns:
-            List of newly created entity IDs (always empty for this implementation).
-        """
-        new_entities: list[EntityId] = []
-
-        # Updates
-        for entity, components in updates.items():
-            for _, comp in components.items():
-                self.set_component(entity, comp)
-
-        # Inserts
-        for entity, component_list in inserts.items():
-            for comp in component_list:
-                self.set_component(entity, comp)
-
-        # Removes
-        for entity, types in removes.items():
-            for t in types:
-                self.remove_component(entity, t)
-
-        # Destroys
-        for entity in destroys:
-            self.destroy_entity(entity)
-
-        return new_entities
-
     def snapshot(self) -> bytes:
         """Pickle entire state for serialization.
 
@@ -411,23 +370,3 @@ class LocalStorage:
         """
         for entity, components in self.query(*component_types, copy=copy):
             yield entity, components
-
-    async def apply_updates_async(
-        self,
-        updates: dict[EntityId, dict[type, Any]],
-        inserts: dict[EntityId, list[Any]],
-        removes: dict[EntityId, list[type]],
-        destroys: list[EntityId],
-    ) -> list[EntityId]:
-        """Apply batched changes asynchronously (async wrapper).
-
-        Args:
-            updates: Entity -> component type -> component updates.
-            inserts: Entity -> list of components to insert.
-            removes: Entity -> list of component types to remove.
-            destroys: List of entities to destroy.
-
-        Returns:
-            List of newly created entity IDs (always empty for this implementation).
-        """
-        return self.apply_updates(updates, inserts, removes, destroys)

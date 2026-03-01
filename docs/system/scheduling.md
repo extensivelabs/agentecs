@@ -1,17 +1,17 @@
 # Scheduling
 
-Schedulers orchestrate system execution, determining which systems run, in what order, and how their results are merged. AgentECS provides a pluggable scheduling architecture with snapshot isolation and configurable merge strategies.
+Schedulers orchestrate system execution, determining which systems run and in what order. AgentECS provides a pluggable scheduling architecture with snapshot isolation and deterministic result ordering.
 
 ## Overview
 
-The scheduler is the brain of AgentECS execution. It manages execution groups, handles parallelism, and merges results using configurable strategies.
+The scheduler is the brain of AgentECS execution. It manages execution groups, handles parallelism, and concatenates results for world application.
 
 **Scheduler Responsibilities:**
 
 - **System Registration**: Collect system descriptors as they're registered
 - **Execution Planning**: Build execution groups (via ExecutionGroupBuilder)
 - **Execution Orchestration**: Run systems (sequentially or in parallel)
-- **Result Merging**: Combine results using configured merge strategy
+- **Result Ordering**: Concatenate results in registration order
 - **Result Application**: Apply changes to storage at group boundaries
 
 ```mermaid
@@ -27,8 +27,8 @@ graph TD
     G -->|Group 1| H[Dev Systems - isolated]
     G -->|Group 2| I[Normal Systems - parallel]
 
-    I --> J[Merge Results]
-    J -->|LastWriterWins| K[Apply to Storage]
+    I --> J[Concatenate Results]
+    J --> K[Apply to Storage]
 
     style B fill:#ffb74d
     style E fill:#ba68c8
@@ -56,27 +56,15 @@ def add_ten(access):
 # After tick: Counter = 10 (LastWriterWins, add_ten registered second)
 ```
 
-### Merge Strategies
+### Result Combination
 
-When multiple systems write to the same (entity, component), the merge strategy determines the final value:
+The scheduler does not interpret component semantics. It concatenates `SystemResult` operations in system registration order.
 
-| Strategy | Behavior | Use Case |
-|----------|----------|----------|
-| `LAST_WRITER_WINS` | Later system (by registration) overwrites | Default, simple, deterministic |
-| `MERGEABLE_FIRST` | Use `__merge__` if available, else overwrite | Semantic merging (counters, aggregations) |
-| `ERROR` | Raise `ConflictError` on conflict | Debugging, catching unintended overwrites |
+Combination happens during application in `World.apply_result_async`:
 
-```python
-from agentecs import World, MergeStrategy, SchedulerConfig
-from agentecs.scheduling import SimpleScheduler
-
-# Configure merge strategy
-world = World(
-    execution=SimpleScheduler(
-        config=SchedulerConfig(merge_strategy=MergeStrategy.MERGEABLE_FIRST)
-    )
-)
-```
+- `Combinable` components fold via `__combine__`
+- non-combinable components use last-writer-wins (later operation overwrites earlier)
+- no global merge configuration is required
 
 ### Execution Groups
 
@@ -105,11 +93,12 @@ graph LR
 
 ## SimpleScheduler
 
-The primary scheduler with parallel execution and configurable behavior.
+The primary scheduler with parallel execution and configurable concurrency/retry behavior.
 
 ```python
-from agentecs import World, SchedulerConfig, MergeStrategy
+from agentecs import World, SchedulerConfig
 from agentecs.scheduling import SimpleScheduler
+from agentecs.scheduling.models import RetryPolicy
 
 # Default configuration
 world = World(execution=SimpleScheduler())
@@ -118,7 +107,6 @@ world = World(execution=SimpleScheduler())
 world = World(
     execution=SimpleScheduler(
         config=SchedulerConfig(
-            merge_strategy=MergeStrategy.LAST_WRITER_WINS,
             max_concurrent=10,  # Limit parallel systems
             retry_policy=RetryPolicy(max_attempts=3)
         )
@@ -127,21 +115,6 @@ world = World(
 ```
 
 ### Configuration Options
-
-#### Merge Strategy
-
-```python
-from agentecs import MergeStrategy, SchedulerConfig
-
-# Default: later registration wins
-config = SchedulerConfig(merge_strategy=MergeStrategy.LAST_WRITER_WINS)
-
-# Use Mergeable protocol when available
-config = SchedulerConfig(merge_strategy=MergeStrategy.MERGEABLE_FIRST)
-
-# Error on conflicts (useful for debugging)
-config = SchedulerConfig(merge_strategy=MergeStrategy.ERROR)
-```
 
 #### Concurrency Limiting
 
@@ -292,7 +265,7 @@ sequenceDiagram
     loop Each ExecutionGroup
         S->>Sys: Execute in parallel
         Sys-->>S: SystemResults
-        S->>S: Merge results (strategy)
+        S->>S: Concatenate results
         S->>W: apply_result_async()
     end
 ```
@@ -303,24 +276,13 @@ sequenceDiagram
 2. **Execute Groups**: For each group:
    - Execute all systems in parallel (with concurrency limit)
    - Retry failed systems per RetryPolicy
-   - Merge results using MergeStrategy
+   - Concatenate results in registration order
    - Apply merged result to storage
 3. **Next Group**: Subsequent groups see applied changes
 
 ## Distributed Scheduling (Future)
 
 AgentECS is designed to support distributed execution:
-
-### ExecutionBackend Protocol
-
-```python
-class ExecutionBackend(Protocol):
-    async def execute_group(
-        self, systems: list[SystemDescriptor], world: World
-    ) -> list[SystemResult]:
-        """Execute group across nodes."""
-        ...
-```
 
 **Future backends:**
 
@@ -329,11 +291,11 @@ class ExecutionBackend(Protocol):
 
 ### Design Considerations
 
-With merge-based conflict resolution (rather than conflict prevention), distributed execution becomes feasible:
+With operation ordering plus Combinable/LWW application behavior, distributed execution becomes feasible:
 
 - Systems execute independently on different nodes
-- Results merge at coordinator
-- Conflicts resolved by strategy, not prevented
+- Results concatenate at coordinator
+- Conflicts resolve during application, not prevention
 
 !!! info "Distributed is Future Work"
     Current focus is local execution. The architecture supports distributed backends, but implementations are not yet built.
@@ -343,10 +305,9 @@ With merge-based conflict resolution (rather than conflict prevention), distribu
 !!! tip "Start Simple"
     Begin with `SimpleScheduler()` defaults. Only tune when profiling shows need.
 
-!!! tip "Use Merge Strategies Wisely"
-    - `LAST_WRITER_WINS`: Simple, deterministic, good default
-    - `MERGEABLE_FIRST`: When you have semantic merge logic
-    - `ERROR`: During development to catch unintended overlaps
+!!! tip "Use Combinable Intentionally"
+    - Keep default LWW for simple overwrite semantics
+    - Implement `__combine__` only for types that should accumulate concurrent writes
 
 !!! tip "Dev Mode for Debugging"
     Use `@system.dev()` when debugging. It runs in isolation, making it easier to reason about state.

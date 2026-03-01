@@ -1,4 +1,4 @@
-"""System scheduler with configurable parallelism and merge strategies.
+"""System scheduler with configurable parallelism.
 
 Usage:
     # Default scheduler (all systems parallel, dev systems isolated)
@@ -19,19 +19,13 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 from agentecs.core.system import SystemDescriptor
-from agentecs.scheduling.merge_strategies import (
-    merge_error_on_conflict,
-    merge_last_writer_wins,
-    merge_mergeable_first,
-)
 from agentecs.scheduling.models import (
     ExecutionGroup,
     ExecutionGroupBuilder,
     ExecutionPlan,
-    MergeStrategy,
     RetryPolicy,
     SchedulerConfig,
     SingleGroupBuilder,
@@ -50,32 +44,18 @@ if TYPE_CHECKING:
     from agentecs.world.world import World
 
 
-class ExecutionBackend(Protocol):
-    """Protocol for pluggable execution backends.
-
-    Default uses asyncio.gather(). Future backends can implement
-    this protocol for distributed execution across nodes.
-    """
-
-    async def execute_group(
-        self, systems: list[SystemDescriptor], world: World
-    ) -> list[SystemResult]:
-        """Execute a group of systems concurrently and return their results."""
-        ...
-
-
 class SimpleScheduler:
-    """Scheduler with parallel execution and configurable merge strategy.
+    """Scheduler with parallel execution.
 
-    All systems execute in parallel (snapshot isolation), results merged
-    at tick boundary using configured strategy.
+    All systems execute in parallel (snapshot isolation), with results
+    concatenated in registration order and applied at group boundaries.
 
     Execution grouping is delegated to an ExecutionGroupBuilder, enabling
     future extensions for dependency-based, frequency-based, or custom
     grouping strategies.
 
     Args:
-        config: Scheduler configuration (merge strategy, concurrency, retry).
+        config: Scheduler configuration (concurrency, retry).
         group_builder: Strategy for building execution groups from systems.
             Defaults to SingleGroupBuilder (all parallel, dev systems isolated).
     """
@@ -115,9 +95,8 @@ class SimpleScheduler:
         # Execute systems with concurrency limiting
         results = await self._execute_systems_async(world, group.systems)
 
-        # Merge results using configured strategy
-        system_names = [s.name for s in group.systems]
-        merged = self._merge_results(results, system_names)
+        # Merge results in registration order
+        merged = self._merge_results(results)
 
         # Apply merged results
         await world.apply_result_async(merged)
@@ -190,18 +169,12 @@ class SimpleScheduler:
             reraise=False,
         )
 
-    def _merge_results(self, results: list[SystemResult], system_names: list[str]) -> SystemResult:
-        """Merge results using configured strategy."""
-        strategy = self._config.merge_strategy
-
-        if strategy == MergeStrategy.LAST_WRITER_WINS:
-            return merge_last_writer_wins(results, system_names)
-        elif strategy == MergeStrategy.MERGEABLE_FIRST:
-            return merge_mergeable_first(results, system_names)
-        elif strategy == MergeStrategy.ERROR:
-            return merge_error_on_conflict(results, system_names)
-        else:
-            raise ValueError(f"Unknown merge strategy: {strategy}")
+    def _merge_results(self, results: list[SystemResult]) -> SystemResult:
+        """Merge results in order of operation."""
+        merged = SystemResult()
+        for result in results:
+            merged.merge(result)
+        return merged
 
     def tick(self, world: World) -> None:
         """Synchronous wrapper for tick_async."""
