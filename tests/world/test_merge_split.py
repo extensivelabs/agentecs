@@ -292,6 +292,70 @@ async def test_scoped_access_split_entity() -> None:
 
 
 @pytest.mark.asyncio
+async def test_scoped_access_merge_with_buffered_inserts() -> None:
+    """Merge operation respects components inserted earlier in the same system."""
+    world = World()
+    e1 = world.spawn(CombinablePosition(0, 0))
+    e2 = world.spawn(CombinablePosition(10, 20))
+
+    @system(reads=(CombinablePosition, PlainTag), writes=(CombinablePosition, PlainTag))
+    def merge_system(access: ScopedAccess) -> None:
+        # Insert a component into the buffer
+        access.insert(e1, PlainTag("inserted_tag"))
+        # Merge should see the inserted tag
+        access.merge_entities(e1, e2)
+
+    world.register_system(merge_system)
+    await world.tick_async()
+
+    # Original entities are destroyed
+    assert world.get_copy(e1, CombinablePosition) is None
+    assert world.get_copy(e2, CombinablePosition) is None
+
+    # Find the merged entity
+    merged_entities = list(world.query_copies(CombinablePosition))
+    assert len(merged_entities) == 1
+    merged_id = merged_entities[0][0]
+    pos = world.get_copy(merged_id, CombinablePosition)
+    assert pos is not None
+    assert pos.x == pytest.approx(5.0)
+    assert pos.y == pytest.approx(10.0)
+
+    # The merged entity should have the inserted tag
+    tag = world.get_copy(merged_id, PlainTag)
+    assert tag is not None
+    assert tag.name == "inserted_tag"
+
+
+@pytest.mark.asyncio
+async def test_scoped_access_split_with_buffered_removes() -> None:
+    """Split operation respects components removed earlier in the same system."""
+    world = World()
+    entity = world.spawn(SplittableCredits(100.0), PlainTag("to_be_removed"))
+
+    @system(reads=(SplittableCredits, PlainTag), writes=(SplittableCredits, PlainTag))
+    def split_system(access: ScopedAccess) -> None:
+        # Remove a component in the buffer
+        access.remove(entity, PlainTag)
+        # Split should not include the removed component
+        access.split_entity(entity)
+
+    world.register_system(split_system)
+    await world.tick_async()
+
+    # Original entity is destroyed
+    assert world.get_copy(entity, SplittableCredits) is None
+
+    # Find the split entities
+    split_entities = list(world.query_copies(SplittableCredits))
+    assert len(split_entities) == 2
+
+    # Neither split entity should have the PlainTag
+    for e_id, *_ in split_entities:
+        assert world.get_copy(e_id, PlainTag) is None
+
+
+@pytest.mark.asyncio
 async def test_scoped_access_merge_access_violation() -> None:
     """Missing read access on merge target components raises AccessViolationError."""
     world = World()

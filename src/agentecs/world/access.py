@@ -307,6 +307,18 @@ class ScopedAccess:
         """
         return cast(T, self._sync_runner.run(self.get_async(entity, component_type)))
 
+    def _buffered_component_types(self, entity: EntityId) -> frozenset[type]:
+        """Component types for entity, accounting for buffered inserts/removes."""
+        base = set(self._world._storage.get_component_types(entity))
+        inserts = self._buffer.inserts
+        removes = self._buffer.removes
+        if entity in inserts:
+            for comp in inserts[entity]:
+                base.add(get_type(comp))
+        if entity in removes:
+            base -= set(removes[entity])
+        return frozenset(base)
+
     def has(self, entity: EntityId, component_type: type) -> bool:
         """Check if entity has a specific component type."""
         self._check_readable(component_type)
@@ -537,8 +549,8 @@ class ScopedAccess:
         entity2: EntityId,
     ) -> EntityId:
         """Merge two entities into one new provisional entity."""
-        types1 = self._world._storage.get_component_types(entity1)
-        types2 = self._world._storage.get_component_types(entity2)
+        types1 = self._buffered_component_types(entity1)
+        types2 = self._buffered_component_types(entity2)
         all_types = types1 | types2
 
         merged_components: list[Any] = []
@@ -562,7 +574,7 @@ class ScopedAccess:
         entity: EntityId,
     ) -> tuple[EntityId, EntityId]:
         """Split one entity into two new provisional entities."""
-        comp_types = self._world._storage.get_component_types(entity)
+        comp_types = self._buffered_component_types(entity)
         first_components: list[Any] = []
         second_components: list[Any] = []
 

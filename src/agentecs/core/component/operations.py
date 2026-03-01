@@ -13,14 +13,17 @@ from agentecs.core.component.models import Combinable, Splittable
 
 
 def combine_protocol_or_fallback[T](comp1: T, comp2: T) -> T:
-    """Combine two components using the Combinable protocol.
+    """Combine two components, using Combinable protocol with LWW fallback.
+
+    If comp1 implements Combinable and comp2 is the same type, delegates
+    to comp1.__combine__(comp2). Otherwise returns comp2 (last-writer-wins).
 
     Args:
-        comp1: First component (must implement Combinable).
-        comp2: Second component updating the first (must be same type as comp1).
+        comp1: Existing component value.
+        comp2: Incoming component value.
 
     Returns:
-        Combined component via __combine__ method or comp2.
+        Combined result or comp2 as fallback.
     """
     if not isinstance(comp1, Combinable) or not isinstance(comp2, type(comp1)):
         return comp2
@@ -29,16 +32,16 @@ def combine_protocol_or_fallback[T](comp1: T, comp2: T) -> T:
 
 
 def split_protocol_or_fallback[T](comp: T) -> tuple[T, T]:
-    """Split a component using the Splittable protocol.
+    """Split a component, using Splittable protocol with deepcopy fallback.
+
+    If comp implements Splittable, delegates to comp.__split__().
+    Otherwise returns two independent deep copies.
 
     Args:
-        comp: Component to split (must implement Splittable).
+        comp: Component to split.
 
     Returns:
-        Tuple of (first_split, second_split) via __split__ method.
-
-    Raises:
-        TypeError: If comp doesn't implement Splittable.
+        Tuple of two components.
     """
     if not isinstance(comp, Splittable):
         return (copy.deepcopy(comp), copy.deepcopy(comp))
