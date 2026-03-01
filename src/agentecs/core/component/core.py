@@ -7,13 +7,13 @@ Usage:
         x: float
         y: float
 
-    # With merge support:
+    # With combine support:
     @component
     @dataclass
     class Context:
         history: list[str]
 
-        def __merge__(self, other: "Context") -> "Context":
+        def __combine__(self, other: "Context") -> "Context":
             return Context(history=self.history + other.history)
 """
 

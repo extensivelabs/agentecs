@@ -1,6 +1,6 @@
 """Scheduling models and configuration.
 
-Types for execution planning, merge strategies, and scheduler configuration.
+Types for execution planning and scheduler configuration.
 """
 
 from __future__ import annotations

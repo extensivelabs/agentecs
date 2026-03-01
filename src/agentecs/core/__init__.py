@@ -13,9 +13,11 @@ from agentecs.core.component import (
     ComponentTypeMeta,
     Shared,
     Splittable,
+    combine_protocol_or_fallback,
     component,
     get_registry,
     reduce_components,
+    split_protocol_or_fallback,
 )
 from agentecs.core.identity import EntityId, SystemEntity
 from agentecs.core.query import (
@@ -52,6 +54,8 @@ __all__ = [
     "ComponentRegistry",
     "Combinable",
     "Splittable",
+    "combine_protocol_or_fallback",
+    "split_protocol_or_fallback",
     "reduce_components",
     "Shared",
     "ComponentRef",

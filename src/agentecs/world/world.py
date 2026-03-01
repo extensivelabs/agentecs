@@ -14,7 +14,7 @@ Usage:
     merged = world.merge_entities(agent1, agent2)
 
     # Split entity (for agent splitting)
-    left, right = world.split_entity(agent, ratio=0.5)
+    left, right = world.split_entity(agent)
 """
 
 from __future__ import annotations
@@ -167,7 +167,7 @@ class World:
         types2 = self._storage.get_component_types(entity2)
         all_types = types1 | types2
 
-        # Merge components using strategy functions
+        # Combine components using protocol or fallback
         merged_components: list[Any] = []
 
         for comp_type in all_types:
@@ -220,7 +220,7 @@ class World:
         if not self._storage.entity_exists(entity):
             raise ValueError(f"Entity {entity} does not exist")
 
-        # Collect all components and split using strategy functions
+        # Collect all components and split using protocol or fallback
         comp_types = self._storage.get_component_types(entity)
         first_components: list[Any] = []
         second_components: list[Any] = []
@@ -230,7 +230,7 @@ class World:
             if comp is None:
                 continue
 
-            # Split using protocol or strategy
+            # Split using protocol or fallback
             left, right = split_protocol_or_fallback(comp)
             if left is not None:
                 first_components.append(left)

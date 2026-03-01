@@ -1,4 +1,4 @@
-"""System scheduler with configurable parallelism and merge strategies.
+"""System scheduler with configurable parallelism.
 
 Usage:
     # Default scheduler (all systems parallel, dev systems isolated)
@@ -19,7 +19,7 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 from agentecs.core.system import SystemDescriptor
 from agentecs.scheduling.models import (
@@ -44,32 +44,18 @@ if TYPE_CHECKING:
     from agentecs.world.world import World
 
 
-class ExecutionBackend(Protocol):
-    """Protocol for pluggable execution backends.
-
-    Default uses asyncio.gather(). Future backends can implement
-    this protocol for distributed execution across nodes.
-    """
-
-    async def execute_group(
-        self, systems: list[SystemDescriptor], world: World
-    ) -> list[SystemResult]:
-        """Execute a group of systems concurrently and return their results."""
-        ...
-
-
 class SimpleScheduler:
-    """Scheduler with parallel execution and configurable merge strategy.
+    """Scheduler with parallel execution.
 
-    All systems execute in parallel (snapshot isolation), results merged
-    at tick boundary using configured strategy.
+    All systems execute in parallel (snapshot isolation), with results
+    concatenated in registration order and applied at group boundaries.
 
     Execution grouping is delegated to an ExecutionGroupBuilder, enabling
     future extensions for dependency-based, frequency-based, or custom
     grouping strategies.
 
     Args:
-        config: Scheduler configuration (merge strategy, concurrency, retry).
+        config: Scheduler configuration (concurrency, retry).
         group_builder: Strategy for building execution groups from systems.
             Defaults to SingleGroupBuilder (all parallel, dev systems isolated).
     """
@@ -109,7 +95,7 @@ class SimpleScheduler:
         # Execute systems with concurrency limiting
         results = await self._execute_systems_async(world, group.systems)
 
-        # Merge results using configured strategy
+        # Merge results in registration order
         merged = self._merge_results(results)
 
         # Apply merged results

@@ -9,7 +9,6 @@ from agentecs.scheduling.models import (
     SingleGroupBuilder,
 )
 from agentecs.scheduling.scheduler import (
-    ExecutionBackend,
     SequentialScheduler,
     SimpleScheduler,
 )
@@ -26,6 +25,4 @@ __all__ = [
     # Group Builders
     "ExecutionGroupBuilder",
     "SingleGroupBuilder",
-    # Protocols
-    "ExecutionBackend",
 ]

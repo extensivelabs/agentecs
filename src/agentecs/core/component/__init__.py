@@ -11,7 +11,11 @@ from agentecs.core.component.models import (
     ComponentTypeMeta,
     Splittable,
 )
-from agentecs.core.component.operations import reduce_components
+from agentecs.core.component.operations import (
+    combine_protocol_or_fallback,
+    reduce_components,
+    split_protocol_or_fallback,
+)
 from agentecs.core.component.wrapper import Shared
 
 __all__ = [
@@ -24,6 +28,8 @@ __all__ = [
     "component",
     "get_registry",
     "ComponentRegistry",
+    "combine_protocol_or_fallback",
+    "split_protocol_or_fallback",
     "reduce_components",
     "Shared",
 ]

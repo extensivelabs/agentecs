@@ -1,7 +1,7 @@
-"""Pure functions for merge and split strategies.
+"""Utility functions for combining and splitting components.
 
-These are stateless, SOLID functions that implement different handling strategies
-for merging and splitting components during entity operations.
+These are stateless functions that apply protocol behavior when available
+and otherwise use framework fallbacks.
 """
 
 from __future__ import annotations
@@ -13,14 +13,14 @@ from agentecs.core.component.models import Combinable, Splittable
 
 
 def combine_protocol_or_fallback[T](comp1: T, comp2: T) -> T:
-    """Combine two components using the Mergeable protocol.
+    """Combine two components using the Combinable protocol.
 
     Args:
         comp1: First component (must implement Combinable).
         comp2: Second component updating the first (must be same type as comp1).
 
     Returns:
-        Merged component via __combine__ method or comp2.
+        Combined component via __combine__ method or comp2.
     """
     if not isinstance(comp1, Combinable) or not isinstance(comp2, type(comp1)):
         return comp2
