@@ -153,6 +153,50 @@ def test_combine_protocol_or_fallback_without_combinable():
     assert result is comp2
 
 
+def test_combine_protocol_or_fallback_type_mismatch_raises():
+    """combine_protocol_or_fallback raises TypeError when types differ."""
+
+    @component
+    @dataclass
+    class CompX:
+        value: int
+
+    @component
+    @dataclass
+    class CompY:
+        value: int
+
+    comp1 = CompX(10)
+    comp2 = CompY(20)
+
+    with pytest.raises(TypeError, match="Cannot combine components of different types"):
+        combine_protocol_or_fallback(comp1, comp2)
+
+
+def test_combine_protocol_or_fallback_subclass_raises():
+    """combine_protocol_or_fallback raises TypeError when a subclass is passed."""
+
+    @component
+    @dataclass
+    class Base:
+        value: int
+
+        def __combine__(self, other: "Base") -> "Base":
+            return Base(self.value + other.value)
+
+    # Sub intentionally omits @component to simulate a plain subclass
+    # that isinstance() would accept but type() equality would reject.
+    @dataclass
+    class Sub(Base):
+        pass
+
+    base = Base(10)
+    sub = Sub(20)
+
+    with pytest.raises(TypeError, match="Cannot combine components of different types"):
+        combine_protocol_or_fallback(base, sub)
+
+
 def test_split_protocol_or_fallback_with_splittable():
     """split_protocol_or_fallback uses __split__ when available."""
     calls: list[int] = []

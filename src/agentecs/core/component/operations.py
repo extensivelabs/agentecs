@@ -21,11 +21,18 @@ def combine_protocol_or_fallback[T](comp1: T, comp2: T) -> T:
 
     Returns:
         Combined component via __combine__ method or comp2.
+
+    Raises:
+        TypeError: If comp1 and comp2 are not the exact same type.
     """
-    if not isinstance(comp1, Combinable) or not isinstance(comp2, type(comp1)):
+    if type(comp1) is not type(comp2):
+        raise TypeError(
+            f"Cannot combine components of different types: "
+            f"{type(comp1).__name__} and {type(comp2).__name__}"
+        )
+    if not isinstance(comp1, Combinable):
         return comp2
-    else:
-        return comp1.__combine__(comp2)
+    return comp1.__combine__(comp2)
 
 
 def split_protocol_or_fallback[T](comp: T) -> tuple[T, T]:
