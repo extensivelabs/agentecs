@@ -11,6 +11,7 @@ from dataclasses import dataclass
 import pytest
 
 from agentecs import ScopedAccess, SystemMode, World, component, system
+from agentecs.core.identity.models import EntityId
 from agentecs.world import AccessViolationError
 
 
@@ -128,6 +129,25 @@ def test_other_system_writes_visible_after_tick(world):
 
 
 # Access control enforcement tests - prevents violating declared access
+
+
+def test_cannot_set_nonexistent_entity(world):
+    """Setting a component on a non-existent entity raises an error."""
+    non_existent_entity = 9999
+    entity_id = EntityId(index=non_existent_entity)
+
+    @system(reads=(), writes=(TestValue,))
+    def try_set_nonexistent_entity(access: ScopedAccess) -> None:
+        access[entity_id, TestValue] = TestValue(42)
+
+    @system(reads=(), writes=(TestValue,))
+    def try_update_nonexistent_entity(access: ScopedAccess) -> None:
+        access.update(entity=entity_id, component=TestValue)
+
+    world.register_system(try_set_nonexistent_entity)
+
+    with pytest.raises(KeyError):
+        world.tick()
 
 
 def test_cannot_read_undeclared_component(world):
