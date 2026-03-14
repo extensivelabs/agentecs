@@ -319,14 +319,13 @@ graph LR
     style D fill:#c8e6c9
 ```
 
-!!! info "Snapshot Isolation and Merge Strategies"
-    All systems in an execution group see the same initial state (snapshot isolation). When multiple systems write to the same entity/component, results are merged using configurable strategies:
+!!! info "Snapshot Isolation and Combination"
+    All systems in an execution group see the same initial state (snapshot isolation). When multiple systems write to the same entity/component:
 
-    - **LastWriterWins** (default): Later system (by registration) overwrites earlier
-    - **MergeableFirst**: Use `__merge__` method if available
-    - **Error**: Raise exception on conflict (useful for debugging)
+    - **Combinable** values fold via `__combine__`
+    - **non-combinable** values use last-writer-wins (registration order)
 
-    See [Scheduling](scheduling.md) for details on merge strategies.
+    See [Scheduling](scheduling.md) for details.
 
 ### When to Use Access Declarations
 

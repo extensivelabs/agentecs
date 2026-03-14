@@ -6,101 +6,26 @@ to support advanced operations like merging, splitting, and interpolation.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum, auto
-from typing import Any, Protocol, Self, TypeVar, runtime_checkable
-
-T = TypeVar("T")
-
-
-class NonMergeableHandling(Enum):
-    """Strategy for handling non-mergeable components during entity merge."""
-
-    ERROR = auto()  # Raise error if component not Mergeable
-    FIRST = auto()  # Keep component from first entity
-    SECOND = auto()  # Keep component from second entity
-    SKIP = auto()  # Don't include in merged entity
-
-    def get_strategy(self) -> Callable[[T, T], T | None]:
-        """Get the merge strategy function for this handling mode.
-
-        Returns:
-            Pure function implementing the merge strategy.
-        """
-        # Late import to avoid circular dependency
-        from agentecs.core.component import operations
-
-        strategies = {
-            NonMergeableHandling.ERROR: operations.merge_error,
-            NonMergeableHandling.FIRST: operations.merge_take_first,
-            NonMergeableHandling.SECOND: operations.merge_take_second,
-            NonMergeableHandling.SKIP: operations.merge_skip,
-        }
-        return strategies[self]
-
-
-class NonSplittableHandling(Enum):
-    """Strategy for handling non-splittable components during entity split."""
-
-    ERROR = auto()  # Raise error if component not Splittable
-    FIRST = auto()  # Give component to first entity only
-    BOTH = auto()  # Clone component to both entities
-    SKIP = auto()  # Don't include in either entity
-
-    def get_strategy(self) -> Callable[[T, float], tuple[T | None, T | None]]:
-        """Get the split strategy function for this handling mode.
-
-        Returns:
-            Pure function implementing the split strategy.
-        """
-        # Late import to avoid circular dependency
-        from agentecs.core.component import operations
-
-        strategies = {
-            NonSplittableHandling.ERROR: operations.split_error,
-            NonSplittableHandling.FIRST: operations.split_to_first,
-            NonSplittableHandling.BOTH: operations.split_to_both,
-            NonSplittableHandling.SKIP: operations.split_skip,
-        }
-        return strategies[self]
+from typing import Protocol, Self, runtime_checkable
 
 
 @runtime_checkable
-class Mergeable(Protocol):
-    """Two instances → one combined instance."""
+class Combinable(Protocol):
+    """Component knows how to accumulate multiple writes.
 
-    def __merge__(self, other: Any) -> Self: ...
+    When multiple ops target the same (entity, type), the framework
+    folds them with __combine__ instead of overwriting.
+    """
+
+    def __combine__(self, other: Self) -> Self: ...
 
 
 @runtime_checkable
 class Splittable(Protocol):
     """One instance → two instances (for agent splitting)."""
 
-    def __split__(self, ratio: float = 0.5) -> tuple[Self, Self]: ...
-
-
-@runtime_checkable
-class Reducible(Protocol):
-    """N instances → one instance (for aggregation)."""
-
-    @classmethod
-    def __reduce_many__(cls, items: list[Self]) -> Self: ...
-
-
-@runtime_checkable
-class Diffable(Protocol):
-    """Compute delta between instances (for sync/replication)."""
-
-    def __diff__(self, baseline: Self) -> Self: ...
-    def __apply_diff__(self, diff: Self) -> Self: ...
-
-
-@runtime_checkable
-class Interpolatable(Protocol):
-    """Blend between instances (for continuous transitions)."""
-
-    def __interpolate__(self, other: Self, t: float) -> Self: ...
+    def __split__(self) -> tuple[Self, Self]: ...
 
 
 @dataclass(slots=True, frozen=True)

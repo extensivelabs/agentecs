@@ -222,24 +222,25 @@ class TokenBudget:
     available: int
     used: int
 
-    def __merge__(self, other: "TokenBudget") -> "TokenBudget":
+    def __combine__(self, other: "TokenBudget") -> "TokenBudget":
         """Combine budgets when merging agents."""
         return TokenBudget(
             available=self.available + other.available,
             used=self.used + other.used
         )
 
-    def __split__(self, ratio: float = 0.5) -> tuple["TokenBudget", "TokenBudget"]:
+    def __split__(self) -> tuple["TokenBudget", "TokenBudget"]:
         """Divide budget when splitting agents."""
-        left_available = int(self.available * ratio)
-        right_available = self.available - left_available
+        half = self.available // 2
+        left_available = half
+        right_available = self.available - half
         return (
             TokenBudget(left_available, 0),
             TokenBudget(right_available, 0)
         )
 ```
 
-Available protocols: `Mergeable`, `Splittable`, `Reducible`, `Diffable`, `Interpolatable`
+Available protocols: `Combinable`, `Splittable`
 
 See [Components](../system/components.md) for details.
 
@@ -464,33 +465,25 @@ def system_b(world: ScopedAccess) -> None:
         # Also sees 1000, writes 800
         world[e, TokenBudget] = TokenBudget(available=800, used=b.used + 200)
 
-# After group: TokenBudget = 800 (LAST_WRITER_WINS merge strategy)
+# After group: TokenBudget = 800 (LWW fallback, system_b registered second)
 ```
 
 This enables safe parallelization without race conditions. For more on snapshot isolation, see [Systems](../system/systems.md).
 
-### Merge Strategies
+### Result Combination
 
-When multiple systems write to the same component, conflicts are resolved via merge strategies:
+When multiple systems write to the same component:
 
-| Strategy | Behavior |
-|----------|----------|
-| `LAST_WRITER_WINS` | Later system (by registration order) overwrites |
-| `MERGEABLE_FIRST` | Use `__merge__` if available, else overwrite |
-| `ERROR` | Raise exception on conflict (debugging mode) |
+- `Combinable` values fold via `__combine__`
+- non-combinable values use last-writer-wins (registration order)
 
 ```python
-from agentecs import SchedulerConfig, MergeStrategy
 from agentecs.scheduling import SimpleScheduler
 
-world = World(
-    execution=SimpleScheduler(
-        config=SchedulerConfig(merge_strategy=MergeStrategy.MERGEABLE_FIRST)
-    )
-)
+world = World(execution=SimpleScheduler())
 ```
 
-See [Scheduling](../system/scheduling.md#merge-strategies) for details.
+See [Scheduling](../system/scheduling.md) for details.
 
 ## Access Patterns
 
@@ -648,7 +641,7 @@ for tick in range(10):
 
 - :material-merge: **Merge over Prevention**
 
-    Conflicts resolved via merge strategies, not rigid scheduling constraints.
+    Conflicts resolved via Combinable/LWW application, not rigid scheduling constraints.
 
 - :material-speedometer: **Flexibility First**
 

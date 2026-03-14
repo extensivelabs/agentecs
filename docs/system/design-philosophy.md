@@ -39,16 +39,15 @@ AgentECS prioritizes flexibility and rapid prototyping. Access declarations, typ
 
 ### Merge Over Prevention
 
-Instead of preventing conflicts through scheduling constraints, AgentECS **embraces conflicts** and resolves them through configurable merge strategies.
+Instead of preventing conflicts through scheduling constraints, AgentECS **embraces conflicts** and resolves them during deterministic application.
 
-Systems run in parallel, writing to isolated buffers. At group boundaries, results are merged using:
-- `LAST_WRITER_WINS`: Deterministic, simple, fast
-- `MERGEABLE_FIRST`: Use component's `__merge__` method if available
-- `ERROR`: Fail on conflicts (debugging mode)
+Systems run in parallel, writing to isolated buffers. At group boundaries, results are applied in registration order:
+- `Combinable` values fold via `__combine__`
+- non-combinable values use last-writer-wins
 
 **Why Merge-Based:**
 - Enables parallelism without rigid dependency graphs
-- Semantic merging through component protocols preserves intent
+- Semantic combination through component protocols preserves intent
 - Supports distributed execution across nodes
 - Reflects real-world agent coordination
 
@@ -90,11 +89,8 @@ Storage and execution are **protocols**, not implementations. Swap backends with
 
 Components are plain dataclasses. Advanced features are **opt-in** through runtime-checkable protocols:
 
-- `Mergeable`: Combine two components
+- `Combinable`: Combine component values
 - `Splittable`: Divide component between entities
-- `Reducible`: Aggregate many components
-- `Diffable`: Delta operations
-- `Interpolatable`: Smooth transitions
 
 **Why Optional:**
 - Simple components stay simple (just data)
@@ -149,9 +145,9 @@ Systems can run in **dev mode** for easier debugging: they run in isolation, hav
 
 ### Merge vs Determinism
 
-**Trade-off:** Merge strategies can produce different results than sequential execution.
+**Trade-off:** Application ordering can produce different results than sequential execution.
 
-**Rationale:** Parallelism is essential for scalability. Semantic merging (via `__merge__`) preserves intent better than forced sequencing.
+**Rationale:** Parallelism is essential for scalability. Semantic combination (via `__combine__`) preserves intent better than forced sequencing.
 
 ### Simplicity vs Optimization
 
@@ -170,5 +166,5 @@ Systems can run in **dev mode** for easier debugging: they run in isolation, hav
 - **[Architecture](architecture.md)**: Overall system architecture
 - **[Systems](systems.md)**: How systems implement these principles
 - **[Components](components.md)**: Component protocols in detail
-- **[Scheduling](scheduling.md)**: Execution groups and merge strategies
+- **[Scheduling](scheduling.md)**: Execution groups and result combination
 - **[World Management](world_management.md)**: Entity lifecycle and operations

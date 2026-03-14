@@ -24,27 +24,19 @@ __version__ = "0.1.0"
 
 # Core primitives
 from agentecs.core import (
+    Combinable,
     Copy,
-    Diffable,
     EntityId,
-    Interpolatable,
-    Mergeable,
-    NonMergeableHandling,
-    NonSplittableHandling,
     Query,
-    Reducible,
     Splittable,
     SystemEntity,
     SystemMode,
     component,
-    merge_components,
-    reduce_components,
     system,
 )
 
 # Scheduling
 from agentecs.scheduling import (
-    MergeStrategy,
     SchedulerConfig,
     SequentialScheduler,
     SimpleScheduler,
@@ -84,15 +76,8 @@ __all__ = [
     "system",
     "SystemMode",
     "Query",
-    "Mergeable",
+    "Combinable",
     "Splittable",
-    "Reducible",
-    "Diffable",
-    "Interpolatable",
-    "NonMergeableHandling",
-    "NonSplittableHandling",
-    "merge_components",
-    "reduce_components",
     # World
     "World",
     "ScopedAccess",
@@ -108,7 +93,6 @@ __all__ = [
     "SimpleScheduler",
     "SequentialScheduler",
     "SchedulerConfig",
-    "MergeStrategy",
     # Tracing
     "HistoryStore",
     "TickRecord",
