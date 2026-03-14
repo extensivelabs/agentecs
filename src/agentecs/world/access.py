@@ -312,9 +312,14 @@ class ScopedAccess:
         base = set(self._world._storage.get_component_types(entity))
         inserts = self._buffer.inserts
         removes = self._buffer.removes
+        updates = self._buffer.updates
         if entity in inserts:
             for comp in inserts[entity]:
                 base.add(get_type(comp))
+        if entity in updates:
+            for comp_type in updates[entity]:
+                if updates[entity][comp_type]:
+                    base.add(comp_type)
         if entity in removes:
             base -= set(removes[entity])
         return frozenset(base)
