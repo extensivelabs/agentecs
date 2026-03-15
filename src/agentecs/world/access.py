@@ -530,11 +530,13 @@ class ScopedAccess:
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
         self._check_writable(component)
+        self._check_entity_exists(entity)
         self._buffer.record_insert(entity=entity, component=component)
 
     def remove(self, entity: EntityId, component_type: type) -> None:
         """Remove component from entity."""
         self._check_writable(component_type)
+        self._check_entity_exists(entity)
         self._buffer.record_remove(entity=entity, component_type=component_type)
 
     def spawn(self, *components: Any) -> EntityId:
@@ -558,6 +560,7 @@ class ScopedAccess:
 
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
+        self._check_entity_exists(entity)
         self._buffer.record_destroy(entity=entity)
 
     def merge_entities(
