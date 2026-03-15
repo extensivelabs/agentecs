@@ -1034,10 +1034,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#merge-strategies" class="md-nav__link">
+  <a href="#result-combination" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Merge Strategies
+        Result Combination
       
     </span>
   </a>
@@ -1083,17 +1083,6 @@
   
     <nav class="md-nav" aria-label="Configuration Options">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#merge-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merge Strategy
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#concurrency-limiting" class="md-nav__link">
@@ -1238,17 +1227,6 @@
   
     <nav class="md-nav" aria-label="Distributed Scheduling (Future)">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#executionbackend-protocol" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ExecutionBackend Protocol
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#design-considerations" class="md-nav__link">
@@ -1823,10 +1801,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#merge-strategies" class="md-nav__link">
+  <a href="#result-combination" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Merge Strategies
+        Result Combination
       
     </span>
   </a>
@@ -1872,17 +1850,6 @@
   
     <nav class="md-nav" aria-label="Configuration Options">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#merge-strategy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merge Strategy
-      
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#concurrency-limiting" class="md-nav__link">
@@ -2029,17 +1996,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#executionbackend-protocol" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ExecutionBackend Protocol
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#design-considerations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2146,15 +2102,15 @@
 
 
 <h1 id="scheduling">Scheduling<a class="headerlink" href="#scheduling" title="Permanent link">&para;</a></h1>
-<p>Schedulers orchestrate system execution, determining which systems run, in what order, and how their results are merged. AgentECS provides a pluggable scheduling architecture with snapshot isolation and configurable merge strategies.</p>
+<p>Schedulers orchestrate system execution, determining which systems run and in what order. AgentECS provides a pluggable scheduling architecture with snapshot isolation and deterministic result ordering.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>The scheduler is the brain of AgentECS execution. It manages execution groups, handles parallelism, and merges results using configurable strategies.</p>
+<p>The scheduler is the brain of AgentECS execution. It manages execution groups, handles parallelism, and concatenates results for world application.</p>
 <p><strong>Scheduler Responsibilities:</strong></p>
 <ul>
 <li><strong>System Registration</strong>: Collect system descriptors as they're registered</li>
 <li><strong>Execution Planning</strong>: Build execution groups (via ExecutionGroupBuilder)</li>
 <li><strong>Execution Orchestration</strong>: Run systems (sequentially or in parallel)</li>
-<li><strong>Result Merging</strong>: Combine results using configured merge strategy</li>
+<li><strong>Result Ordering</strong>: Concatenate results in registration order</li>
 <li><strong>Result Application</strong>: Apply changes to storage at group boundaries</li>
 </ul>
 <pre class="mermaid"><code>graph TD
@@ -2169,8 +2125,8 @@
     G --&gt;|Group 1| H[Dev Systems - isolated]
     G --&gt;|Group 2| I[Normal Systems - parallel]
 
-    I --&gt; J[Merge Results]
-    J --&gt;|LastWriterWins| K[Apply to Storage]
+    I --&gt; J[Concatenate Results]
+    J --&gt; K[Apply to Storage]
 
     style B fill:#ffb74d
     style E fill:#ba68c8
@@ -2191,44 +2147,14 @@
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># After tick: Counter = 10 (LastWriterWins, add_ten registered second)</span>
 </span></code></pre></div>
-<h3 id="merge-strategies">Merge Strategies<a class="headerlink" href="#merge-strategies" title="Permanent link">&para;</a></h3>
-<p>When multiple systems write to the same (entity, component), the merge strategy determines the final value:</p>
-<table>
-<thead>
-<tr>
-<th>Strategy</th>
-<th>Behavior</th>
-<th>Use Case</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LAST_WRITER_WINS</code></td>
-<td>Later system (by registration) overwrites</td>
-<td>Default, simple, deterministic</td>
-</tr>
-<tr>
-<td><code>MERGEABLE_FIRST</code></td>
-<td>Use <code>__merge__</code> if available, else overwrite</td>
-<td>Semantic merging (counters, aggregations)</td>
-</tr>
-<tr>
-<td><code>ERROR</code></td>
-<td>Raise <code>ConflictError</code> on conflict</td>
-<td>Debugging, catching unintended overwrites</td>
-</tr>
-</tbody>
-</table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">World</span><span class="p">,</span> <span class="n">MergeStrategy</span><span class="p">,</span> <span class="n">SchedulerConfig</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleScheduler</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Configure merge strategy</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">config</span><span class="o">=</span><span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">merge_strategy</span><span class="o">=</span><span class="n">MergeStrategy</span><span class="o">.</span><span class="n">MERGEABLE_FIRST</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="p">)</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">)</span>
-</span></code></pre></div>
+<h3 id="result-combination">Result Combination<a class="headerlink" href="#result-combination" title="Permanent link">&para;</a></h3>
+<p>The scheduler does not interpret component semantics. It concatenates <code>SystemResult</code> operations in system registration order.</p>
+<p>Combination happens during application in <code>World.apply_result_async</code>:</p>
+<ul>
+<li><code>Combinable</code> components fold via <code>__combine__</code></li>
+<li>non-combinable components use last-writer-wins (later operation overwrites earlier)</li>
+<li>no global merge configuration is required</li>
+</ul>
 <h3 id="execution-groups">Execution Groups<a class="headerlink" href="#execution-groups" title="Permanent link">&para;</a></h3>
 <p>Systems are organized into execution groups. Groups execute sequentially; systems within groups execute in parallel.</p>
 <pre class="mermaid"><code>graph LR
@@ -2250,86 +2176,74 @@
 <li>All other systems go in one group (run in parallel)</li>
 </ul>
 <h2 id="simplescheduler">SimpleScheduler<a class="headerlink" href="#simplescheduler" title="Permanent link">&para;</a></h2>
-<p>The primary scheduler with parallel execution and configurable behavior.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">World</span><span class="p">,</span> <span class="n">SchedulerConfig</span><span class="p">,</span> <span class="n">MergeStrategy</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleScheduler</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Default configuration</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">())</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Full configuration</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="n">config</span><span class="o">=</span><span class="n">SchedulerConfig</span><span class="p">(</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>            <span class="n">merge_strategy</span><span class="o">=</span><span class="n">MergeStrategy</span><span class="o">.</span><span class="n">LAST_WRITER_WINS</span><span class="p">,</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>            <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># Limit parallel systems</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>            <span class="n">retry_policy</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="p">)</span>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    <span class="p">)</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">)</span>
+<p>The primary scheduler with parallel execution and configurable concurrency/retry behavior.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">World</span><span class="p">,</span> <span class="n">SchedulerConfig</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleScheduler</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Default configuration</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">())</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># Full configuration</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">config</span><span class="o">=</span><span class="n">SchedulerConfig</span><span class="p">(</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>            <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># Limit parallel systems</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>            <span class="n">retry_policy</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="p">)</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="p">)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>
-<h4 id="merge-strategy">Merge Strategy<a class="headerlink" href="#merge-strategy" title="Permanent link">&para;</a></h4>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">MergeStrategy</span><span class="p">,</span> <span class="n">SchedulerConfig</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Default: later registration wins</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">merge_strategy</span><span class="o">=</span><span class="n">MergeStrategy</span><span class="o">.</span><span class="n">LAST_WRITER_WINS</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Use Mergeable protocol when available</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">merge_strategy</span><span class="o">=</span><span class="n">MergeStrategy</span><span class="o">.</span><span class="n">MERGEABLE_FIRST</span><span class="p">)</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Error on conflicts (useful for debugging)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">merge_strategy</span><span class="o">=</span><span class="n">MergeStrategy</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-</span></code></pre></div>
 <h4 id="concurrency-limiting">Concurrency Limiting<a class="headerlink" href="#concurrency-limiting" title="Permanent link">&para;</a></h4>
 <p>Useful for systems that call external APIs with rate limits:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Limit to 5 concurrent system executions</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Limit to 5 concurrent system executions</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="retry-policy">Retry Policy<a class="headerlink" href="#retry-policy" title="Permanent link">&para;</a></h4>
 <p>Handle transient failures (e.g., API timeouts):</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">retry_policy</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="n">backoff</span><span class="o">=</span><span class="s2">&quot;exponential&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;linear&quot;, &quot;none&quot;</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">base_delay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">on_exhausted</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span>  <span class="c1"># or &quot;fail&quot;</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="p">)</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">retry_policy</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">backoff</span><span class="o">=</span><span class="s2">&quot;exponential&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;linear&quot;, &quot;none&quot;</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">base_delay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">on_exhausted</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span>  <span class="c1"># or &quot;fail&quot;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="sequentialscheduler">SequentialScheduler<a class="headerlink" href="#sequentialscheduler" title="Permanent link">&para;</a></h2>
 <p>Alias for <code>SimpleScheduler</code> with <code>max_concurrent=1</code>. Useful for debugging.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequentialScheduler</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># These are equivalent:</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SequentialScheduler</span><span class="p">())</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequentialScheduler</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># These are equivalent:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SequentialScheduler</span><span class="p">())</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span><span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
 </span></code></pre></div>
 <h2 id="executiongroupbuilder">ExecutionGroupBuilder<a class="headerlink" href="#executiongroupbuilder" title="Permanent link">&para;</a></h2>
 <p>The extension point for custom grouping strategies. Implement this protocol to control how systems are grouped.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionGroupBuilder</span><span class="p">,</span> <span class="n">ExecutionGroup</span><span class="p">,</span> <span class="n">ExecutionPlan</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.core.system</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemDescriptor</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomGroupBuilder</span><span class="p">:</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Example: put each system in its own group (fully sequential).&quot;&quot;&quot;</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">systems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SystemDescriptor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ExecutionPlan</span><span class="p">:</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">ExecutionGroup</span><span class="p">(</span><span class="n">systems</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># Use custom builder</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span><span class="n">group_builder</span><span class="o">=</span><span class="n">CustomGroupBuilder</span><span class="p">())</span>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionGroupBuilder</span><span class="p">,</span> <span class="n">ExecutionGroup</span><span class="p">,</span> <span class="n">ExecutionPlan</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.core.system</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemDescriptor</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomGroupBuilder</span><span class="p">:</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Example: put each system in its own group (fully sequential).&quot;&quot;&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">systems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SystemDescriptor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ExecutionPlan</span><span class="p">:</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="k">return</span> <span class="p">[</span><span class="n">ExecutionGroup</span><span class="p">(</span><span class="n">systems</span><span class="o">=</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">systems</span><span class="p">]</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Use custom builder</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">world</span> <span class="o">=</span> <span class="n">World</span><span class="p">(</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">execution</span><span class="o">=</span><span class="n">SimpleScheduler</span><span class="p">(</span><span class="n">group_builder</span><span class="o">=</span><span class="n">CustomGroupBuilder</span><span class="p">())</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="built-in-builders">Built-in Builders<a class="headerlink" href="#built-in-builders" title="Permanent link">&para;</a></h3>
 <p><strong>SingleGroupBuilder</strong> (default): All normal systems parallel, dev systems isolated.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleGroupBuilder</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">SingleGroupBuilder</span><span class="p">()</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Dev systems → individual groups (run first, alone)</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1"># Normal systems → one group (run in parallel)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs.scheduling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleGroupBuilder</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">builder</span> <span class="o">=</span> <span class="n">SingleGroupBuilder</span><span class="p">()</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Dev systems → individual groups (run first, alone)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Normal systems → one group (run in parallel)</span>
 </span></code></pre></div>
 <h3 id="future-builders-planned">Future Builders (Planned)<a class="headerlink" href="#future-builders-planned" title="Permanent link">&para;</a></h3>
 <table>
@@ -2357,21 +2271,21 @@
 <h2 id="system-access-patterns">System Access Patterns<a class="headerlink" href="#system-access-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="optional-declarations">Optional Declarations<a class="headerlink" href="#optional-declarations" title="Permanent link">&para;</a></h3>
 <p>Access declarations are optional. Systems without declarations have full access:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Full access, runs in parallel with others</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nd">@system</span><span class="p">()</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">full_access_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="c1"># Can read/write any component</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="k">pass</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Declared access, validated at runtime</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,))</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">movement</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="k">pass</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1"># Dev mode: full access AND runs in isolation</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">debug_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">pass</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Full access, runs in parallel with others</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nd">@system</span><span class="p">()</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">full_access_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="c1"># Can read/write any component</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="k">pass</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Declared access, validated at runtime</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Position</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,))</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">movement</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="k">pass</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># Dev mode: full access AND runs in isolation</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">debug_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>    <span class="k">pass</span>
 </span></code></pre></div>
 <p>Defaulting behavior:</p>
 <ul>
@@ -2389,19 +2303,19 @@
 </div>
 <h3 id="dev-mode-isolation">Dev Mode Isolation<a class="headerlink" href="#dev-mode-isolation" title="Permanent link">&para;</a></h3>
 <p>Dev mode systems run in their own execution group, seeing all previous changes:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">debug_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="c1"># Runs alone, sees all changes from previous groups</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="k">pass</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Counter</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Counter</span><span class="p">,))</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">normal_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="c1"># Runs in parallel with other normal systems</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="k">pass</span>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="c1"># Execution order:</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="c1"># 1. debug_system (alone) → apply results</span>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1"># 2. normal_system (parallel with others) → apply results</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@system</span><span class="o">.</span><span class="n">dev</span><span class="p">()</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">debug_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="c1"># Runs alone, sees all changes from previous groups</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="k">pass</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Counter</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Counter</span><span class="p">,))</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">normal_system</span><span class="p">(</span><span class="n">access</span><span class="p">):</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="c1"># Runs in parallel with other normal systems</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="k">pass</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="c1"># Execution order:</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1"># 1. debug_system (alone) → apply results</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="c1"># 2. normal_system (parallel with others) → apply results</span>
 </span></code></pre></div>
 <h2 id="workflow-inside-tick_async">Workflow: Inside tick_async()<a class="headerlink" href="#workflow-inside-tick_async" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>sequenceDiagram
@@ -2417,7 +2331,7 @@
     loop Each ExecutionGroup
         S-&gt;&gt;Sys: Execute in parallel
         Sys--&gt;&gt;S: SystemResults
-        S-&gt;&gt;S: Merge results (strategy)
+        S-&gt;&gt;S: Concatenate results
         S-&gt;&gt;W: apply_result_async()
     end</code></pre>
 <p><strong>Step by step:</strong></p>
@@ -2426,31 +2340,23 @@
 <li><strong>Execute Groups</strong>: For each group:</li>
 <li>Execute all systems in parallel (with concurrency limit)</li>
 <li>Retry failed systems per RetryPolicy</li>
-<li>Merge results using MergeStrategy</li>
+<li>Concatenate results in registration order</li>
 <li>Apply merged result to storage</li>
 <li><strong>Next Group</strong>: Subsequent groups see applied changes</li>
 </ol>
 <h2 id="distributed-scheduling-future">Distributed Scheduling (Future)<a class="headerlink" href="#distributed-scheduling-future" title="Permanent link">&para;</a></h2>
 <p>AgentECS is designed to support distributed execution:</p>
-<h3 id="executionbackend-protocol">ExecutionBackend Protocol<a class="headerlink" href="#executionbackend-protocol" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExecutionBackend</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_group</span><span class="p">(</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">systems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SystemDescriptor</span><span class="p">],</span> <span class="n">world</span><span class="p">:</span> <span class="n">World</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SystemResult</span><span class="p">]:</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute group across nodes.&quot;&quot;&quot;</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="o">...</span>
-</span></code></pre></div>
 <p><strong>Future backends:</strong></p>
 <ul>
 <li><strong>Ray Backend</strong>: Distribute across Ray cluster</li>
 <li><strong>Dask Backend</strong>: Use Dask for task scheduling</li>
 </ul>
 <h3 id="design-considerations">Design Considerations<a class="headerlink" href="#design-considerations" title="Permanent link">&para;</a></h3>
-<p>With merge-based conflict resolution (rather than conflict prevention), distributed execution becomes feasible:</p>
+<p>With operation ordering plus Combinable/LWW application behavior, distributed execution becomes feasible:</p>
 <ul>
 <li>Systems execute independently on different nodes</li>
-<li>Results merge at coordinator</li>
-<li>Conflicts resolved by strategy, not prevented</li>
+<li>Results concatenate at coordinator</li>
+<li>Conflicts resolve during application, not prevention</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Distributed is Future Work</p>
@@ -2462,11 +2368,10 @@
 <p>Begin with <code>SimpleScheduler()</code> defaults. Only tune when profiling shows need.</p>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Use Merge Strategies Wisely</p>
+<p class="admonition-title">Use Combinable Intentionally</p>
 <ul>
-<li><code>LAST_WRITER_WINS</code>: Simple, deterministic, good default</li>
-<li><code>MERGEABLE_FIRST</code>: When you have semantic merge logic</li>
-<li><code>ERROR</code>: During development to catch unintended overlaps</li>
+<li>Keep default LWW for simple overwrite semantics</li>
+<li>Implement <code>__combine__</code> only for types that should accumulate concurrent writes</li>
 </ul>
 </div>
 <div class="admonition tip">
@@ -2476,16 +2381,16 @@
 <div class="admonition warning">
 <p class="admonition-title">Concurrency Limits for APIs</p>
 <p>If systems call external APIs, use <code>max_concurrent</code> to respect rate limits:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">SchedulerConfig</span><span class="p">(</span><span class="n">max_concurrent</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </span></code></pre></div></p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Profile Before Optimizing</p>
 <p>Parallelization has overhead. Profile to verify speedup:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">await</span> <span class="n">world</span><span class="o">.</span><span class="n">tick_async</span><span class="p">()</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tick time: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">await</span> <span class="n">world</span><span class="o">.</span><span class="n">tick_async</span><span class="p">()</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tick time: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
 </span></code></pre></div></p>
 </div>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>

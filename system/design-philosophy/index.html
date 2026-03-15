@@ -2018,14 +2018,13 @@
 - Different use cases need different levels of structure
 - Add rigor incrementally as patterns stabilize</p>
 <h3 id="merge-over-prevention">Merge Over Prevention<a class="headerlink" href="#merge-over-prevention" title="Permanent link">&para;</a></h3>
-<p>Instead of preventing conflicts through scheduling constraints, AgentECS <strong>embraces conflicts</strong> and resolves them through configurable merge strategies.</p>
-<p>Systems run in parallel, writing to isolated buffers. At group boundaries, results are merged using:
-- <code>LAST_WRITER_WINS</code>: Deterministic, simple, fast
-- <code>MERGEABLE_FIRST</code>: Use component's <code>__merge__</code> method if available
-- <code>ERROR</code>: Fail on conflicts (debugging mode)</p>
+<p>Instead of preventing conflicts through scheduling constraints, AgentECS <strong>embraces conflicts</strong> and resolves them during deterministic application.</p>
+<p>Systems run in parallel, writing to isolated buffers. At group boundaries, results are applied in registration order:
+- <code>Combinable</code> values fold via <code>__combine__</code>
+- non-combinable values use last-writer-wins</p>
 <p><strong>Why Merge-Based:</strong>
 - Enables parallelism without rigid dependency graphs
-- Semantic merging through component protocols preserves intent
+- Semantic combination through component protocols preserves intent
 - Supports distributed execution across nodes
 - Reflects real-world agent coordination</p>
 <h3 id="snapshot-isolation-with-execution-groups">Snapshot Isolation with Execution Groups<a class="headerlink" href="#snapshot-isolation-with-execution-groups" title="Permanent link">&para;</a></h3>
@@ -2056,11 +2055,8 @@
 <h3 id="optional-component-protocols">Optional Component Protocols<a class="headerlink" href="#optional-component-protocols" title="Permanent link">&para;</a></h3>
 <p>Components are plain dataclasses. Advanced features are <strong>opt-in</strong> through runtime-checkable protocols:</p>
 <ul>
-<li><code>Mergeable</code>: Combine two components</li>
+<li><code>Combinable</code>: Combine component values</li>
 <li><code>Splittable</code>: Divide component between entities</li>
-<li><code>Reducible</code>: Aggregate many components</li>
-<li><code>Diffable</code>: Delta operations</li>
-<li><code>Interpolatable</code>: Smooth transitions</li>
 </ul>
 <p><strong>Why Optional:</strong>
 - Simple components stay simple (just data)
@@ -2097,8 +2093,8 @@
 <p><strong>Trade-off:</strong> Optional access declarations mean less compile-time safety.</p>
 <p><strong>Rationale:</strong> Early AI agent research needs experimentation. Add structure incrementally as patterns emerge.</p>
 <h3 id="merge-vs-determinism">Merge vs Determinism<a class="headerlink" href="#merge-vs-determinism" title="Permanent link">&para;</a></h3>
-<p><strong>Trade-off:</strong> Merge strategies can produce different results than sequential execution.</p>
-<p><strong>Rationale:</strong> Parallelism is essential for scalability. Semantic merging (via <code>__merge__</code>) preserves intent better than forced sequencing.</p>
+<p><strong>Trade-off:</strong> Application ordering can produce different results than sequential execution.</p>
+<p><strong>Rationale:</strong> Parallelism is essential for scalability. Semantic combination (via <code>__combine__</code>) preserves intent better than forced sequencing.</p>
 <h3 id="simplicity-vs-optimization">Simplicity vs Optimization<a class="headerlink" href="#simplicity-vs-optimization" title="Permanent link">&para;</a></h3>
 <p><strong>Trade-off:</strong> Initial storage implementation prioritizes simplicity over performance.</p>
 <p><strong>Rationale:</strong> Start simple, profile, optimize when needed. Premature optimization increases complexity without proven benefit.</p>
@@ -2110,7 +2106,7 @@
 <li><strong><a href="../architecture/">Architecture</a></strong>: Overall system architecture</li>
 <li><strong><a href="../systems/">Systems</a></strong>: How systems implement these principles</li>
 <li><strong><a href="../components/">Components</a></strong>: Component protocols in detail</li>
-<li><strong><a href="../scheduling/">Scheduling</a></strong>: Execution groups and merge strategies</li>
+<li><strong><a href="../scheduling/">Scheduling</a></strong>: Execution groups and result combination</li>
 <li><strong><a href="../world_management/">World Management</a></strong>: Entity lifecycle and operations</li>
 </ul>
 

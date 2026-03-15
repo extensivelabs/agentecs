@@ -2447,14 +2447,13 @@
     style C fill:#c8e6c9
     style D fill:#c8e6c9</code></pre>
 <div class="admonition info">
-<p class="admonition-title">Snapshot Isolation and Merge Strategies</p>
-<p>All systems in an execution group see the same initial state (snapshot isolation). When multiple systems write to the same entity/component, results are merged using configurable strategies:</p>
+<p class="admonition-title">Snapshot Isolation and Combination</p>
+<p>All systems in an execution group see the same initial state (snapshot isolation). When multiple systems write to the same entity/component:</p>
 <ul>
-<li><strong>LastWriterWins</strong> (default): Later system (by registration) overwrites earlier</li>
-<li><strong>MergeableFirst</strong>: Use <code>__merge__</code> method if available</li>
-<li><strong>Error</strong>: Raise exception on conflict (useful for debugging)</li>
+<li><strong>Combinable</strong> values fold via <code>__combine__</code></li>
+<li><strong>non-combinable</strong> values use last-writer-wins (registration order)</li>
 </ul>
-<p>See <a href="../scheduling/">Scheduling</a> for details on merge strategies.</p>
+<p>See <a href="../scheduling/">Scheduling</a> for details.</p>
 </div>
 <h3 id="when-to-use-access-declarations">When to Use Access Declarations<a class="headerlink" href="#when-to-use-access-declarations" title="Permanent link">&para;</a></h3>
 <p>Access declarations are <strong>optional</strong> in AgentECS. Under snapshot isolation with merge strategies, correctness doesn't require declarations. Here's when each approach is appropriate:</p>

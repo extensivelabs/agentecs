@@ -1740,7 +1740,7 @@
 <h3 id="core-api">Core API<a class="headerlink" href="#core-api" title="Permanent link">&para;</a></h3>
 <p>Pure, stateless building blocks for entities, components, systems, and queries. These are the fundamental abstractions that make up the ECS framework.</p>
 <p><strong>Key modules:</strong>
-- <strong>Component</strong>: Define components with operation protocols (Mergeable, Splittable, etc.)
+- <strong>Component</strong>: Define components with operation protocols (Combinable, Splittable)
 - <strong>Identity</strong>: Entity IDs with generational indices and shard support
 - <strong>Query</strong>: Query builder for filtering entities by component types
 - <strong>System</strong>: Define systems with access patterns for parallelization</p>
@@ -1762,9 +1762,9 @@
 <p><a href="storage/">→ View Storage API</a></p>
 <hr />
 <h3 id="scheduling-api">Scheduling API<a class="headerlink" href="#scheduling-api" title="Permanent link">&para;</a></h3>
-<p>Parallel execution engine with configurable merge strategies. The scheduler runs systems in parallel with snapshot isolation and merges results using configurable strategies.</p>
+<p>Parallel execution engine. The scheduler runs systems in parallel with snapshot isolation, concatenates results in registration order, and relies on world application for Combinable folding and LWW fallback.</p>
 <p><strong>Key classes:</strong>
-- <strong>SimpleScheduler</strong>: Parallel execution with configurable merge strategies
+- <strong>SimpleScheduler</strong>: Parallel execution with group-based orchestration
 - <strong>SequentialScheduler</strong>: Alias for SimpleScheduler with max_concurrent=1</p>
 <p><a href="scheduling/">→ View Scheduling API</a></p>
 <hr />
