@@ -6,6 +6,7 @@ Usage:
 """
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +31,16 @@ class EntityId:
             True if entity is on shard 0 (local), False otherwise.
         """
         return self.shard == 0
+
+    def __eq__(self, other: Any) -> bool:
+        """Equality check based on shard, index, and generation."""
+        if not isinstance(other, EntityId):
+            return NotImplemented
+        return (self.shard, self.index, self.generation) == (
+            other.shard,
+            other.index,
+            other.generation,
+        )
 
 
 class SystemEntity:

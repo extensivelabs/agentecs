@@ -230,7 +230,7 @@ class ScopedAccess:
 
     def _check_entity_exists(self, entity: EntityId) -> None:
         """Check if entity exists, accounting for buffered spawns."""
-        spawn_ids = {x for (x, y) in self._buffer.spawns if y}
+        spawn_ids = self._buffer.spawns
         if (
             not self._world._check_entity_exists(entity)
             and not self._buffer.inserts.get(entity)
@@ -551,9 +551,10 @@ class ScopedAccess:
                 )
             seen_types.add(comp_type)
 
-        self._buffer.record_spawn(*components)
         # Return provisional ID - actual ID assigned at apply time
-        return EntityId(shard=0, index=-self._buffer.spawn_count, generation=0)
+        provisional_id = EntityId(shard=0, index=-(self._buffer.spawn_count + 1), generation=0)
+        self._buffer.record_spawn(entity=provisional_id, components=components)
+        return provisional_id
 
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""

@@ -120,10 +120,11 @@ class SystemResult:
         self._remove_indices.append(self._next_op_seq)
         self._next_op_seq += 1
 
-    def record_spawn(self, *components: Any) -> None:
+    def record_spawn(self, entity: EntityId, components: tuple[Any, ...] | None = None) -> None:
         """Record a spawn operation for a new entity with given components."""
         op = MutationOp(
             op_seq=self._next_op_seq,
+            entity=entity,
             kind=OpKind.SPAWN,
             spawn_components=components,
         )
@@ -187,12 +188,10 @@ class SystemResult:
         return result
 
     @property
-    def spawns(self) -> list[tuple[Any, ...]]:
+    def spawns(self) -> list[EntityId]:
         """Returns all spawns as list of component tuples."""
         return [
-            spawn_components
-            for i in self._spawn_indices
-            if (spawn_components := self._ops[i].spawn_components) is not None
+            spawn_id for i in self._spawn_indices if (spawn_id := self._ops[i].entity) is not None
         ]
 
     @property
@@ -236,8 +235,8 @@ class SystemResult:
                 if op.entity is not None and op.component_type is not None:
                     self.record_remove(op.entity, op.component_type)
             elif op.kind == OpKind.SPAWN:
-                if op.spawn_components is not None:
-                    self.record_spawn(*op.spawn_components)
+                if op.entity is not None and op.spawn_components is not None:
+                    self.record_spawn(entity=op.entity, components=op.spawn_components)
             elif op.kind == OpKind.DESTROY:
                 if op.entity is not None:
                     self.record_destroy(op.entity)

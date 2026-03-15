@@ -32,7 +32,7 @@ def test_ops_preserve_record_order() -> None:
     result.record_update(entity, Count(1))
     result.record_insert(entity, Label("new"))
     result.record_remove(entity, Label)
-    result.record_spawn(Count(9))
+    result.record_spawn(entity, (Count(9)))
     result.record_destroy(entity)
 
     assert [op.kind for op in result.ops] == [
@@ -90,7 +90,7 @@ def test_is_empty_tracks_queued_operations() -> None:
 
     assert result.is_empty()
 
-    result.record_spawn()
+    result.record_spawn(_entity(4), components=(Count(5)))
 
     assert not result.is_empty()
 
