@@ -11,7 +11,7 @@ In AgentECS, components are the fundamental building blocks of entity state. An 
 - **Data-Only**: Components are pure data containers (dataclasses or Pydantic models)
 - **Composable**: Mix and match components to create different entity types
 - **Deterministic IDs**: Same code produces same component IDs across nodes
-- **Optional Protocols**: Components can opt-in to advanced operations (merge, split, diff, interpolate)
+- **Optional Protocols**: Components can opt-in to combining and splitting behaviors
 
 ```mermaid
 graph LR
@@ -138,127 +138,32 @@ class AgentConfig(BaseModel):
 
 ## Advanced Features: Component Protocols
 
-Components can optionally implement **operation protocols** to support advanced features like entity merging, splitting, and interpolation. These protocols are entirely optional—components work fine without them.
+Components can optionally implement operation protocols to participate in merge/split workflows.
 
-### How to use Component Protocols
-
-Protocols are defined as runtime-checkable interfaces. Simply implement the required methods on your component class:
-
-```python
-from typing import Self
-
-@component
-@dataclass(slots=True)
-class TokenBudget:
-    available: int
-    used: int
-
-    def __merge__(self, other: Self) -> Self:
-        """Merge by combining budgets."""
-        return TokenBudget(
-            available=self.available + other.available,
-            used=self.used + other.used
-        )
-
-    def __split__(self, ratio: float = 0.5) -> tuple[Self, Self]:
-        """Split budget by ratio."""
-        left_available = int(self.available * ratio)
-        right_available = self.available - left_available
-        return (
-            TokenBudget(left_available, 0),
-            TokenBudget(right_available, 0)
-        )
-```
-
-Available protocols:
+AgentECS currently has two optional protocols:
 
 <div class="grid cards" markdown>
 
-- :material-call-merge: **Mergeable**
+- :material-call-merge: **Combinable**
 
-    `__merge__(self, other: Self) -> Self`
+    `__combine__(self, other: Self) -> Self`
 
-    Combine two component instances into one (for agent merging)
+    Used when multiple values for the same `(entity, component type)` must be combined.
 
 - :material-call-split: **Splittable**
 
-    `__split__(self, ratio: float) -> tuple[Self, Self]`
+    `__split__(self) -> tuple[Self, Self]`
 
-    Divide one component into two instances (for agent splitting)
-
-- :material-function-variant: **Reducible**
-
-    `__reduce_many__(cls, items: list[Self]) -> Self`
-
-    Aggregate N instances into one (classmethod)
-
-- :material-delta: **Diffable**
-
-    `__diff__(self, baseline: Self) -> Self`
-    `__apply_diff__(self, diff: Self) -> Self`
-
-    Compute and apply deltas (for synchronization)
-
-- :material-gradient-horizontal: **Interpolatable**
-
-    `__interpolate__(self, other: Self, t: float) -> Self`
-
-    Blend between two instances (for smooth transitions)
+    Used when one entity is split into two entities.
 
 </div>
 
-### Mergeable Components
+Everything else uses framework defaults:
 
-The `Mergeable` protocol enables components to define how they combine during entity merges:
+- Non-combinable values use last-writer-wins.
+- Non-splittable values are deep-copied to both split entities.
 
-```python
-@component
-@dataclass(slots=True)
-class Position:
-    x: float
-    y: float
-
-    def __merge__(self, other: "Position") -> "Position":
-        """Merge by averaging positions."""
-        return Position(
-            x=(self.x + other.x) / 2,
-            y=(self.y + other.y) / 2
-        )
-
-@component
-@dataclass(slots=True)
-class Memory:
-    facts: list[str]
-
-    def __merge__(self, other: "Memory") -> "Memory":
-        """Merge by combining unique facts."""
-        return Memory(facts=list(set(self.facts + other.facts)))
-```
-
-**Usage in Entity Merging:**
-
-```python
-from agentecs import NonMergeableHandling
-
-# Merge two agents - Mergeable components use __merge__
-merged = world.merge_entities(
-    agent1,
-    agent2,
-    on_non_mergeable=NonMergeableHandling.FIRST  # Strategy for non-mergeable
-)
-```
-
-!!! info "Non-Mergeable Strategies"
-    Components without `__merge__` use fallback strategies:
-
-    - `ERROR`: Raise TypeError
-    - `FIRST`: Keep component from first entity
-    - `SECOND`: Keep component from second entity
-    - `SKIP`: Exclude from merged entity
-
-### Splittable Components
-
-The `Splittable` protocol enables components to divide during entity splits:
+### Combinable Components
 
 ```python
 @component
@@ -266,118 +171,55 @@ The `Splittable` protocol enables components to divide during entity splits:
 class Credits:
     amount: float
 
-    def __split__(self, ratio: float = 0.5) -> tuple["Credits", "Credits"]:
-        """Split credits proportionally."""
-        left_amount = self.amount * ratio
-        right_amount = self.amount * (1 - ratio)
-        return Credits(left_amount), Credits(right_amount)
+    def __combine__(self, other: "Credits") -> "Credits":
+        return Credits(self.amount + other.amount)
 
-@component
-@dataclass(slots=True)
-class Task:
-    items: list[str]
-
-    def __split__(self, ratio: float = 0.5) -> tuple["Task", "Task"]:
-        """Split task list."""
-        split_point = int(len(self.items) * ratio)
-        return Task(self.items[:split_point]), Task(self.items[split_point:])
-```
-
-**Usage in Entity Splitting:**
-
-```python
-from agentecs import NonSplittableHandling
-
-# Split agent 70/30
-left, right = world.split_entity(
-    agent,
-    ratio=0.7,
-    on_non_splittable=NonSplittableHandling.BOTH  # Clone to both
-)
-```
-
-!!! info "Non-Splittable Strategies"
-    Components without `__split__` use fallback strategies:
-
-    - `ERROR`: Raise TypeError
-    - `FIRST`: Give component only to first entity
-    - `BOTH`: Deep copy to both entities
-    - `SKIP`: Exclude from both entities
-
-### Reducible Components
-
-The `Reducible` protocol aggregates N components into one:
-
-```python
-@component
-@dataclass(slots=True)
-class Vote:
-    choice: str
-    weight: float = 1.0
-
-    @classmethod
-    def __reduce_many__(cls, items: list["Vote"]) -> "Vote":
-        """Aggregate votes by weighted majority."""
-        weights = {}
-        for vote in items:
-            weights[vote.choice] = weights.get(vote.choice, 0) + vote.weight
-        winner = max(weights, key=weights.get)
-        return Vote(choice=winner, weight=sum(weights.values()))
-```
-
-!!! note "Reducible is a Classmethod"
-    Unlike other protocols, `__reduce_many__` is a classmethod that takes a list of instances.
-
-!!! tip "Fallback to Merge"
-    If a component implements `Mergeable` but not `Reducible`, AgentECS automatically reduces via sequential pairwise merging.
-
-### Diffable Components
-
-!!! info "Future Feature"
-    The `Diffable` protocol is defined but not yet used by the framework. It will enable efficient delta synchronization in distributed scenarios.
-
-```python
-@component
-@dataclass(slots=True)
-class BeliefState:
-    beliefs: dict[str, float]
-
-    def __diff__(self, baseline: "BeliefState") -> "BeliefState":
-        """Compute delta."""
-        changes = {}
-        for key, value in self.beliefs.items():
-            if key not in baseline.beliefs or baseline.beliefs[key] != value:
-                changes[key] = value
-        return BeliefState(beliefs=changes)
-
-    def __apply_diff__(self, diff: "BeliefState") -> "BeliefState":
-        """Apply delta."""
-        new_beliefs = self.beliefs.copy()
-        new_beliefs.update(diff.beliefs)
-        return BeliefState(beliefs=new_beliefs)
-```
-
-### Interpolatable Components
-
-The `Interpolatable` protocol enables smooth transitions between component states:
-
-```python
 @component
 @dataclass(slots=True)
 class Position:
     x: float
     y: float
 
-    def __interpolate__(self, other: "Position", t: float) -> "Position":
-        """Linearly interpolate between positions."""
+    def __combine__(self, other: "Position") -> "Position":
         return Position(
-            x=self.x + (other.x - self.x) * t,
-            y=self.y + (other.y - self.y) * t
+            x=(self.x + other.x) / 2,
+            y=(self.y + other.y) / 2,
         )
 ```
 
-!!! example "Use Case: Smooth Movement"
-    Interpolation is useful for smooth rendering, animation, or gradual state transitions in simulations.
+Use in entity merge:
+
+```python
+merged = world.merge_entities(agent1, agent2)
+```
+
+### Splittable Components
+
+```python
+@component
+@dataclass(slots=True)
+class Credits:
+    amount: float
+
+    def __split__(self) -> tuple["Credits", "Credits"]:
+        half = self.amount / 2
+        return Credits(half), Credits(self.amount - half)
+
+@component
+@dataclass(slots=True)
+class TaskQueue:
+    items: list[str]
+
+    def __split__(self) -> tuple["TaskQueue", "TaskQueue"]:
+        midpoint = len(self.items) // 2
+        return TaskQueue(self.items[:midpoint]), TaskQueue(self.items[midpoint:])
+```
+
+Use in entity split:
+
+```python
+left, right = world.split_entity(agent)
+```
 
 ## Global Components (Singletons)
 
@@ -438,7 +280,7 @@ graph TD
     For better memory efficiency, use `@dataclass(slots=True)` or `@dataclass(slots=True, frozen=True)` for immutable components.
 
 !!! warning "Avoid Side Effects"
-    Component methods (like `__merge__` or `__split__`) should be pure functions with no side effects. They should not modify external state or perform I/O.
+    Component methods (like `__combine__` or `__split__`) should be pure functions with no side effects. They should not modify external state or perform I/O.
 
 !!! info "Deterministic IDs"
     Component IDs are derived from the fully qualified class name. This means:

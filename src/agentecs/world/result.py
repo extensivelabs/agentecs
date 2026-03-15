@@ -79,6 +79,7 @@ class SystemResult:
             kind=OpKind.UPDATE,
             entity=entity,
             component=component,
+            component_type=get_type(component),
         )
         self._ops.append(op)
         self._update_indices.append(self._next_op_seq)
@@ -96,6 +97,7 @@ class SystemResult:
             kind=OpKind.INSERT,
             entity=entity,
             component=component,
+            component_type=get_type(component),
         )
         self._ops.append(op)
         self._insert_indices.append(self._next_op_seq)
