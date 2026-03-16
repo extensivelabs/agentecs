@@ -10,8 +10,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from agentecs import ScopedAccess, SystemMode, World, component, system
-from agentecs.core.identity.models import EntityId
+from agentecs import EntityId, ScopedAccess, SystemMode, World, component, system
 from agentecs.world import AccessViolationError
 
 
