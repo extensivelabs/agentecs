@@ -228,6 +228,16 @@ class ScopedAccess:
                     f"not in readable types"
                 )
 
+    def _check_entity_exists(self, entity: EntityId) -> None:
+        """Check if entity exists, accounting for buffered spawns."""
+        spawn_ids = self._buffer.spawns
+        if (
+            not self._world._check_entity_exists(entity)
+            and not self._buffer.inserts.get(entity)
+            and entity not in spawn_ids
+        ) or entity in self._buffer.destroys:
+            raise KeyError(f"Entity {entity} does not exist")
+
     def _check_writable(self, component: type | Any) -> None:
         from ..core.system import SystemMode
 
@@ -509,6 +519,7 @@ class ScopedAccess:
     def update(self, entity: EntityId, component: Any) -> None:
         """Update/set component on entity."""
         self._check_writable(component)
+        self._check_entity_exists(entity)
         self._buffer.record_update(entity=entity, component=component)
 
     def update_singleton(self, component: Any) -> None:
@@ -519,11 +530,13 @@ class ScopedAccess:
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""
         self._check_writable(component)
+        self._check_entity_exists(entity)
         self._buffer.record_insert(entity=entity, component=component)
 
     def remove(self, entity: EntityId, component_type: type) -> None:
         """Remove component from entity."""
         self._check_writable(component_type)
+        self._check_entity_exists(entity)
         self._buffer.record_remove(entity=entity, component_type=component_type)
 
     def spawn(self, *components: Any) -> EntityId:
@@ -540,12 +553,14 @@ class ScopedAccess:
                 )
             seen_types.add(comp_type)
 
-        self._buffer.record_spawn(*components)
         # Return provisional ID - actual ID assigned at apply time
-        return EntityId(shard=0, index=-self._buffer.spawn_count, generation=0)
+        provisional_id = EntityId(shard=0, index=-(self._buffer.spawn_count + 1), generation=0)
+        self._buffer.record_spawn(entity=provisional_id, components=components)
+        return provisional_id
 
     def destroy(self, entity: EntityId) -> None:
         """Queue entity for destruction."""
+        self._check_entity_exists(entity)
         self._buffer.record_destroy(entity=entity)
 
     def merge_entities(
@@ -554,6 +569,8 @@ class ScopedAccess:
         entity2: EntityId,
     ) -> EntityId:
         """Merge two entities into one new provisional entity."""
+        self._check_entity_exists(entity1)
+        self._check_entity_exists(entity2)
         types1 = self._buffered_component_types(entity1)
         types2 = self._buffered_component_types(entity2)
         all_types = types1 | types2
@@ -579,6 +596,7 @@ class ScopedAccess:
         entity: EntityId,
     ) -> tuple[EntityId, EntityId]:
         """Split one entity into two new provisional entities."""
+        self._check_entity_exists(entity)
         comp_types = self._buffered_component_types(entity)
         first_components: list[Any] = []
         second_components: list[Any] = []
