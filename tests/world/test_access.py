@@ -141,9 +141,10 @@ def test_cannot_set_nonexistent_entity(world):
 
     @system(reads=(), writes=(TestValue,))
     def try_update_nonexistent_entity(access: ScopedAccess) -> None:
-        access.update(entity=entity_id, component=TestValue)
+        access.update(entity=entity_id, component=TestValue(42))
 
     world.register_system(try_set_nonexistent_entity)
+    world.register_system(try_update_nonexistent_entity)
 
     with pytest.raises(KeyError):
         world.tick()
