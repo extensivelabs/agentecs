@@ -45,7 +45,7 @@ jobs:
         run: task test -- --cov=src/agentecs --cov-report=xml --cov-report=term
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         if: matrix.python-version == '3.12'
         with:
           file: ./coverage.xml
