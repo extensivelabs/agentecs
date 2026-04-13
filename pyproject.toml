@@ -32,7 +32,7 @@ config = [
     "pydantic-settings>=2.0",
 ]
 chroma = [
-    "chromadb>=0.4",
+    "chromadb>=1.5.7",
     "pydantic>=2.0",
 ]
 llm = [
