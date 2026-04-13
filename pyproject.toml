@@ -53,9 +53,9 @@ all = [
     "agentecs[config,llm,retry,notebook]",
 ]
 docs = [
-    "mkdocs>=1.5",
-    "mkdocs-material>=9.5",
-    "mkdocstrings[python]>=0.24",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.6",
+    "mkdocstrings[python]>=1.0.3",
 ]
 
 [project.urls]
