@@ -189,7 +189,7 @@ class SystemResult:
 
     @property
     def spawns(self) -> list[EntityId]:
-        """Returns all spawns as list of component tuples."""
+        """Returns all spawns as list of entity IDs."""
         return [
             spawn_id for i in self._spawn_indices if (spawn_id := self._ops[i].entity) is not None
         ]
