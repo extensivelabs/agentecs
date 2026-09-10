@@ -75,6 +75,10 @@ class World:
                 # Bypass allocator
                 self._storage._components[entity] = {}  # type: ignore
 
+    def _check_entity_exists(self, entity: EntityId) -> bool:
+        """Check if entity exists."""
+        return self._storage.entity_exists(entity)
+
     def spawn(self, *components: Any) -> EntityId:
         """Create entity with components. For use outside systems."""
         entity = self._storage.create_entity()
