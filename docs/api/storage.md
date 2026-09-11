@@ -34,7 +34,6 @@ Interface that all storage backends must implement.
         - has_component
         - get_component_types
         - query
-        - apply_updates
         - snapshot
         - restore
 
@@ -59,7 +58,6 @@ In-memory implementation for single-process use.
         - has_component
         - get_component_types
         - query
-        - apply_updates
         - snapshot
         - restore
 

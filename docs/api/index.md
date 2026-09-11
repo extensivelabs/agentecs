@@ -73,4 +73,9 @@ Optional adapters for external integrations including vector stores and LLM acce
 
 **Guides:**
 - [Design Philosophy](../system/design-philosophy.md) - Why ECS for AI agents
-- [Architecture](../system/architecture.md) - Detailed architecture overview
+- [Architecture](../system/architecture.md) - Conceptual architecture overview
+
+**Internals:**
+- [Architecture Deep Dive](../architecture/index.md) - How the runtime is implemented
+- [Call Stacks](../architecture/call-stacks.md) - End-to-end traces through every layer
+- [Invariants & Known Gaps](../architecture/invariants.md) - What the API declares vs. what it does

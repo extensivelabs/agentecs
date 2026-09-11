@@ -1,6 +1,8 @@
 # Development and Code Architecture
 
 This page is a quick reference for contributors working on AgentECS internals.
+For a walkthrough of what the code in each layer actually does, see the
+[Architecture Deep Dive](../architecture/index.md).
 
 ## Development workflow
 

@@ -26,7 +26,8 @@ T = TypeVar("T")
 class LocalStorage:
     """Simple in-memory storage using nested dicts.
 
-    Structure:
+    Structure::
+
         _components[entity][component_type] = component_instance
 
     Not cache-efficient - for production, use archetypal storage.

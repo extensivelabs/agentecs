@@ -1,5 +1,8 @@
 # Architecture
 
+This page is the conceptual overview. For the implementation — package layers,
+annotated call stacks, and the gap between what the API declares and what the
+runtime does — see the [Architecture Deep Dive](../architecture/index.md).
 
 ## Basic Concepts
 
@@ -11,7 +14,8 @@ Entities represent unique instances, say an agent. Next to their unique identity
 They do not contain any behavior themselves.
 More than that, the components are not part of the entity, but merely associated with it in the world state.
 
-Learn more about [Entities](entities.md).
+Entity identity is covered in [Core Concepts](../start-up/core-concepts.md) and, at
+implementation level, in [Altitudes](../architecture/altitudes.md#coreidentity-what-an-entity-is).
 
 ### Components
 
@@ -50,18 +54,31 @@ This scoped access allows systems to read and write component data without direc
 
 ## Scheduling and Parallelism
 
-The scheduling of systems is a critical aspect of the AgentECS architecture.
-System declare their needs in terms of:
+Systems declare their needs in terms of:
 
 - **Reads** - Components that the system needs to read.
 - **Writes** - Components that the system needs to write.
-- **Frequency** - How often the system should run (every tick, every N ticks, on specific events).
-- **Conditions** - Any conditions that must be met for the system to run.
-- **Dependencies** - Other systems that must run before this system.
 
-The scheduler uses this information to determine the optimal order of system execution, allowing for parallelism where possible.
-First, the scheduler identifies systems that need to run in the current tick based on their frequency and conditions.
-Next, it resolves dependencies to ensure that systems run in the correct order. Based on the dependency graph, it creates execution groups of systems that can potentially run in parallel. Finally, it checks for access conflicts (e.g., two systems writing to the same component) and adjusts the execution plan accordingly.
+The scheduler turns registered systems into an **execution plan**: an ordered list of
+groups. Groups run one after another; systems within a group run concurrently against
+the same snapshot, and their buffered changes are applied together at the group
+boundary.
+
+Which systems land in which group is decided by a pluggable `ExecutionGroupBuilder`.
+The shipped implementation, `SingleGroupBuilder`, gives each dev-mode system a group of
+its own and puts every other system into a single parallel group.
+
+When two systems in a group write the same component on the same entity, the conflict is
+not prevented — it is *resolved at apply time*. Repeated writes to the same
+`(entity, type)` fold through `Combinable.__combine__` if the component implements it,
+and otherwise resolve last-writer-wins in system registration order.
+
+!!! note "Declared, not yet scheduled"
+    `frequency` and `phase` can be set on a system today, and static write-conflict
+    analysis exists as `queries_disjoint()`, but no shipped scheduler consumes any of
+    them — every registered system runs every tick. Dependency-ordered and
+    frequency-based execution are planned as alternative group builders. See
+    [Invariants and Known Gaps](../architecture/invariants.md#declared-but-not-wired).
 
 ### Future: Learned Scheduling
 
@@ -71,8 +88,18 @@ By providing metrics such as execution time, latency, token-usage and performanc
 
 ## Storage, Performance and Sharding
 
-The world state is designed to be efficient and scalable, supporting large numbers of entities and components.
-It does not hold data directly, but rather references to component data stored in optimized data structures.
-This design allows for efficient querying and manipulation of entities based on their components.
+The world state does not hold component data itself. It delegates to a pluggable
+`Storage` backend, which is the seam that will eventually allow archetypal layouts,
+persistence, and cross-shard distribution without any change to systems.
 
-More details about storage and performance optimizations will be provided in future documentation.
+The shipped backend, `LocalStorage`, is deliberately simple: nested dictionaries keyed
+by entity and then by component type, with queries as an O(n) scan. It is correct and
+easy to reason about, not fast. Cache-efficient archetypal storage is on the
+[Roadmap](roadmap.md).
+
+`EntityId` already carries a `shard` field, always `0` today, so that entity identity
+does not have to change when distribution arrives.
+
+See [Storage](storage.md) for the protocol, and
+[Invariants and Known Gaps](../architecture/invariants.md#performance-characteristics)
+for the current cost of each operation.
