@@ -109,6 +109,12 @@ nav:
       - Scheduling: system/scheduling.md
       - Storage: system/storage.md
       - Roadmap: system/roadmap.md
+  - Architecture:
+      - Overview: architecture/index.md
+      - Altitudes: architecture/altitudes.md
+      - Call Stacks: architecture/call-stacks.md
+      - Invariants & Known Gaps: architecture/invariants.md
+      - Illustrated Commit History: architecture/commit-history.md
   - API Reference:
       - Overview: api/index.md
       - Core API: api/core.md
