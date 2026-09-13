@@ -241,7 +241,12 @@ class InstructorAdapter:
 
         mode = mode or instructor.Mode.TOOLS
         patched_client = instructor.from_litellm(litellm.completion, mode=mode)
-        patched_async_client = instructor.from_litellm(litellm.acompletion, mode=mode)
+        # litellm wraps acompletion in untyped decorators, erasing its Awaitable return
+        # type, so from_litellm resolves to the sync overload.
+        patched_async_client = cast(
+            "instructor.AsyncInstructor",
+            instructor.from_litellm(litellm.acompletion, mode=mode),
+        )
 
         return cls(patched_client, settings, patched_async_client)
 
