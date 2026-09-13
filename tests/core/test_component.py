@@ -6,12 +6,12 @@ from unittest.mock import patch
 import pytest
 
 from agentecs import component
-from agentecs.core.component import (
-    ComponentRegistry,
+from agentecs.functions.component import (
     combine_protocol_or_fallback,
     reduce_components,
     split_protocol_or_fallback,
 )
+from agentecs.services.registry import ComponentRegistry
 
 
 @pytest.fixture
@@ -98,7 +98,7 @@ def test_collision_detection(registry):
     registry.register(CompA)
 
     # Mock hash collision
-    with patch("agentecs.core.component.core._stable_component_type_id") as mock_hash:
+    with patch("agentecs.services.registry.stable_component_type_id") as mock_hash:
         # Make CompB hash to same ID as CompA
         mock_hash.return_value = registry.get_meta(CompA).component_type_id  # type: ignore
 

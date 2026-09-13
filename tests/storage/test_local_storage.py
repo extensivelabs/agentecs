@@ -5,10 +5,9 @@ from dataclasses import dataclass
 import pytest
 
 from agentecs import component
-from agentecs.core.component import Shared
-from agentecs.core.component.wrapper import WrappedComponent
-from agentecs.core.identity.models import EntityId
-from agentecs.storage.local import LocalStorage
+from agentecs.models.component import Shared, WrappedComponent
+from agentecs.models.identity import EntityId
+from agentecs.services.storage.local import LocalStorage
 
 
 @component

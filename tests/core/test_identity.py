@@ -9,8 +9,8 @@ Critical Invariants:
 
 import pytest
 
-from agentecs.core.identity import SystemEntity
-from agentecs.storage.allocator import EntityAllocator
+from agentecs.models.identity import SystemEntity
+from agentecs.services.storage.allocator import EntityAllocator
 
 
 @pytest.fixture

@@ -63,7 +63,7 @@ Real behaviour that surprises people. All verified.
 
 ### Singleton entities are invisible to queries
 
-`_ensure_system_entities()` (`world/world.py:71`) creates `WORLD` and `CLOCK` by writing
+`_ensure_system_entities()` (`services/world/world.py:65`) creates `WORLD` and `CLOCK` by writing
 `_storage._components[entity] = {}` directly, bypassing the allocator. The allocator
 therefore has no generation record for index 0 or 1, so `is_alive()` returns `False`
 for both.
@@ -98,7 +98,7 @@ them in a query result.
 The type annotations do not reflect this. `ScopedAccess.get` is annotated `Copy[T]` but
 raises; `EntityHandle.__getitem__` and the `ReadOnlyAccess` protocol both advertise
 `T | None`. The `if result is None` branch in `ScopedAccess.singleton()`
-(`world/access.py:504`) is consequently unreachable — `get()` raises first.
+(`services/world/access.py:474`) is consequently unreachable — `get()` raises first.
 
 ### Same-tick reads diverge from what gets committed
 
@@ -164,21 +164,21 @@ anything yet.
 
 | Surface | Where | Status |
 | --- | --- | --- |
-| `SystemDescriptor.frequency` | `core/system/models.py:30` | Stored, never read by any scheduler. Every system runs every tick. |
-| `SystemDescriptor.phase` | `core/system/models.py:30` | Stored, never read anywhere. |
-| `SystemMode.PURE` | `core/system/models.py:14` | Accepted by `@system`. `_check_writable` only special-cases `READONLY`, so a PURE system can still mutate through `ScopedAccess`. |
-| `queries_disjoint()` | `core/query/operations.py:17` | Implemented and property-tested. No scheduler calls it. |
-| `Query.excluding()` | `core/query/models.py:43` | Enforcement is type-level: `QueryAccess` is flattened via `.types()` before checks, so exclusions never restrict which entities you may write. |
-| Conflict detection | — | `SingleGroupBuilder` puts every non-dev system in one parallel group. No write-conflict analysis exists. Conflicts resolve at apply time by `__combine__` or LWW. |
-| `tracing/` | `tracing/protocol.py` | `HistoryStore` and `TickRecord` are protocol and model only. `World` neither counts ticks nor emits records. |
-| `SystemEntity.SCHEDULER` | `core/identity/models.py:46` | Reserved. `_ensure_system_entities` creates only `WORLD` and `CLOCK`. |
-| `ConflictError` | `world/result.py:356` | Defined, never raised. |
-| `Access` enum | `core/system/models.py:22` | Defined, unused. |
+| `SystemDescriptor.frequency` | `models/system.py:29` | Stored, never read by any scheduler. Every system runs every tick. |
+| `SystemDescriptor.phase` | `models/system.py:29` | Stored, never read anywhere. |
+| `SystemMode.PURE` | `models/system.py:13` | Accepted by `@system`. `_check_writable` only special-cases `READONLY`, so a PURE system can still mutate through `ScopedAccess`. |
+| `queries_disjoint()` | `functions/query.py:17` | Implemented and property-tested. No scheduler calls it. |
+| `Query.excluding()` | `models/query.py:43` | Enforcement is type-level: `QueryAccess` is flattened via `.types()` before checks, so exclusions never restrict which entities you may write. |
+| Conflict detection | — | `build_single_group_plan` puts every non-dev system in one parallel group. No write-conflict analysis exists. Conflicts resolve at apply time by `__combine__` or LWW. |
+| Tick history | `protocols/history.py` | `HistoryStore` and `TickRecord` are protocol and model only. `World` neither counts ticks nor emits records. |
+| `SystemEntity.SCHEDULER` | `models/identity.py:46` | Reserved. `_ensure_system_entities` creates only `WORLD` and `CLOCK`. |
+| `ConflictError` | `models/errors.py:16` | Defined, never raised. |
+| `Access` enum | `models/system.py:21` | Defined, unused. |
 | `_rust/` | `_rust/__init__.py` | Empty placeholder for future PyO3 bindings. |
 | `standard_library/` | — | Empty package skeleton. |
 
 Storage-side strictness is a partial case. REQ-040 tightened write policy at the
-`ScopedAccess` layer, but `LocalStorage.set_component` (`storage/local.py:146`) still
+`ScopedAccess` layer, but `LocalStorage.set_component` (`services/storage/local.py:148`) still
 creates a component bucket for an unknown entity rather than raising. The guard lives in
 the access layer, not the storage layer.
 

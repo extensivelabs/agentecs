@@ -20,7 +20,7 @@ The scheduler automatically parallelizes system execution based on declared acce
 
 Parallel execution with conflict detection and query disjointness optimization.
 
-::: agentecs.scheduling.SimpleScheduler
+::: agentecs.services.scheduler.SimpleScheduler
     options:
       show_root_heading: true
       show_source: true
@@ -36,7 +36,7 @@ Parallel execution with conflict detection and query disjointness optimization.
 
 Simple sequential execution for debugging.
 
-::: agentecs.scheduling.SequentialScheduler
+::: agentecs.services.scheduler.SequentialScheduler
     options:
       show_root_heading: true
       show_source: true
@@ -91,7 +91,8 @@ def inactive_agents(world): ...
 
 ```python
 from agentecs import World
-from agentecs.scheduling import SimpleScheduler, SchedulerConfig
+from agentecs.models.scheduling import SchedulerConfig
+from agentecs.services.scheduler import SimpleScheduler
 
 # Create world with scheduler
 world = World(execution=SimpleScheduler())

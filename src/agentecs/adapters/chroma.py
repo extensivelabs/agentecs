@@ -33,7 +33,7 @@ import dataclasses
 import json
 from typing import TYPE_CHECKING, Any, TypeVar, get_type_hints
 
-from agentecs.adapters.models import (
+from agentecs.models.vectorstore import (
     Filter,
     FilterGroup,
     FilterOperator,

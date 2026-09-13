@@ -18,7 +18,7 @@ from agentecs import (
     component,
     system,
 )
-from agentecs.scheduling import SequentialScheduler, SimpleScheduler
+from agentecs.services.scheduler import SequentialScheduler, SimpleScheduler
 
 
 @component
@@ -339,7 +339,7 @@ async def test_retry_policy_retries_on_failure():
 
     Why: External APIs may have transient failures.
     """
-    from agentecs.scheduling.models import RetryPolicy
+    from agentecs.models.scheduling import RetryPolicy
 
     attempts = 0
 
@@ -369,7 +369,7 @@ async def test_retry_skip_on_exhausted():
 
     Why: Sometimes it's better to proceed than fail entirely.
     """
-    from agentecs.scheduling.models import RetryPolicy
+    from agentecs.models.scheduling import RetryPolicy
 
     world = World(
         execution=SimpleScheduler(
@@ -426,15 +426,14 @@ async def test_custom_execution_group_builder():
 
     Why: Extension point for future scheduling strategies (dependencies, frequency).
     """
-    from agentecs.core.system import SystemDescriptor
-    from agentecs.scheduling.models import ExecutionGroup, ExecutionPlan
+    from agentecs.models.scheduling import ExecutionGroup, ExecutionPlan
+    from agentecs.models.system import SystemDescriptor
 
     # Custom builder that puts each system in its own group (all sequential)
-    class SequentialGroupBuilder:
-        def build(self, systems: list[SystemDescriptor]) -> ExecutionPlan:
-            return [ExecutionGroup(systems=[s]) for s in systems]
+    def build_sequential_plan(systems: list[SystemDescriptor]) -> ExecutionPlan:
+        return [ExecutionGroup(systems=[s]) for s in systems]
 
-    world = World(execution=SimpleScheduler(group_builder=SequentialGroupBuilder()))
+    world = World(execution=SimpleScheduler(group_builder=build_sequential_plan))
     entity = world.spawn(Counter(0))
     execution_order: list[str] = []
 

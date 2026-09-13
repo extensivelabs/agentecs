@@ -20,7 +20,7 @@ AgentECS uses a protocol-based storage architecture, allowing different backend 
 
 Interface that all storage backends must implement.
 
-::: agentecs.storage.Storage
+::: agentecs.protocols.storage.Storage
     options:
       show_root_heading: true
       show_source: true
@@ -43,7 +43,7 @@ Interface that all storage backends must implement.
 
 In-memory implementation for single-process use.
 
-::: agentecs.storage.LocalStorage
+::: agentecs.services.storage.local.LocalStorage
     options:
       show_root_heading: true
       show_source: true
@@ -67,7 +67,7 @@ In-memory implementation for single-process use.
 
 ```python
 from agentecs import World
-from agentecs.storage import LocalStorage
+from agentecs.services.storage import LocalStorage
 
 # Use default LocalStorage
 world = World()

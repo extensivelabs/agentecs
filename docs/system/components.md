@@ -75,7 +75,7 @@ AgentECS supports explicit shared component storage through the `Shared(...)` wr
 ```python
 from dataclasses import dataclass
 from agentecs import World, component
-from agentecs.core.component import Shared
+from agentecs.models.component import Shared
 
 @component
 @dataclass(slots=True)

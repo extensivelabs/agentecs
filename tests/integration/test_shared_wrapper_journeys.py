@@ -6,8 +6,8 @@ from typing import cast
 import pytest
 
 from agentecs import ScopedAccess, World, component, system
-from agentecs.core.component import Shared
-from agentecs.storage.local import LocalStorage
+from agentecs.models.component import Shared
+from agentecs.services.storage.local import LocalStorage
 
 
 @component

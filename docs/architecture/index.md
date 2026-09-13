@@ -75,13 +75,15 @@ comes from them:
 
 | Package | Role | Stateful? |
 | --- | --- | --- |
-| `core/` | ECS primitives: identity, components, queries, system descriptors | No |
-| `storage/` | Component persistence behind a `Storage` protocol | Yes |
-| `world/` | Coordination, scoped access, mutation buffers, apply | Yes |
-| `scheduling/` | Execution planning, concurrency, retry | Yes |
+| `models/` | Identity, components, queries, system descriptors, results, settings | No |
+| `protocols/` | `Storage`, `ExecutionStrategy`, `SystemExecutor`, `HistoryStore`, adapter interfaces | No |
+| `functions/` | Pure operations: normalization, combining, merging, plan building | No |
+| `services/` | `registry`, `scheduler`, `storage/`, `world/` — one concern each | Yes |
+| `api/` | `@component`, `@system`, and the `World` that supplies the defaults | Registry only |
 | `adapters/` | Optional LLM and vector-store integrations | Boundary |
-| `tracing/` | Protocols for tick history (not yet wired to `World`) | Protocol only |
-| `config/` | Pydantic settings for adapters | No |
+
+Tick history (`HistoryStore`, `TickRecord`) is protocol and model only — `World` does
+not yet emit records.
 
 Dependency direction is enforced by `.importlinter` and runs as `task lint:imports`.
 See [Development & Code Architecture](../system/development-architecture.md) for the

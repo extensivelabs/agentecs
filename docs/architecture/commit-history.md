@@ -6,6 +6,11 @@ pressure, and says what each era means for reading the code today.
 
 If you have been away, the short version is at the [bottom](#if-you-last-read-this-at).
 
+!!! note "Paths on this page are historical"
+    The package was later reorganized by kind — `models/`, `protocols/`, `functions/`,
+    `services/`, `api/`, `adapters/`. Paths below are as they were at the time of each
+    commit. See [Altitudes](altitudes.md#altitude-1-the-packages) for the current layout.
+
 ```mermaid
 gitGraph
     commit id: "12ae409 initial"
@@ -227,5 +232,4 @@ Three requirements are in flight and shape what you will find half-done:
 - **PR #89 follow-up** — returned mutations bypass entity-existence checks after
   normalization.
 
-Specs live under `.agents/specs/`; requirements are tracked in GitHub Project
-`extensivelabs/agentecs` #1.
+Requirements are tracked in GitHub Project `extensivelabs/agentecs` #1.

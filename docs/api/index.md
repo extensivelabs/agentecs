@@ -4,7 +4,7 @@ Complete API documentation for AgentECS.
 
 ## Overview
 
-AgentECS follows a layered architecture separating **stateless functionalities** (core/) from **stateful services** (world/, storage/, scheduling/). The API is organized to reflect this structure:
+AgentECS is organized by kind: `models/` and `protocols/` at the bottom, then pure `functions/`, then stateful `services/`, with `api/` and `adapters/` on the outside. The pages below group that code by concept:
 
 ### Core API
 Pure, stateless building blocks for entities, components, systems, and queries. These are the fundamental abstractions that make up the ECS framework.
@@ -59,7 +59,7 @@ Optional adapters for external integrations including vector stores and LLM acce
 **Key modules:**
 - **Vector Store**: ChromaDB adapter with typed data models
 - **LLM Client**: Instructor adapter for OpenAI, Anthropic, Gemini, LiteLLM
-- **Config**: Pydantic Settings for configuration
+- **Settings**: Pydantic Settings for configuration (`agentecs.models.settings`)
 
 [→ View Adapters API](adapters.md)
 

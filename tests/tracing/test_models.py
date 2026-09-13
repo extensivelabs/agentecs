@@ -8,7 +8,7 @@ Why these tests exist:
 
 import pytest
 
-from agentecs.tracing import TickRecord
+from agentecs.models.tracing import TickRecord
 
 
 @pytest.mark.parametrize(

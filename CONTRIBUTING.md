@@ -135,7 +135,7 @@ AgentECS follows strict code quality standards:
 - **Pydantic models** for data validation
 - **Protocols** for interfaces
 - **Dependency injection** for testability
-- **Pure functions** where possible (especially in `core/`)
+- **Pure functions** where possible (everything in `functions/`)
 
 ### Documentation
 
@@ -352,7 +352,7 @@ When contributing, keep these principles in mind:
 
 ### Core Principles
 
-1. **Stateless Core**: `core/` should be pure protocols and functions
+1. **Stateless Core**: `models/`, `protocols/` and `functions/` carry no state
 2. **Dependency Injection**: Components receive dependencies explicitly
 3. **Protocol-based Design**: Use `Protocol` for interfaces, not inheritance
 4. **Snapshot Isolation**: Systems see consistent world state
@@ -360,10 +360,11 @@ When contributing, keep these principles in mind:
 
 ### Layer Responsibilities
 
-- `core/`: Pure protocols, decorators, no state
-- `world/`: Stateful coordination, access control
-- `storage/`: Pluggable backends implementing storage protocol
-- `scheduling/`: Execution orchestration, parallelization
+- `models/`: Frozen dataclasses, enums, value types; no state, no I/O
+- `protocols/`: Structural protocols marking every swappable seam
+- `functions/`: Pure functions over models
+- `services/`: Stateful concerns (registry, storage, scheduler, world); never import each other
+- `api/`: Public decorators and the pre-wired `World`
 - `adapters/`: External integrations (MCP, A2A, etc.)
 
 ### Anti-patterns to Avoid

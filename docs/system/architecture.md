@@ -15,7 +15,7 @@ They do not contain any behavior themselves.
 More than that, the components are not part of the entity, but merely associated with it in the world state.
 
 Entity identity is covered in [Core Concepts](../start-up/core-concepts.md) and, at
-implementation level, in [Altitudes](../architecture/altitudes.md#coreidentity-what-an-entity-is).
+implementation level, in [Altitudes](../architecture/altitudes.md#modelsidentitypy-what-an-entity-is).
 
 ### Components
 
@@ -64,8 +64,8 @@ groups. Groups run one after another; systems within a group run concurrently ag
 the same snapshot, and their buffered changes are applied together at the group
 boundary.
 
-Which systems land in which group is decided by a pluggable `ExecutionGroupBuilder`.
-The shipped implementation, `SingleGroupBuilder`, gives each dev-mode system a group of
+Which systems land in which group is decided by a pluggable `ExecutionGroupBuilder`
+callable. The shipped implementation, `build_single_group_plan`, gives each dev-mode system a group of
 its own and puts every other system into a single parallel group.
 
 When two systems in a group write the same component on the same entity, the conflict is

@@ -6,7 +6,7 @@ multiple providers: OpenAI, Anthropic, Google Gemini, and LiteLLM (100+ provider
 Usage:
     from pydantic import BaseModel
     from agentecs.adapters.instructor import InstructorAdapter
-    from agentecs.adapters import Message
+    from agentecs.models.llm import Message
 
     class Analysis(BaseModel):
         sentiment: str
@@ -26,7 +26,7 @@ Usage:
     adapter = InstructorAdapter.from_gemini(genai.GenerativeModel("gemini-1.5-flash"))
 
     # From LiteLLM (100+ providers)
-    from agentecs.config import LLMSettings
+    from agentecs.models.settings import LLMSettings
     adapter = InstructorAdapter.from_litellm(
         settings=LLMSettings(model="anthropic/claude-3-5-sonnet-20241022")
     )
@@ -42,8 +42,8 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Iterator
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
-from agentecs.adapters.models import Message, MessageRole
-from agentecs.config import LLMSettings
+from agentecs.models.llm import Message, MessageRole
+from agentecs.models.settings import LLMSettings
 
 if TYPE_CHECKING:
     import instructor
@@ -172,7 +172,7 @@ class InstructorAdapter:
         Example:
             ```python
             import anthropic
-            from agentecs.adapters import InstructorAdapter
+            from agentecs.adapters.instructor import InstructorAdapter
 
             client = anthropic.Anthropic()
             adapter = InstructorAdapter.from_anthropic(client)
@@ -216,8 +216,8 @@ class InstructorAdapter:
 
         Example:
             ```python
-            from agentecs.adapters import InstructorAdapter
-            from agentecs.config import LLMSettings
+            from agentecs.adapters.instructor import InstructorAdapter
+            from agentecs.models.settings import LLMSettings
 
             # Use Claude via LiteLLM
             adapter = InstructorAdapter.from_litellm(
@@ -267,7 +267,7 @@ class InstructorAdapter:
         Example:
             ```python
             import google.generativeai as genai
-            from agentecs.adapters import InstructorAdapter
+            from agentecs.adapters.instructor import InstructorAdapter
 
             genai.configure(api_key="your-api-key")
             model = genai.GenerativeModel("gemini-1.5-flash")

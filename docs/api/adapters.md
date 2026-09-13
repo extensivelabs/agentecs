@@ -23,7 +23,7 @@ Semantic search and retrieval-augmented generation.
 
 ### VectorStore Protocol
 
-::: agentecs.adapters.VectorStore
+::: agentecs.protocols.vectorstore.VectorStore
     options:
       show_root_heading: true
       show_source: true
@@ -54,27 +54,27 @@ Semantic search and retrieval-augmented generation.
 
 ### Models
 
-::: agentecs.adapters.SearchMode
+::: agentecs.models.vectorstore.SearchMode
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.adapters.SearchResult
+::: agentecs.models.vectorstore.SearchResult
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.adapters.VectorStoreItem
+::: agentecs.models.vectorstore.VectorStoreItem
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.adapters.Filter
+::: agentecs.models.vectorstore.Filter
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.adapters.FilterGroup
+::: agentecs.models.vectorstore.FilterGroup
     options:
       show_root_heading: true
       show_source: true
@@ -87,7 +87,7 @@ Structured LLM output with multiple providers.
 
 ### LLMClient Protocol
 
-::: agentecs.adapters.LLMClient
+::: agentecs.protocols.llm.LLMClient
     options:
       show_root_heading: true
       show_source: true
@@ -115,7 +115,7 @@ Structured LLM output with multiple providers.
 
 ### Models
 
-::: agentecs.adapters.Message
+::: agentecs.models.llm.Message
     options:
       show_root_heading: true
       show_source: true
@@ -124,7 +124,7 @@ Structured LLM output with multiple providers.
         - user
         - assistant
 
-::: agentecs.adapters.MessageRole
+::: agentecs.models.llm.MessageRole
     options:
       show_root_heading: true
       show_source: true
@@ -135,12 +135,12 @@ Structured LLM output with multiple providers.
 
 Type-safe configuration with Pydantic Settings.
 
-::: agentecs.config.VectorStoreSettings
+::: agentecs.models.settings.VectorStoreSettings
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.config.LLMSettings
+::: agentecs.models.settings.LLMSettings
     options:
       show_root_heading: true
       show_source: true
@@ -173,7 +173,8 @@ pip install agentecs[all]
 
 ```python
 from pydantic import BaseModel
-from agentecs.adapters import ChromaAdapter, SearchMode
+from agentecs.adapters.chroma import ChromaAdapter
+from agentecs.models.vectorstore import SearchMode
 
 class Document(BaseModel):
     title: str
@@ -197,8 +198,9 @@ results = store.search(
 
 ```python
 from pydantic import BaseModel
-from agentecs.adapters import InstructorAdapter, Message
-from agentecs.config import LLMSettings
+from agentecs.adapters.instructor import InstructorAdapter
+from agentecs.models.llm import Message
+from agentecs.models.settings import LLMSettings
 
 class Analysis(BaseModel):
     sentiment: str

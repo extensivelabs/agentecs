@@ -86,7 +86,7 @@ graph LR
     C -.parallel.- D
 ```
 
-**Default Grouping (SingleGroupBuilder):**
+**Default Grouping (`build_single_group_plan`):**
 
 - Dev mode systems (`@system.dev()`) each get their own group (run alone)
 - All other systems go in one group (run in parallel)
@@ -97,8 +97,8 @@ The primary scheduler with parallel execution and configurable concurrency/retry
 
 ```python
 from agentecs import World, SchedulerConfig
-from agentecs.scheduling import SimpleScheduler
-from agentecs.scheduling.models import RetryPolicy
+from agentecs.models.scheduling import RetryPolicy
+from agentecs.services.scheduler import SimpleScheduler
 
 # Default configuration
 world = World(execution=SimpleScheduler())
@@ -130,7 +130,7 @@ config = SchedulerConfig(max_concurrent=5)
 Handle transient failures (e.g., API timeouts):
 
 ```python
-from agentecs.scheduling import RetryPolicy
+from agentecs.models.scheduling import RetryPolicy
 
 config = SchedulerConfig(
     retry_policy=RetryPolicy(
@@ -147,7 +147,7 @@ config = SchedulerConfig(
 Alias for `SimpleScheduler` with `max_concurrent=1`. Useful for debugging.
 
 ```python
-from agentecs.scheduling import SequentialScheduler
+from agentecs.services.scheduler import SequentialScheduler
 
 # These are equivalent:
 world = World(execution=SequentialScheduler())
@@ -156,32 +156,30 @@ world = World(execution=SimpleScheduler(config=SchedulerConfig(max_concurrent=1)
 
 ## ExecutionGroupBuilder
 
-The extension point for custom grouping strategies. Implement this protocol to control how systems are grouped.
+The extension point for custom grouping strategies. A builder is any callable
+taking the registered systems and returning an execution plan:
+`Callable[[list[SystemDescriptor]], ExecutionPlan]`.
 
 ```python
-from agentecs.scheduling import ExecutionGroupBuilder, ExecutionGroup, ExecutionPlan
-from agentecs.core.system import SystemDescriptor
+from agentecs.models.scheduling import ExecutionGroup, ExecutionPlan
+from agentecs.models.system import SystemDescriptor
 
-class CustomGroupBuilder:
+def build_fully_sequential_plan(systems: list[SystemDescriptor]) -> ExecutionPlan:
     """Example: put each system in its own group (fully sequential)."""
+    return [ExecutionGroup(systems=[s]) for s in systems]
 
-    def build(self, systems: list[SystemDescriptor]) -> ExecutionPlan:
-        return [ExecutionGroup(systems=[s]) for s in systems]
-
-# Use custom builder
 world = World(
-    execution=SimpleScheduler(group_builder=CustomGroupBuilder())
+    execution=SimpleScheduler(group_builder=build_fully_sequential_plan)
 )
 ```
 
 ### Built-in Builders
 
-**SingleGroupBuilder** (default): All normal systems parallel, dev systems isolated.
+**`build_single_group_plan`** (default): All normal systems parallel, dev systems isolated.
 
 ```python
-from agentecs.scheduling import SingleGroupBuilder
+from agentecs.functions.scheduling import build_single_group_plan
 
-builder = SingleGroupBuilder()
 # Dev systems → individual groups (run first, alone)
 # Normal systems → one group (run in parallel)
 ```
@@ -190,9 +188,9 @@ builder = SingleGroupBuilder()
 
 | Builder | Purpose |
 |---------|---------|
-| `DependencyGroupBuilder` | Groups based on `depends_on` declarations |
-| `FrequencyGroupBuilder` | Groups based on tick frequency |
-| `ConditionGroupBuilder` | Groups based on runtime conditions |
+| `build_dependency_plan` | Groups based on `depends_on` declarations |
+| `build_frequency_plan` | Groups based on tick frequency |
+| `build_condition_plan` | Groups based on runtime conditions |
 
 ## System Access Patterns
 

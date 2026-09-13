@@ -1,1 +1,1 @@
-"""Tests for agentecs.tracing module."""
+"""Tests for tracing models and protocols."""

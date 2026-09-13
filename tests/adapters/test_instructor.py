@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from agentecs.adapters.instructor import InstructorAdapter, _messages_to_openai
-from agentecs.adapters.models import Message
-from agentecs.config import LLMSettings
+from agentecs.models.llm import Message
+from agentecs.models.settings import LLMSettings
 
 
 def test_messages_to_openai_preserves_order_and_roles():
