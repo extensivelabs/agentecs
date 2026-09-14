@@ -12,13 +12,13 @@
         <meta name="author" content="ExtensiveLabs">
       
       
-        <link rel="canonical" href="https://extensivelabs.github.io/agentecs/system/design-philosophy/">
+        <link rel="canonical" href="https://extensivelabs.github.io/agentecs/architecture/invariants/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../call-stacks/">
       
       
-        <link rel="next" href="../architecture/">
+        <link rel="next" href="../commit-history/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Design Philosophy - AgentECS</title>
+        <title>Invariants & Known Gaps - AgentECS</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-philosophy" class="md-skip">
+        <a href="#invariants-and-known-gaps" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Philosophy
+              Invariants & Known Gaps
             
           </span>
         </div>
@@ -282,13 +282,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../system/" class="md-tabs__link">
           
   
   
@@ -304,11 +302,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -676,6 +676,375 @@
       
   
   
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/design-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/development-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development & Code Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/world_management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    World Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -697,17 +1066,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    System
+    Architecture
   
 
     
@@ -718,12 +1087,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    System
+    Architecture
   
 
           </label>
@@ -761,636 +1130,10 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Design Philosophy
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Design Philosophy
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#why-agentecs-for-ai-agents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why AgentECS for AI Agents?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-architectural-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Architectural Principles
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Core Architectural Principles">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#flexibility-over-enforcement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Flexibility Over Enforcement
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#merge-over-prevention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merge Over Prevention
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#snapshot-isolation-with-execution-groups" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Snapshot Isolation with Execution Groups
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#buffered-writes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Buffered Writes
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pluggable-storage-and-scheduling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pluggable Storage and Scheduling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-component-protocols" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional Component Protocols
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-special-resources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        No Special Resources
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#generational-entity-ids" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generational Entity IDs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#async-first-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Async-First Design
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dev-mode-for-debugging" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dev Mode for Debugging
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-trade-offs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Trade-offs
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Design Trade-offs">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#flexibility-vs-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Flexibility vs Structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#merge-vs-determinism" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merge vs Determinism
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#simplicity-vs-optimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Simplicity vs Optimization
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#protocols-vs-base-classes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Protocols vs Base Classes
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See Also
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development-architecture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Development & Code Architecture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../components/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Components
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../systems/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Systems
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../queries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Queries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../world_management/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    World Management
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Scheduling
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../storage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../roadmap/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Roadmap
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Architecture
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../architecture/altitudes/" class="md-nav__link">
+      <a href="../altitudes/" class="md-nav__link">
         
   
   
@@ -1418,7 +1161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/call-stacks/" class="md-nav__link">
+      <a href="../call-stacks/" class="md-nav__link">
         
   
   
@@ -1443,10 +1186,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../architecture/invariants/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Invariants & Known Gaps
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1462,6 +1232,225 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#guaranteed-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guaranteed invariants
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Guaranteed invariants">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharp-edges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharp edges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sharp edges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#singleton-entities-are-invisible-to-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Singleton entities are invisible to queries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reads-fail-differently-inside-and-outside-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reads fail differently inside and outside systems
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#same-tick-reads-diverge-from-what-gets-committed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Same-tick reads diverge from what gets committed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provisional-spawn-ids-are-not-remapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisional spawn IDs are not remapped
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-subscript-key-is-ignored-on-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The subscript key is ignored on write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returned-mutations-skip-existence-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returned mutations skip existence checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-systems-combine-independently-computed-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel systems combine independently computed values
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worldtick-is-asynciorun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        World.tick() is asyncio.run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#declared-but-not-wired" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declared but not wired
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance characteristics
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1474,7 +1463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/commit-history/" class="md-nav__link">
+      <a href="../commit-history/" class="md-nav__link">
         
   
   
@@ -1931,33 +1920,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#why-agentecs-for-ai-agents" class="md-nav__link">
+  <a href="#guaranteed-invariants" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why AgentECS for AI Agents?
+        Guaranteed invariants
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-architectural-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Architectural Principles
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Core Architectural Principles">
+    <nav class="md-nav" aria-label="Guaranteed invariants">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#flexibility-over-enforcement" class="md-nav__link">
+  <a href="#identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flexibility Over Enforcement
+        Identity
       
     </span>
   </a>
@@ -1965,10 +1943,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#merge-over-prevention" class="md-nav__link">
+  <a href="#components" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Merge Over Prevention
+        Components
       
     </span>
   </a>
@@ -1976,10 +1954,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#snapshot-isolation-with-execution-groups" class="md-nav__link">
+  <a href="#reads" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Snapshot Isolation with Execution Groups
+        Reads
       
     </span>
   </a>
@@ -1987,10 +1965,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#buffered-writes" class="md-nav__link">
+  <a href="#writes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Buffered Writes
+        Writes
       
     </span>
   </a>
@@ -1998,65 +1976,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pluggable-storage-and-scheduling" class="md-nav__link">
+  <a href="#execution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pluggable Storage and Scheduling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-component-protocols" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional Component Protocols
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#no-special-resources" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        No Special Resources
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#generational-entity-ids" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Generational Entity IDs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#async-first-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Async-First Design
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dev-mode-for-debugging" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dev Mode for Debugging
+        Execution
       
     </span>
   </a>
@@ -2069,22 +1992,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#design-trade-offs" class="md-nav__link">
+  <a href="#sharp-edges" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Design Trade-offs
+        Sharp edges
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Design Trade-offs">
+    <nav class="md-nav" aria-label="Sharp edges">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#flexibility-vs-structure" class="md-nav__link">
+  <a href="#singleton-entities-are-invisible-to-queries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flexibility vs Structure
+        Singleton entities are invisible to queries
       
     </span>
   </a>
@@ -2092,10 +2015,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#merge-vs-determinism" class="md-nav__link">
+  <a href="#reads-fail-differently-inside-and-outside-systems" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Merge vs Determinism
+        Reads fail differently inside and outside systems
       
     </span>
   </a>
@@ -2103,10 +2026,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#simplicity-vs-optimization" class="md-nav__link">
+  <a href="#same-tick-reads-diverge-from-what-gets-committed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Simplicity vs Optimization
+        Same-tick reads diverge from what gets committed
       
     </span>
   </a>
@@ -2114,10 +2037,54 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#protocols-vs-base-classes" class="md-nav__link">
+  <a href="#provisional-spawn-ids-are-not-remapped" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Protocols vs Base Classes
+        Provisional spawn IDs are not remapped
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-subscript-key-is-ignored-on-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The subscript key is ignored on write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#returned-mutations-skip-existence-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returned mutations skip existence checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-systems-combine-independently-computed-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel systems combine independently computed values
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worldtick-is-asynciorun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        World.tick() is asyncio.run
       
     </span>
   </a>
@@ -2130,10 +2097,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
+  <a href="#declared-but-not-wired" class="md-nav__link">
     <span class="md-ellipsis">
       
-        See Also
+        Declared but not wired
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance characteristics
       
     </span>
   </a>
@@ -2186,7 +2164,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    System
+    Architecture
   </span>
 
         </a>
@@ -2208,128 +2186,262 @@
   
 
 
-<h1 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h1>
-<p>AgentECS applies the Entity-Component-System (ECS) paradigm to AI agent orchestration, emphasizing two key principles:</p>
-<ol>
-<li><strong>Composition</strong> - Agents are composed of modular components that define their data and capabilities</li>
-<li><strong>System-Driven Behavior</strong> - Behaviors emerge from systems operating on component patterns</li>
-</ol>
-<p>This architecture enables emergent workflows, where complex agent behaviors arise from the interaction of simple systems and components, rather than being explicitly defined.</p>
-<h2 id="why-agentecs-for-ai-agents">Why AgentECS for AI Agents?<a class="headerlink" href="#why-agentecs-for-ai-agents" title="Permanent link">&para;</a></h2>
-<p>Existing agent frameworks are largely either:</p>
+<h1 id="invariants-and-known-gaps">Invariants and Known Gaps<a class="headerlink" href="#invariants-and-known-gaps" title="Permanent link">&para;</a></h1>
+<p>What the runtime actually guarantees today, and where the API promises more than the
+implementation delivers. Every behaviour on this page was verified against the code at
+<code>a6925a2</code>, not inferred from docstrings.</p>
+<hr />
+<h2 id="guaranteed-invariants">Guaranteed invariants<a class="headerlink" href="#guaranteed-invariants" title="Permanent link">&para;</a></h2>
+<p>These hold, and code may rely on them.</p>
+<h3 id="identity">Identity<a class="headerlink" href="#identity" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Bundled agents</strong> interacting through handoffs</li>
-<li><strong>Graph-based workflows</strong> connecting agentic actions</li>
+<li>An <code>EntityId</code> is immutable and self-describing. It holds no reference to a world.</li>
+<li>A recycled index always carries a higher <code>generation</code>. A stale handle fails
+  <code>EntityAllocator.is_alive()</code> rather than addressing its successor.</li>
+<li>User entities start at index 1000. Indices below that are reserved for singletons.</li>
+<li>Provisional spawn IDs are negative and therefore cannot collide with allocated ones.</li>
 </ul>
-<p>Both approaches make strong assumptions: we know what workflow we need, and we know how it should be orchestrated.</p>
-<p>By contrast, AgentECS assumes we're in the early days of AI agent development. We don't yet know the best patterns, and premature optimization toward specific workflows may limit exploration.</p>
-<p><strong>What AgentECS Enables:</strong></p>
-<ol>
-<li><strong>Flexibility</strong> - No rigid workflow graphs or agent hierarchies</li>
-<li><strong>Scalability</strong> - From single agents to massive swarms</li>
-<li><strong>Emergent Workflows</strong> - Behavior emerges from system interactions</li>
-<li><strong>Resource Sharing</strong> - Agents can share or compete for resources (LLMs, context)</li>
-<li><strong>Parallel Execution</strong> - Automatic parallelization with snapshot isolation</li>
-</ol>
-<h2 id="core-architectural-principles">Core Architectural Principles<a class="headerlink" href="#core-architectural-principles" title="Permanent link">&para;</a></h2>
-<h3 id="flexibility-over-enforcement">Flexibility Over Enforcement<a class="headerlink" href="#flexibility-over-enforcement" title="Permanent link">&para;</a></h3>
-<p>AgentECS prioritizes flexibility and rapid prototyping. Access declarations, type constraints, and validation are <strong>optional</strong>—use them when they help, skip them when they don't.</p>
-<p><strong>Why Optional:</strong>
-- Early-stage AI agent research requires experimentation
-- Different use cases need different levels of structure
-- Add rigor incrementally as patterns stabilize</p>
-<h3 id="merge-over-prevention">Merge Over Prevention<a class="headerlink" href="#merge-over-prevention" title="Permanent link">&para;</a></h3>
-<p>Instead of preventing conflicts through scheduling constraints, AgentECS <strong>embraces conflicts</strong> and resolves them during deterministic application.</p>
-<p>Systems run in parallel, writing to isolated buffers. At group boundaries, results are applied in registration order:
-- <code>Combinable</code> values fold via <code>__combine__</code>
-- non-combinable values use last-writer-wins</p>
-<p><strong>Why Merge-Based:</strong>
-- Enables parallelism without rigid dependency graphs
-- Semantic combination through component protocols preserves intent
-- Supports distributed execution across nodes
-- Reflects real-world agent coordination</p>
-<h3 id="snapshot-isolation-with-execution-groups">Snapshot Isolation with Execution Groups<a class="headerlink" href="#snapshot-isolation-with-execution-groups" title="Permanent link">&para;</a></h3>
-<p>Systems execute in <strong>groups</strong>. Within a group:
-- All systems see the same initial state (snapshot)
-- Systems run in parallel (respecting concurrency limits)
-- Results merge at group boundary
-- Next group sees merged changes</p>
-<p><strong>Why Groups:</strong>
-- Safe parallelism without race conditions
-- Reasoning is local to a group, not global tick
-- Supports batch operations and optimizations</p>
-<h3 id="buffered-writes">Buffered Writes<a class="headerlink" href="#buffered-writes" title="Permanent link">&para;</a></h3>
-<p>Systems write to a buffer, not directly to storage. Changes are:
-- Immediately visible to the writing system (read-your-writes)
-- Invisible to other systems in the same group
-- Applied atomically at group boundaries</p>
-<p><strong>Why Buffering:</strong>
-- Snapshot isolation (predictable system behavior)
-- Safe parallelization (no shared mutable state)
-- Testable systems (pure functions with explicit outputs)</p>
-<h3 id="pluggable-storage-and-scheduling">Pluggable Storage and Scheduling<a class="headerlink" href="#pluggable-storage-and-scheduling" title="Permanent link">&para;</a></h3>
-<p>Storage and execution are <strong>protocols</strong>, not implementations. Swap backends without changing logic.</p>
-<p><strong>Why Pluggable:</strong>
-- Different workloads need different backends
-- Testing with mocks (no real database/API)
-- Gradual migration (prototype → production)</p>
-<h3 id="optional-component-protocols">Optional Component Protocols<a class="headerlink" href="#optional-component-protocols" title="Permanent link">&para;</a></h3>
-<p>Components are plain dataclasses. Advanced features are <strong>opt-in</strong> through runtime-checkable protocols:</p>
+<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>Combinable</code>: Combine component values</li>
-<li><code>Splittable</code>: Divide component between entities</li>
+<li>A component type's ID is <code>sha256(module.qualname)</code> truncated to 64 bits — identical in
+  every process running the same code. Collisions raise at registration.</li>
+<li><code>@component</code> requires a dataclass or Pydantic model, and must be applied <em>after</em>
+  <code>@dataclass</code>.</li>
+<li><code>__combine__</code> and <code>__split__</code> are always reached through
+  <code>combine_protocol_or_fallback</code> / <code>split_protocol_or_fallback</code>, so the fallback (LWW,
+  and deep-copy respectively) always applies when the protocol is absent.</li>
 </ul>
-<p><strong>Why Optional:</strong>
-- Simple components stay simple (just data)
-- Add operations only when needed
-- Fallback strategies for components without protocols</p>
-<h3 id="no-special-resources">No Special Resources<a class="headerlink" href="#no-special-resources" title="Permanent link">&para;</a></h3>
-<p>Global state, shared resources, and configuration are <strong>components on singleton entities</strong>, not special framework constructs.</p>
-<p><strong>Why Singletons as Components:</strong>
-- Consistent API (all state is components)
-- Systems declare access to singletons like any component
-- No special "resource" or "config" abstractions
-- Serializable world state</p>
-<h3 id="generational-entity-ids">Generational Entity IDs<a class="headerlink" href="#generational-entity-ids" title="Permanent link">&para;</a></h3>
-<p>Entities use <strong>generational indices</strong> to prevent stale references. Each EntityId contains a shard (for distribution), index (unique within shard), and generation (incremented on reuse).</p>
-<p><strong>Why Generations:</strong>
-- Entity IDs can be recycled without confusion
-- Old references fail safely (generation mismatch)
-- Supports distributed allocation
-- Memory efficient</p>
-<h3 id="async-first-design">Async-First Design<a class="headerlink" href="#async-first-design" title="Permanent link">&para;</a></h3>
-<p>Systems can be sync or async. Framework handles both seamlessly, detecting via inspection.</p>
-<p><strong>Why Async-First:</strong>
-- AI agents are I/O-bound (LLM calls, database queries)
-- Maximize throughput with concurrent operations
-- Mix sync and async systems freely</p>
-<h3 id="dev-mode-for-debugging">Dev Mode for Debugging<a class="headerlink" href="#dev-mode-for-debugging" title="Permanent link">&para;</a></h3>
-<p>Systems can run in <strong>dev mode</strong> for easier debugging: they run in isolation, have full access without declarations, and execute before normal systems.</p>
-<p><strong>Why Dev Mode:</strong>
-- Simpler reasoning (no parallel interference)
-- Full access without declarations
-- Temporary debugging without changing architecture</p>
-<h2 id="design-trade-offs">Design Trade-offs<a class="headerlink" href="#design-trade-offs" title="Permanent link">&para;</a></h2>
-<h3 id="flexibility-vs-structure">Flexibility vs Structure<a class="headerlink" href="#flexibility-vs-structure" title="Permanent link">&para;</a></h3>
-<p><strong>Trade-off:</strong> Optional access declarations mean less compile-time safety.</p>
-<p><strong>Rationale:</strong> Early AI agent research needs experimentation. Add structure incrementally as patterns emerge.</p>
-<h3 id="merge-vs-determinism">Merge vs Determinism<a class="headerlink" href="#merge-vs-determinism" title="Permanent link">&para;</a></h3>
-<p><strong>Trade-off:</strong> Application ordering can produce different results than sequential execution.</p>
-<p><strong>Rationale:</strong> Parallelism is essential for scalability. Semantic combination (via <code>__combine__</code>) preserves intent better than forced sequencing.</p>
-<h3 id="simplicity-vs-optimization">Simplicity vs Optimization<a class="headerlink" href="#simplicity-vs-optimization" title="Permanent link">&para;</a></h3>
-<p><strong>Trade-off:</strong> Initial storage implementation prioritizes simplicity over performance.</p>
-<p><strong>Rationale:</strong> Start simple, profile, optimize when needed. Premature optimization increases complexity without proven benefit.</p>
-<h3 id="protocols-vs-base-classes">Protocols vs Base Classes<a class="headerlink" href="#protocols-vs-base-classes" title="Permanent link">&para;</a></h3>
-<p><strong>Trade-off:</strong> Runtime protocol checking is slower than inheritance.</p>
-<p><strong>Rationale:</strong> Protocols are non-invasive (components stay plain dataclasses). Runtime check overhead is negligible compared to LLM calls in agent workloads.</p>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<h3 id="reads">Reads<a class="headerlink" href="#reads" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong><a href="../architecture/">Architecture</a></strong>: Overall system architecture</li>
-<li><strong><a href="../systems/">Systems</a></strong>: How systems implement these principles</li>
-<li><strong><a href="../components/">Components</a></strong>: Component protocols in detail</li>
-<li><strong><a href="../scheduling/">Scheduling</a></strong>: Execution groups and result combination</li>
-<li><strong><a href="../world_management/">World Management</a></strong>: Entity lifecycle and operations</li>
+<li><strong>Every read returns a deep copy.</strong> <code>ScopedAccess.get()</code>, <code>query()</code>, <code>World.get_copy()</code>,
+  and <code>World.query_copies()</code> all copy. Mutating what you read changes nothing; you must
+  write the value back.</li>
+<li>A system can only read types its descriptor allows. Dev-mode systems bypass this.</li>
+<li>A system sees its own buffered writes. It never sees a peer's writes from the same
+  execution group.</li>
 </ul>
+<h3 id="writes">Writes<a class="headerlink" href="#writes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Writes from a system are buffered as ordered <code>MutationOp</code>s and never touch storage
+  during execution.</li>
+<li><code>op_seq</code> is authoritative. When the ordered op log and a convenience projection
+  (<code>result.updates</code>, <code>result.inserts</code>, …) disagree, the op log wins.</li>
+<li>Within one applied result, repeated writes to the same <code>(entity, type)</code> fold through
+  <code>__combine__</code> when the component is <code>Combinable</code>, and overwrite otherwise.</li>
+<li><code>merge_entities</code> and <code>split_entity</code> always create new entities and destroy their
+  inputs. Neither mutates in place.</li>
+</ul>
+<h3 id="execution">Execution<a class="headerlink" href="#execution" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Groups run sequentially; systems within a group run concurrently.</li>
+<li>Results are concatenated in <strong>registration order</strong> before being applied.</li>
+<li>Each retry attempt gets a fresh buffer — a failed attempt's partial writes are
+  discarded, not replayed.</li>
+</ul>
+<hr />
+<h2 id="sharp-edges">Sharp edges<a class="headerlink" href="#sharp-edges" title="Permanent link">&para;</a></h2>
+<p>Real behaviour that surprises people. All verified.</p>
+<h3 id="singleton-entities-are-invisible-to-queries">Singleton entities are invisible to queries<a class="headerlink" href="#singleton-entities-are-invisible-to-queries" title="Permanent link">&para;</a></h3>
+<p><code>_ensure_system_entities()</code> (<code>services/world/world.py:65</code>) creates <code>WORLD</code> and <code>CLOCK</code> by writing
+<code>_storage._components[entity] = {}</code> directly, bypassing the allocator. The allocator
+therefore has no generation record for index 0 or 1, so <code>is_alive()</code> returns <code>False</code>
+for both.</p>
+<p>Consequences, all observable:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">entity_exists</span><span class="p">(</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">)</span>   <span class="c1"># False</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">Cfg</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">Cfg</span><span class="p">)</span>                          <span class="c1"># Cfg(n=5)   ← works</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">query_copies</span><span class="p">(</span><span class="n">Cfg</span><span class="p">))</span>                      <span class="c1"># []         ← invisible</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">all_entities</span><span class="p">())</span>                <span class="c1"># []         ← invisible</span>
+</span></code></pre></div>
+<p><code>get_component</code> works because it only checks dict membership, while <code>query</code> and
+<code>all_entities</code> additionally filter on <code>is_alive</code>.</p>
+<p>The same asymmetry explains why <code>ScopedAccess</code> has a separate <code>update_singleton()</code>:
+<code>update(SystemEntity.WORLD, ...)</code> raises <code>KeyError: Entity ... does not exist</code>, whereas
+<code>update_singleton()</code> deliberately skips the existence check.</p>
+<p><strong>Reach singletons through <code>singleton()</code> / <code>update_singleton()</code> only.</strong> Never expect
+them in a query result.</p>
+<h3 id="reads-fail-differently-inside-and-outside-systems">Reads fail differently inside and outside systems<a class="headerlink" href="#reads-fail-differently-inside-and-outside-systems" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Call</th>
+<th>Component missing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>World.get_copy(e, T)</code></td>
+<td>returns <code>None</code></td>
+</tr>
+<tr>
+<td><code>ScopedAccess.get(e, T)</code></td>
+<td>raises <code>KeyError</code></td>
+</tr>
+</tbody>
+</table>
+<p>The type annotations do not reflect this. <code>ScopedAccess.get</code> is annotated <code>Copy[T]</code> but
+raises; <code>EntityHandle.__getitem__</code> and the <code>ReadOnlyAccess</code> protocol both advertise
+<code>T | None</code>. The <code>if result is None</code> branch in <code>ScopedAccess.singleton()</code>
+(<code>services/world/access.py:474</code>) is consequently unreachable — <code>get()</code> raises first.</p>
+<h3 id="same-tick-reads-diverge-from-what-gets-committed">Same-tick reads diverge from what gets committed<a class="headerlink" href="#same-tick-reads-diverge-from-what-gets-committed" title="Permanent link">&para;</a></h3>
+<p>For a <code>Combinable</code> component written twice by one system, the buffer overlay returns the
+<em>latest</em> value while apply time folds <em>both</em>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@system</span><span class="p">(</span><span class="n">reads</span><span class="o">=</span><span class="p">(</span><span class="n">Log</span><span class="p">,),</span> <span class="n">writes</span><span class="o">=</span><span class="p">(</span><span class="n">Log</span><span class="p">,))</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">s</span><span class="p">(</span><span class="n">world</span><span class="p">):</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">world</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">Log</span><span class="p">]</span> <span class="o">=</span> <span class="n">Log</span><span class="p">([</span><span class="s2">&quot;s1&quot;</span><span class="p">])</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">world</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">Log</span><span class="p">]</span> <span class="o">=</span> <span class="n">Log</span><span class="p">([</span><span class="s2">&quot;s1b&quot;</span><span class="p">])</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">world</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">Log</span><span class="p">]</span>          <span class="c1"># [&#39;s1b&#39;]        ← what you read</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># after tick:              # [&#39;s1&#39;, &#39;s1b&#39;]  ← what was committed</span>
+</span></code></pre></div>
+<p>Tracked as <code>REQ-062</code>. Until it lands, do not read back a <code>Combinable</code> you just wrote and
+expect the committed value.</p>
+<h3 id="provisional-spawn-ids-are-not-remapped">Provisional spawn IDs are not remapped<a class="headerlink" href="#provisional-spawn-ids-are-not-remapped" title="Permanent link">&para;</a></h3>
+<p>An entity spawned inside a system gets a negative placeholder. <code>apply_result_async</code>
+allocates the real ID and returns it, but does not rewrite later ops that reference the
+placeholder. Writes addressed to the provisional ID are lost.</p>
+<p>Pass everything the new entity needs into the <code>spawn()</code> call. Tracked as <code>REQ-039</code>.</p>
+<h3 id="the-subscript-key-is-ignored-on-write">The subscript key is ignored on write<a class="headerlink" href="#the-subscript-key-is-ignored-on-write" title="Permanent link">&para;</a></h3>
+<p><code>world[entity, Position] = value</code> infers the component type from <code>value</code>. The <code>Position</code>
+in the key is never read. Assigning a <code>Velocity</code> under a <code>Position</code> key silently records
+a <code>Velocity</code> update.</p>
+<h3 id="returned-mutations-skip-existence-checks">Returned mutations skip existence checks<a class="headerlink" href="#returned-mutations-skip-existence-checks" title="Permanent link">&para;</a></h3>
+<p>Imperative mutations go through <code>_check_writable</code> <strong>and</strong> <code>_check_entity_exists</code>.
+Mutations returned from a system go through <code>normalize_result</code> → <code>merge</code> →
+<code>validate_result_access</code>, which checks the <em>write contract</em> only. A returned write to an
+unknown or destroyed entity still reaches <code>apply_result_async</code>.</p>
+<p><code>validate_result_access</code> also only inspects <code>updates</code> and <code>inserts</code> — returned removes,
+spawns, and destroys are unchecked — and returns immediately for <code>AllAccess</code> systems.
+This is the open review item from PR #89.</p>
+<h3 id="parallel-systems-combine-independently-computed-values">Parallel systems combine independently computed values<a class="headerlink" href="#parallel-systems-combine-independently-computed-values" title="Permanent link">&para;</a></h3>
+<p>Two systems in a group both start from the same state. If both write a <code>Combinable</code>
+component computed from that starting value, <code>__combine__</code> receives two <em>full</em> values,
+not a base and a delta. Implementations must be additive or idempotent; treating
+<code>other</code> as an increment on <code>self</code> will double-count.</p>
+<h3 id="worldtick-is-asynciorun"><code>World.tick()</code> is <code>asyncio.run</code><a class="headerlink" href="#worldtick-is-asynciorun" title="Permanent link">&para;</a></h3>
+<p>Both <code>tick()</code> and <code>apply_result()</code> call <code>asyncio.run</code> and will fail inside an existing
+event loop. Use <code>tick_async()</code> / <code>apply_result_async()</code> from async code.</p>
+<hr />
+<h2 id="declared-but-not-wired">Declared but not wired<a class="headerlink" href="#declared-but-not-wired" title="Permanent link">&para;</a></h2>
+<p>These exist in the API surface and have no effect on runtime behaviour. They are design
+intent, useful as documentation, and safe to use — but do not expect them to do
+anything yet.</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Where</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SystemDescriptor.frequency</code></td>
+<td><code>models/system.py:29</code></td>
+<td>Stored, never read by any scheduler. Every system runs every tick.</td>
+</tr>
+<tr>
+<td><code>SystemDescriptor.phase</code></td>
+<td><code>models/system.py:29</code></td>
+<td>Stored, never read anywhere.</td>
+</tr>
+<tr>
+<td><code>SystemMode.PURE</code></td>
+<td><code>models/system.py:13</code></td>
+<td>Accepted by <code>@system</code>. <code>_check_writable</code> only special-cases <code>READONLY</code>, so a PURE system can still mutate through <code>ScopedAccess</code>.</td>
+</tr>
+<tr>
+<td><code>queries_disjoint()</code></td>
+<td><code>functions/query.py:17</code></td>
+<td>Implemented and property-tested. No scheduler calls it.</td>
+</tr>
+<tr>
+<td><code>Query.excluding()</code></td>
+<td><code>models/query.py:43</code></td>
+<td>Enforcement is type-level: <code>QueryAccess</code> is flattened via <code>.types()</code> before checks, so exclusions never restrict which entities you may write.</td>
+</tr>
+<tr>
+<td>Conflict detection</td>
+<td>—</td>
+<td><code>build_single_group_plan</code> puts every non-dev system in one parallel group. No write-conflict analysis exists. Conflicts resolve at apply time by <code>__combine__</code> or LWW.</td>
+</tr>
+<tr>
+<td>Tick history</td>
+<td><code>protocols/history.py</code></td>
+<td><code>HistoryStore</code> and <code>TickRecord</code> are protocol and model only. <code>World</code> neither counts ticks nor emits records.</td>
+</tr>
+<tr>
+<td><code>SystemEntity.SCHEDULER</code></td>
+<td><code>models/identity.py:46</code></td>
+<td>Reserved. <code>_ensure_system_entities</code> creates only <code>WORLD</code> and <code>CLOCK</code>.</td>
+</tr>
+<tr>
+<td><code>ConflictError</code></td>
+<td><code>models/errors.py:16</code></td>
+<td>Defined, never raised.</td>
+</tr>
+<tr>
+<td><code>Access</code> enum</td>
+<td><code>models/system.py:21</code></td>
+<td>Defined, unused.</td>
+</tr>
+<tr>
+<td><code>_rust/</code></td>
+<td><code>_rust/__init__.py</code></td>
+<td>Empty placeholder for future PyO3 bindings.</td>
+</tr>
+<tr>
+<td><code>standard_library/</code></td>
+<td>—</td>
+<td>Empty package skeleton.</td>
+</tr>
+</tbody>
+</table>
+<p>Storage-side strictness is a partial case. REQ-040 tightened write policy at the
+<code>ScopedAccess</code> layer, but <code>LocalStorage.set_component</code> (<code>services/storage/local.py:148</code>) still
+creates a component bucket for an unknown entity rather than raising. The guard lives in
+the access layer, not the storage layer.</p>
+<hr />
+<h2 id="performance-characteristics">Performance characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<p>Not optimized, and deliberately so at this stage.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Cost</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LocalStorage.query</code></td>
+<td>O(n) over all entities</td>
+<td>Archetypal storage would make it O(matched).</td>
+</tr>
+<tr>
+<td>Every read</td>
+<td>two deep copies</td>
+<td>Once out of storage, once through the buffer overlay.</td>
+</tr>
+<tr>
+<td><code>result.updates</code> and siblings</td>
+<td>O(ops) per access</td>
+<td>Materialized on every property access. <code>_query_raw_async</code> caches them against <code>_next_op_seq</code>; other callers do not.</td>
+</tr>
+<tr>
+<td><code>ScopedAccess.get</code> from sync code</td>
+<td>thread hop</td>
+<td>Marshalled onto the <code>SyncRunner</code> loop via <code>run_coroutine_threadsafe</code>.</td>
+</tr>
+<tr>
+<td><code>snapshot()</code> / <code>restore()</code></td>
+<td><code>pickle</code></td>
+<td>Marked in-source as prototype-only.</td>
+</tr>
+</tbody>
+</table>
+<p>The async-everywhere internal design costs a thread hop per synchronous read today. It
+buys the ability to put a genuinely remote storage backend behind the same <code>Storage</code>
+protocol without changing a single system.</p>
 <p><em>[ECS]: Entity Component System
 </em>[LWW]: Last-Writer-Wins
 <em>[REPL]: Read-Eval-Print Loop

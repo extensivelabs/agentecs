@@ -12,31 +12,31 @@
         <meta name="author" content="ExtensiveLabs">
       
       
-        <link rel="canonical" href="https://extensivelabs.github.io/agentecs/cookbook/">
+        <link rel="canonical" href="https://extensivelabs.github.io/agentecs/architecture/commit-history/">
       
       
-        <link rel="prev" href="../start-up/core-concepts/">
+        <link rel="prev" href="../invariants/">
       
       
-        <link rel="next" href="../system/">
+        <link rel="next" href="../../api/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Overview - AgentECS</title>
+        <title>Illustrated Commit History - AgentECS</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,9 +55,9 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cookbook" class="md-skip">
+        <a href="#illustrated-commit-history" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +98,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="AgentECS" class="md-header__button md-logo" aria-label="AgentECS" data-md-component="logo">
+    <a href="../.." title="AgentECS" class="md-header__button md-logo" aria-label="AgentECS" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Illustrated Commit History
             
           </span>
         </div>
@@ -225,7 +225,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -246,7 +246,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../start-up/installation/" class="md-tabs__link">
+        <a href="../../start-up/installation/" class="md-tabs__link">
           
   
   
@@ -262,13 +262,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../cookbook/" class="md-tabs__link">
           
   
   
@@ -288,7 +286,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../system/" class="md-tabs__link">
+        <a href="../../system/" class="md-tabs__link">
           
   
   
@@ -304,11 +302,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -328,7 +328,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../api/" class="md-tabs__link">
+        <a href="../../api/" class="md-tabs__link">
           
   
   
@@ -348,7 +348,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../viz/" class="md-tabs__link">
+        <a href="../../viz/" class="md-tabs__link">
           
   
   
@@ -388,7 +388,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="AgentECS" class="md-nav__button md-logo" aria-label="AgentECS" data-md-component="logo">
+    <a href="../.." title="AgentECS" class="md-nav__button md-logo" aria-label="AgentECS" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -418,7 +418,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -499,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../start-up/installation/" class="md-nav__link">
+      <a href="../../start-up/installation/" class="md-nav__link">
         
   
   
@@ -527,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../start-up/first-steps/" class="md-nav__link">
+      <a href="../../start-up/first-steps/" class="md-nav__link">
         
   
   
@@ -555,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../start-up/core-concepts/" class="md-nav__link">
+      <a href="../../start-up/core-concepts/" class="md-nav__link">
         
   
   
@@ -587,31 +587,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -629,7 +626,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -644,37 +641,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../cookbook/" class="md-nav__link">
         
   
   
@@ -690,37 +660,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#available-recipes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Available Recipes
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -794,7 +733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/" class="md-nav__link">
+      <a href="../../system/" class="md-nav__link">
         
   
   
@@ -822,7 +761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/design-philosophy/" class="md-nav__link">
+      <a href="../../system/design-philosophy/" class="md-nav__link">
         
   
   
@@ -850,7 +789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/architecture/" class="md-nav__link">
+      <a href="../../system/architecture/" class="md-nav__link">
         
   
   
@@ -878,7 +817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/development-architecture/" class="md-nav__link">
+      <a href="../../system/development-architecture/" class="md-nav__link">
         
   
   
@@ -906,7 +845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/components/" class="md-nav__link">
+      <a href="../../system/components/" class="md-nav__link">
         
   
   
@@ -934,7 +873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/systems/" class="md-nav__link">
+      <a href="../../system/systems/" class="md-nav__link">
         
   
   
@@ -962,7 +901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/queries/" class="md-nav__link">
+      <a href="../../system/queries/" class="md-nav__link">
         
   
   
@@ -990,7 +929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/world_management/" class="md-nav__link">
+      <a href="../../system/world_management/" class="md-nav__link">
         
   
   
@@ -1018,7 +957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/scheduling/" class="md-nav__link">
+      <a href="../../system/scheduling/" class="md-nav__link">
         
   
   
@@ -1046,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/storage/" class="md-nav__link">
+      <a href="../../system/storage/" class="md-nav__link">
         
   
   
@@ -1074,7 +1013,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../system/roadmap/" class="md-nav__link">
+      <a href="../../system/roadmap/" class="md-nav__link">
         
   
   
@@ -1106,28 +1045,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1145,7 +1087,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1163,7 +1105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1191,7 +1133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/altitudes/" class="md-nav__link">
+      <a href="../altitudes/" class="md-nav__link">
         
   
   
@@ -1219,7 +1161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/call-stacks/" class="md-nav__link">
+      <a href="../call-stacks/" class="md-nav__link">
         
   
   
@@ -1247,7 +1189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/invariants/" class="md-nav__link">
+      <a href="../invariants/" class="md-nav__link">
         
   
   
@@ -1272,10 +1214,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../architecture/commit-history/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Illustrated Commit History
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1291,6 +1260,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#era-1-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 1 — Foundation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-2-copy-and-sharing-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 2 — Copy and sharing semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-3-enforcing-the-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 3 — Enforcing the boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-4-access-patterns-and-ordered-mutations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 4 — Access patterns and ordered mutations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-5-simplification-and-strictness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 5 — Simplification and strictness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-deletions-tell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the deletions tell you
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-you-last-read-this-at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If you last read this at…
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open threads
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1364,7 +1441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../../api/" class="md-nav__link">
         
   
   
@@ -1392,7 +1469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/" class="md-nav__link">
+      <a href="../../api/core/" class="md-nav__link">
         
   
   
@@ -1420,7 +1497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/world/" class="md-nav__link">
+      <a href="../../api/world/" class="md-nav__link">
         
   
   
@@ -1448,7 +1525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/storage/" class="md-nav__link">
+      <a href="../../api/storage/" class="md-nav__link">
         
   
   
@@ -1476,7 +1553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/scheduling/" class="md-nav__link">
+      <a href="../../api/scheduling/" class="md-nav__link">
         
   
   
@@ -1504,7 +1581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/adapters/" class="md-nav__link">
+      <a href="../../api/adapters/" class="md-nav__link">
         
   
   
@@ -1593,7 +1670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../viz/" class="md-nav__link">
+      <a href="../../viz/" class="md-nav__link">
         
   
   
@@ -1621,7 +1698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../viz/architecture/" class="md-nav__link">
+      <a href="../../viz/architecture/" class="md-nav__link">
         
   
   
@@ -1649,7 +1726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../viz/cli/" class="md-nav__link">
+      <a href="../../viz/cli/" class="md-nav__link">
         
   
   
@@ -1677,7 +1754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../viz/extending/" class="md-nav__link">
+      <a href="../../viz/extending/" class="md-nav__link">
         
   
   
@@ -1732,10 +1809,87 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-recipes" class="md-nav__link">
+  <a href="#era-1-foundation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available Recipes
+        Era 1 — Foundation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-2-copy-and-sharing-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 2 — Copy and sharing semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-3-enforcing-the-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 3 — Enforcing the boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-4-access-patterns-and-ordered-mutations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 4 — Access patterns and ordered mutations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#era-5-simplification-and-strictness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Era 5 — Simplification and strictness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-deletions-tell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the deletions tell you
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-you-last-read-this-at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If you last read this at…
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open threads
       
     </span>
   </a>
@@ -1767,7 +1921,7 @@
   
   
     <li class="md-path__item">
-      <a href=".." class="md-path__link">
+      <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Home
@@ -1785,10 +1939,10 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Cookbook
+    Architecture
   </span>
 
         </a>
@@ -1810,19 +1964,276 @@
   
 
 
-<h1 id="cookbook">Cookbook<a class="headerlink" href="#cookbook" title="Permanent link">&para;</a></h1>
+<h1 id="illustrated-commit-history">Illustrated Commit History<a class="headerlink" href="#illustrated-commit-history" title="Permanent link">&para;</a></h1>
+<p>Forty-three commits between February and September 2026 got the runtime to its current
+shape. This page groups them into five eras, each driven by a distinct architectural
+pressure, and says what each era means for reading the code today.</p>
+<p>If you have been away, the short version is at the <a href="#if-you-last-read-this-at">bottom</a>.</p>
 <div class="admonition note">
-<p class="admonition-title">Coming Soon</p>
-<p>Practical examples and patterns will be added here.</p>
+<p class="admonition-title">Paths on this page are historical</p>
+<p>The package was later reorganized by kind — <code>models/</code>, <code>protocols/</code>, <code>functions/</code>,
+<code>services/</code>, <code>api/</code>, <code>adapters/</code>. Paths below are as they were at the time of each
+commit. See <a href="../altitudes/#altitude-1-the-packages">Altitudes</a> for the current layout.</p>
 </div>
-<h2 id="available-recipes">Available Recipes<a class="headerlink" href="#available-recipes" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>gitGraph
+    commit id: "12ae409 initial"
+    commit id: "f446be7 copies"
+    branch shared
+    commit id: "fe2d47e Copy[T]"
+    commit id: "8349d53 Shared[T]"
+    commit id: "75e5922 review"
+    checkout main
+    merge shared id: "9ba7501 #5"
+    commit id: "4c4a2ab importlinter"
+    commit id: "7e7163b storage tests"
+    commit id: "b6a9815 AccessPattern"
+    commit id: "73e30ae op_seq" tag: "#79"
+    commit id: "32a9a01 simplify" tag: "#86"
+    commit id: "a6925a2 strict" tag: "#89"</code></pre>
+<hr />
+<h2 id="era-1-foundation">Era 1 — Foundation<a class="headerlink" href="#era-1-foundation" title="Permanent link">&para;</a></h2>
+<p><strong>2026-02-01 → 2026-02-03 · 12 commits · <code>12ae409</code> … <code>6770e41</code></strong></p>
+<p>The initial commit landed the whole skeleton at once: 120 files, 22k lines, every
+package that exists today except the pieces that were later deleted. <code>core/</code>,
+<code>storage/</code>, <code>world/</code>, <code>scheduling/</code>, <code>adapters/</code>, <code>tracing/</code>, and a full test tree
+arrived together.</p>
+<p>The layer split — stateless <code>core/</code> versus stateful services — was present from line
+one. It was never refactored in; it was the starting assumption.</p>
+<p>The era's one consequential change was <code>f446be7</code>, <strong>"Scoped Access returns copies"</strong>.
+Before it, reads handed out references into storage, so mutating a component you read
+silently mutated world state and bypassed the buffer entirely. After it, every read
+deep-copies and the caller must write back explicitly.</p>
+<div class="admonition quote">
+<p class="admonition-title">Why it matters now</p>
+<p>This is the origin of the copy-on-read discipline, the <code>get_copy</code> / <code>query_copies</code>
+naming, and the "reads return copies, write it back" rule repeated throughout the
+docs. It cost performance and bought the ability to reason about a tick.</p>
+</div>
+<hr />
+<h2 id="era-2-copy-and-sharing-semantics">Era 2 — Copy and sharing semantics<a class="headerlink" href="#era-2-copy-and-sharing-semantics" title="Permanent link">&para;</a></h2>
+<p><strong>2026-02-05 → 2026-02-20 · 14 commits · <code>fe2d47e</code> … <code>9ba7501</code> (PR #5, REQ-016)</strong></p>
+<p>The longest and messiest era, and the one that produced the most subtle code.</p>
+<p><code>fe2d47e</code> introduced the <code>Copy[T]</code> type alias — a no-op at runtime, <code>type Copy[T] = T</code>,
+existing purely to mark in signatures which values are detached from world state. It
+also pushed the copy decision down into storage as a <code>copy: bool</code> parameter, so internal
+callers could opt out of copying while the public API could not.</p>
+<p><code>8349d53</code> added the opposite semantics: <code>Shared[T]</code>, a wrapper that makes one component
+instance live at many entities. <code>LocalStorage</code> grew two side tables (<code>_shared_refs</code>,
+<code>_shared_components</code>) and refcount-style garbage collection, which is most of the
+complexity in that file today.</p>
+<p>The seven commits that follow are a bug tail, and reading their subjects is the fastest
+way to understand where the sharp edges are:</p>
+<table>
+<thead>
+<tr>
+<th>Commit</th>
+<th>Subject</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>f84d92e</code></td>
+<td>unwrap shared components on read, fix query storage mutation</td>
+</tr>
+<tr>
+<td><code>02d3472</code></td>
+<td>leak if overwriting wrapped with unwrapped</td>
+</tr>
+<tr>
+<td><code>25ee311</code></td>
+<td>bugs when accessing shared components</td>
+</tr>
+<tr>
+<td><code>9603d6d</code></td>
+<td>copy duplication</td>
+</tr>
+<tr>
+<td><code>1460462</code></td>
+<td>add shared remove function to protocol</td>
+</tr>
+<tr>
+<td><code>4e1c832</code></td>
+<td>setattr did not work</td>
+</tr>
+<tr>
+<td><code>a641092</code></td>
+<td>accidental returns of <code>Shared</code> wrapper due to local cache</td>
+</tr>
+<tr>
+<td><code>41fca17</code></td>
+<td>regular overwritten by wrapped component cleanup</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition quote">
+<p class="admonition-title">Why it matters now</p>
+<p>Every one of those is a wrapper-leak or aliasing bug. They are why <code>get_type()</code> and
+<code>get_component()</code> (<code>core/component/wrapper.py:47</code>) are called at nearly every call
+site that handles a component: wrapped and plain instances must be
+indistinguishable to the rest of the runtime, and each of these commits is a place
+where they briefly were not.</p>
+</div>
+<hr />
+<h2 id="era-3-enforcing-the-boundaries">Era 3 — Enforcing the boundaries<a class="headerlink" href="#era-3-enforcing-the-boundaries" title="Permanent link">&para;</a></h2>
+<p><strong>2026-02-20 → 2026-02-22 · 8 commits · <code>4c4a2ab</code> … <code>7e7163b</code></strong></p>
+<p>Having discovered how easy the layers were to violate, this era made violations
+mechanical failures.</p>
+<p><code>4c4a2ab</code> added <code>.importlinter</code> with three contracts — the layer ordering, a ban on
+internal modules importing the root <code>agentecs</code> facade, and a ban on <code>storage/</code> importing
+the <code>core</code> package facade rather than leaf modules — plus <code>docs/system/development-architecture.md</code>
+to document them, and wired <code>task lint:imports</code> into CI.</p>
+<p><code>5f3f382</code> removed a decorator-based registration path that duplicated the existing one,
+with <code>e990023</code> stripping it from the docs. The codebase standard "never add a pattern
+that replicates existing behaviour" traces to this deletion.</p>
+<p><code>49967b2</code> and <code>7e7163b</code> added user-journey tests for the <code>Shared</code> wrapper and for storage
+component handling — the two areas Era 2 proved fragile.</p>
+<div class="admonition quote">
+<p class="admonition-title">Why it matters now</p>
+<p>Import direction is not a convention here, it is a check. If a change fails
+<code>task lint:imports</code>, the fix is almost always to move the code rather than to relax
+the contract.</p>
+</div>
+<hr />
+<h2 id="era-4-access-patterns-and-ordered-mutations">Era 4 — Access patterns and ordered mutations<a class="headerlink" href="#era-4-access-patterns-and-ordered-mutations" title="Permanent link">&para;</a></h2>
+<p><strong>2026-02-22 → 2026-02-25 · 3 commits · <code>b6a9815</code>, <code>2276841</code>, <code>73e30ae</code></strong></p>
+<p>Small in commit count, largest in design consequence.</p>
+<p><code>b6a9815</code> (<strong>"Use AccessPattern throughout consistently"</strong>) replaced ad-hoc tuple
+handling with the four-variant <code>AccessPattern</code> union — <code>AllAccess</code>, <code>NoAccess</code>,
+<code>TypeAccess</code>, <code>QueryAccess</code> — and made normalization a single function pair in
+<code>core/query/operations.py</code>. It also introduced the asymmetry where declaring only reads
+forces writes to <code>NoAccess</code>, closing an accidental-write-permission hole.</p>
+<p><code>2276841</code> moved examples out to
+<a href="https://github.com/extensivelabs/agentecs-examples">agentecs-examples</a>, which is why the
+repository has no <code>examples/</code> directory and the Taskfile carries a note where one used
+to be.</p>
+<p><code>73e30ae</code> (<strong>"Implement op sequence in result"</strong>, PR #79) is the pivot. <code>SystemResult</code>
+stopped being a bag of dicts and became an <strong>ordered log</strong> of frozen <code>MutationOp</code>s, each
+carrying a monotonic <code>op_seq</code>, with the old dict shapes demoted to convenience
+projections rebuilt on demand.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>before                              after
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>──────                              ─────
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>SystemResult                        SystemResult
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  updates: {e: {T: c}}                _ops: [MutationOp(op_seq=0, UPDATE, ...),
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  inserts: {e: [c]}                          MutationOp(op_seq=1, SPAWN, ...), ...]
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  removes: {e: [T]}                   updates  → projection over _ops
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  spawns:  [e]                        inserts  → projection over _ops
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  destroys:[e]                        removes  → projection over _ops
+</span></code></pre></div>
+<div class="admonition quote">
+<p class="admonition-title">Why it matters now</p>
+<p>"<code>SystemResult</code> operation order is authoritative" is the single most load-bearing
+sentence about the runtime, and it starts here. Deterministic apply, correct
+interleaving of spawn-then-write, and the whole <code>Combinable</code> folding story depend on
+it. It also created the performance footgun that projections are materialized on
+every property access — the reason <code>_query_raw_async</code> version-caches them.</p>
+</div>
+<hr />
+<h2 id="era-5-simplification-and-strictness">Era 5 — Simplification and strictness<a class="headerlink" href="#era-5-simplification-and-strictness" title="Permanent link">&para;</a></h2>
+<p><strong>2026-03-15 → 2026-09-10 · 2 commits · <code>32a9a01</code> (PR #86), <code>a6925a2</code> (PR #89)</strong></p>
+<p><code>32a9a01</code> (<strong>"Simplify the scheduler and merging"</strong>) deleted more than it added: 732
+insertions against 1374 deletions across 27 files. <code>scheduling/merge_strategies.py</code> —
+139 lines of pluggable merge policy — was removed entirely, along with a broader set of
+component operation protocols.</p>
+<p>What survived is deliberately small: <code>Combinable.__combine__</code>, <code>Splittable.__split__</code>,
+and two fallbacks (last-writer-wins, deep copy). Merge semantics moved out of the
+scheduler and into <code>World.apply_result_async</code>, leaving the scheduler responsible for
+orchestration only — grouping, concurrency, retry.</p>
+<p><code>a6925a2</code> (<strong>"Strict storage write policy"</strong>, PR #89, REQ-040) added
+<code>ScopedAccess._check_entity_exists</code> (<code>world/access.py:231</code>) so that imperative writes to
+unknown or destroyed entities fail immediately with <code>KeyError</code> instead of implicitly
+creating a component bucket. The check is buffer-aware: an entity spawned earlier in the
+same system counts as existing. The same PR gave <code>EntityId</code> an explicit <code>__eq__</code>, and
+added <code>_buffered_component_types</code> so <code>merge_entities</code> and <code>split_entity</code> see buffered
+inserts and removes.</p>
+<div class="admonition quote">
+<p class="admonition-title">Why it matters now</p>
+<p>Two lessons are encoded here. First, the scheduler is <em>orchestration only</em> — if you
+find yourself adding merge semantics to <code>scheduling/</code>, it belongs in
+<code>world/result.py</code> or <code>apply_result_async</code>. Second, strictness landed at the access
+layer, not the storage layer: <code>LocalStorage.set_component</code> still creates buckets
+freely, and returned mutations still bypass the existence check. See
+<a href="../invariants/#returned-mutations-skip-existence-checks">Invariants and Known Gaps</a>.</p>
+</div>
+<hr />
+<h2 id="what-the-deletions-tell-you">What the deletions tell you<a class="headerlink" href="#what-the-deletions-tell-you" title="Permanent link">&para;</a></h2>
+<p>Three subsystems were built and then removed. The pattern is consistent enough to be a
+design rule.</p>
+<table>
+<thead>
+<tr>
+<th>Removed</th>
+<th>In</th>
+<th>Replaced by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decorator registration path</td>
+<td><code>5f3f382</code></td>
+<td>The single existing registration path</td>
+</tr>
+<tr>
+<td><code>scheduling/merge_strategies.py</code></td>
+<td><code>32a9a01</code></td>
+<td><code>Combinable</code> + fallback, applied at apply time</td>
+</tr>
+<tr>
+<td>Extended component operation protocols</td>
+<td><code>32a9a01</code></td>
+<td><code>Combinable</code> and <code>Splittable</code> only</td>
+</tr>
+<tr>
+<td><code>examples/</code></td>
+<td><code>2276841</code></td>
+<td>A separate repository</td>
+</tr>
+</tbody>
+</table>
+<p>Each removal traded configurability for one obvious path. When adding to this codebase,
+the burden of proof is on the second way of doing something.</p>
+<hr />
+<h2 id="if-you-last-read-this-at">If you last read this at…<a class="headerlink" href="#if-you-last-read-this-at" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Your last commit</th>
+<th>What changed since</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>12ae409</code> (initial)</td>
+<td>Everything on this page. Start at <a href="../altitudes/">Altitudes</a>.</td>
+</tr>
+<tr>
+<td>Era 2 (<code>9ba7501</code>, PR #5)</td>
+<td>Import contracts are enforced. <code>SystemResult</code> is an ordered op log, not dicts. Merge strategies are gone. Writes to dead entities raise.</td>
+</tr>
+<tr>
+<td>Era 3 (<code>7e7163b</code>)</td>
+<td><code>AccessPattern</code> normalization, <code>op_seq</code> ordering, the PR #86 simplification, and strict write policy.</td>
+</tr>
+<tr>
+<td><code>73e30ae</code> (op_seq)</td>
+<td><code>merge_strategies.py</code> deleted; merge semantics moved to <code>apply_result_async</code>. Scheduler is orchestration-only. Strict entity-existence checks in <code>ScopedAccess</code>.</td>
+</tr>
+<tr>
+<td><code>32a9a01</code> (PR #86)</td>
+<td>Only REQ-040: <code>_check_entity_exists</code>, <code>EntityId.__eq__</code>, buffer-aware merge/split.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-threads">Open threads<a class="headerlink" href="#open-threads" title="Permanent link">&para;</a></h2>
+<p>Three requirements are in flight and shape what you will find half-done:</p>
 <ul>
-<li>Basic Patterns (coming soon)</li>
-<li>System Patterns (coming soon)</li>
-<li>Advanced Patterns (coming soon)</li>
-<li>Testing Patterns (coming soon)</li>
+<li><strong>REQ-039</strong> — provisional-to-real spawn identity. Ops referencing a provisional ID are
+  not remapped at apply time.</li>
+<li><strong>REQ-062</strong> — same-tick buffered read consistency. Mid-tick reads of a <code>Combinable</code>
+  diverge from the committed fold.</li>
+<li><strong>PR #89 follow-up</strong> — returned mutations bypass entity-existence checks after
+  normalization.</li>
 </ul>
-<p>For now, see the <a href="https://github.com/extensivelabs/agentecs-examples">agentecs-examples</a> repository.</p>
+<p>Requirements are tracked in GitHub Project <code>extensivelabs/agentecs</code> #1.</p>
 <p><em>[ECS]: Entity Component System
 </em>[LWW]: Last-Writer-Wins
 <em>[REPL]: Read-Eval-Print Loop
@@ -1898,10 +2309,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
