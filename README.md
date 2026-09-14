@@ -29,6 +29,7 @@ This enables:
 - [Getting Started](https://extensivelabs.github.io/agentecs/start-up/installation/)
 - [Cookbook](https://extensivelabs.github.io/agentecs/cookbook/)
 - [System Documentation](https://extensivelabs.github.io/agentecs/system/)
+- [Architecture Deep Dive](https://extensivelabs.github.io/agentecs/architecture/) — internals, call stacks, known gaps
 - [API Reference](https://extensivelabs.github.io/agentecs/api/)
 
 ## Architecture
@@ -50,7 +51,7 @@ This enables:
 │  SYSTEMS (@system decorator with access declarations)           │
 │  └── Pure functions: (ScopedAccess) -> SystemResult | None      │
 │      Tiered access: dev mode | type-level | query-level         │
-│      Frequency-based scheduling, no explicit graphs             │
+│      Behaviour emerges from declarations, no explicit graphs    │
 ├─────────────────────────────────────────────────────────────────┤
 │  WORLD                                                          │
 │  └── ScopedAccess: Rust-like read/write enforcement             │
@@ -58,9 +59,9 @@ This enables:
 │      Magic methods: world[e, T], world(T1, T2), (e, T) in world │
 ├─────────────────────────────────────────────────────────────────┤
 │  SCHEDULER                                                      │
-│  └── Analyzes access patterns for automatic parallelization     │
-│      Detects conflicts, groups non-conflicting systems          │
-│      Sequential within groups, parallel across groups           │
+│  └── Builds an execution plan: an ordered list of groups        │
+│      Parallel within a group, groups applied in sequence        │
+│      Write conflicts resolve at apply time (__combine__ / LWW)  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

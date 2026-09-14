@@ -6,7 +6,8 @@ from typing import Any
 import pytest
 
 from agentecs import EntityId, component
-from agentecs.world import OpKind, SystemResult, normalize_result
+from agentecs.functions.result import normalize_result
+from agentecs.models.result import OpKind, SystemResult
 
 
 @component

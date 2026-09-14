@@ -388,7 +388,7 @@ _components = {
 
 ```python
 from agentecs import World
-from agentecs.storage import LocalStorage
+from agentecs.services.storage import LocalStorage
 
 # Default (shard 0)
 world = World()
@@ -431,7 +431,7 @@ world.restore(data)      # Unpickles and restores
 
     ```python
     # Future API
-    from agentecs.storage.postgres import PostgreSQLStorage
+    from agentecs.services.storage.postgres import PostgreSQLStorage
 
     storage = PostgreSQLStorage(
         connection_string="postgresql://localhost/agentecs"
@@ -448,7 +448,7 @@ world.restore(data)      # Unpickles and restores
 
     ```python
     # Future API
-    from agentecs.storage.redis import RedisStorage
+    from agentecs.services.storage.redis import RedisStorage
 
     storage = RedisStorage(host="localhost", port=6379)
     world = World(storage=storage)
@@ -463,7 +463,7 @@ world.restore(data)      # Unpickles and restores
 
     ```python
     # Future API
-    from agentecs.storage.s3 import S3Storage
+    from agentecs.services.storage.s3 import S3Storage
 
     storage = S3Storage(bucket="my-simulation-state")
     world = World(storage=storage)
@@ -517,7 +517,7 @@ world.restore(data)      # Unpickles and restores
 
     ```python
     # Future API
-    from agentecs.storage.distributed import DistributedStorage, HashSharding
+    from agentecs.services.storage.distributed import DistributedStorage, HashSharding
 
     storage = DistributedStorage(
         shards=[
@@ -609,8 +609,8 @@ world.restore(data)      # Unpickles and restores
 Here's a minimal custom storage implementation:
 
 ```python
-from agentecs.storage.protocol import Storage
-from agentecs.core.identity import EntityId
+from agentecs.protocols.storage import Storage
+from agentecs.models.identity import EntityId
 
 class InMemoryStorage(Storage):
     """Simple in-memory storage (minimal implementation)."""

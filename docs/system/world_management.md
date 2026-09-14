@@ -39,8 +39,8 @@ The World is initialized with optional storage and execution strategy:
 
 ```python
 from agentecs import World
-from agentecs.scheduling import SimpleScheduler
-from agentecs.storage import LocalStorage
+from agentecs.services.scheduler import SimpleScheduler
+from agentecs.services.storage import LocalStorage
 
 # Default: LocalStorage + SimpleScheduler
 world = World()

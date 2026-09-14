@@ -13,6 +13,12 @@ Core ECS implementation:
 - Async-first architecture
 - LLM and vector database integrations
 
+Several roadmap items already have an API surface but no runtime behaviour behind
+them — `frequency`, `phase`, `SystemMode.PURE`, tracing, and static conflict
+analysis among them. See
+[Invariants & Known Gaps](../architecture/invariants.md#declared-but-not-wired) for
+the current list before building on any of them.
+
 ## Roadmap
 
 ### Advanced Scheduling

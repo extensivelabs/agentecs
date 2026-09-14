@@ -7,14 +7,12 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from agentecs import Query, component
-from agentecs.core.query import (
-    AllAccess,
-    NoAccess,
-    TypeAccess,
+from agentecs.functions.query import (
     normalize_access,
     normalize_reads_and_writes,
     queries_disjoint,
 )
+from agentecs.models.query import AllAccess, NoAccess, TypeAccess
 
 
 # Test component types for queries
@@ -265,7 +263,7 @@ def test_query_immutable():
 )
 def test_normalize_access_variants(input_val, expected_type, check_fn):
     """normalize_access returns correct type for each input variant."""
-    from agentecs.core.query import QueryAccess
+    from agentecs.models.query import QueryAccess
 
     pattern = normalize_access(input_val)
 

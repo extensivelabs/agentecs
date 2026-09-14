@@ -478,7 +478,7 @@ When multiple systems write to the same component:
 - non-combinable values use last-writer-wins (registration order)
 
 ```python
-from agentecs.scheduling import SimpleScheduler
+from agentecs.services.scheduler import SimpleScheduler
 
 world = World(execution=SimpleScheduler())
 ```

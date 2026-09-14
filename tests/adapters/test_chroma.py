@@ -14,7 +14,7 @@ from agentecs.adapters.chroma import (
     _deserialize_from_metadata,
     _serialize_to_metadata,
 )
-from agentecs.adapters.models import Filter, FilterGroup, FilterOperator
+from agentecs.models.vectorstore import Filter, FilterGroup, FilterOperator
 
 
 @dataclass
@@ -161,7 +161,7 @@ def test_chroma_search_requires_embedding_for_vector_mode():
     Why: User-facing error messages should be helpful.
     """
     from agentecs.adapters.chroma import ChromaAdapter
-    from agentecs.adapters.models import SearchMode
+    from agentecs.models.vectorstore import SearchMode
 
     store = ChromaAdapter.from_memory("test_search", SimpleDoc)
 

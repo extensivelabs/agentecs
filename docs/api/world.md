@@ -21,7 +21,7 @@ The World is the main entry point for AgentECS. It coordinates:
 
 The central coordinator for your ECS world.
 
-::: agentecs.world.World
+::: agentecs.api.world.World
     options:
       show_root_heading: true
       show_source: true
@@ -51,7 +51,7 @@ Systems access the world through scoped interfaces that enforce access patterns.
 
 ### ScopedAccess
 
-::: agentecs.world.ScopedAccess
+::: agentecs.services.world.access.ScopedAccess
     options:
       show_root_heading: true
       show_source: true
@@ -66,7 +66,7 @@ Systems access the world through scoped interfaces that enforce access patterns.
 
 ### ReadOnlyAccess
 
-::: agentecs.world.ReadOnlyAccess
+::: agentecs.protocols.access.ReadOnlyAccess
     options:
       show_root_heading: true
       show_source: true
@@ -75,7 +75,7 @@ Systems access the world through scoped interfaces that enforce access patterns.
 
 Convenient wrapper for single-entity operations.
 
-::: agentecs.world.EntityHandle
+::: agentecs.services.world.access.EntityHandle
     options:
       show_root_heading: true
       show_source: true
@@ -91,12 +91,12 @@ Convenient wrapper for single-entity operations.
 
 Systems can return results describing changes to apply.
 
-::: agentecs.world.SystemResult
+::: agentecs.models.result.SystemResult
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.world.normalize_result
+::: agentecs.functions.result.normalize_result
     options:
       show_root_heading: true
       show_source: true
@@ -107,7 +107,7 @@ Systems can return results describing changes to apply.
 
 Manages entity ID allocation with generational indices.
 
-::: agentecs.world.EntityAllocator
+::: agentecs.services.storage.allocator.EntityAllocator
     options:
       show_root_heading: true
       show_source: true

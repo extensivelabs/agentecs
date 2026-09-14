@@ -22,48 +22,26 @@ Usage:
 
 __version__ = "0.1.0"
 
-# Core primitives
-from agentecs.core import (
+from agentecs.api import World, component, system
+from agentecs.models import (
+    AccessViolationError,
     Combinable,
     Copy,
     EntityId,
+    MutationOp,
+    OpKind,
     Query,
+    SchedulerConfig,
     Splittable,
     SystemEntity,
     SystemMode,
-    component,
-    system,
-)
-
-# Scheduling
-from agentecs.scheduling import (
-    SchedulerConfig,
-    SequentialScheduler,
-    SimpleScheduler,
-)
-
-# Storage
-from agentecs.storage import (
-    LocalStorage,
-    Storage,
-)
-
-# Tracing (optional)
-from agentecs.tracing import (
-    HistoryStore,
+    SystemResult,
     TickRecord,
 )
-
-# World and access
-from agentecs.world import (
-    AccessViolationError,
-    MutationOp,
-    OpKind,
-    ReadOnlyAccess,
-    ScopedAccess,
-    SystemResult,
-    World,
-)
+from agentecs.protocols import HistoryStore, ReadOnlyAccess, Storage
+from agentecs.services.scheduler import SequentialScheduler, SimpleScheduler
+from agentecs.services.storage import LocalStorage
+from agentecs.services.world import ScopedAccess
 
 __all__ = [
     # Version

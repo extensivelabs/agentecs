@@ -19,7 +19,7 @@ Define components with optional operation protocols.
 
 ### Component Decorator
 
-::: agentecs.core.component.component
+::: agentecs.api.decorators.component
     options:
       show_root_heading: true
       show_source: true
@@ -28,12 +28,12 @@ Define components with optional operation protocols.
 
 ### Component Registry
 
-::: agentecs.core.component.ComponentRegistry
+::: agentecs.services.registry.ComponentRegistry
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.component.get_registry
+::: agentecs.services.registry.get_registry
     options:
       show_root_heading: true
       show_source: true
@@ -42,29 +42,29 @@ Define components with optional operation protocols.
 
 Components can optionally implement these protocols to enable advanced operations:
 
-::: agentecs.core.component.Combinable
+::: agentecs.models.component.Combinable
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.component.Splittable
+::: agentecs.models.component.Splittable
     options:
       show_root_heading: true
       show_source: true
 
 ### Utility Functions
 
-::: agentecs.core.component.operations.combine_protocol_or_fallback
+::: agentecs.functions.component.combine_protocol_or_fallback
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.component.operations.split_protocol_or_fallback
+::: agentecs.functions.component.split_protocol_or_fallback
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.component.reduce_components
+::: agentecs.functions.component.reduce_components
     options:
       show_root_heading: true
       show_source: true
@@ -75,12 +75,12 @@ Components can optionally implement these protocols to enable advanced operation
 
 Entity identification with generational indices.
 
-::: agentecs.core.identity.EntityId
+::: agentecs.models.identity.EntityId
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.identity.SystemEntity
+::: agentecs.models.identity.SystemEntity
     options:
       show_root_heading: true
       show_source: true
@@ -91,12 +91,12 @@ Entity identification with generational indices.
 
 Query builder for filtering entities by component types.
 
-::: agentecs.core.query.Query
+::: agentecs.models.query.Query
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.query.AccessPattern
+::: agentecs.models.query.AccessPattern
     options:
       show_root_heading: true
       show_source: true
@@ -109,19 +109,19 @@ Define systems with declared access patterns.
 
 ### System Decorator
 
-::: agentecs.core.system.system
+::: agentecs.api.decorators.system
     options:
       show_root_heading: true
       show_source: true
 
 ### System Metadata
 
-::: agentecs.core.system.SystemDescriptor
+::: agentecs.models.system.SystemDescriptor
     options:
       show_root_heading: true
       show_source: true
 
-::: agentecs.core.system.SystemMode
+::: agentecs.models.system.SystemMode
     options:
       show_root_heading: true
       show_source: true

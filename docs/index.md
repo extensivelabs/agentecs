@@ -22,6 +22,10 @@ AgentECS applies the ECS architectural pattern to AI agents, enabling flexible, 
 
     Complete API documentation
 
+- :material-layers-triple: **[Architecture Deep Dive](architecture/index.md)**
+
+    Internals, call stacks, and known gaps
+
 </div>
 
 ---
@@ -157,17 +161,22 @@ This enables snapshot isolation: systems see consistent state, even when running
 
 ### Access Patterns Enable Parallelism
 
-Declare what components a system reads and writes. Non-conflicting systems run in parallel:
+Declare what components a system reads and writes:
 
 ```python
-# These CAN run in parallel (disjoint writes)
-@system(reads=(Position,), writes=(Position,))
-@system(reads=(Health,), writes=(Health,))
-
-# These CANNOT (both write Position)
-@system(reads=(Position,), writes=(Position,))
-@system(reads=(Velocity,), writes=(Position,))
+@system(reads=(Position, Velocity), writes=(Position,))
+def movement(world: ScopedAccess) -> None:
+    ...
 ```
+
+Systems run concurrently against the same snapshot, and the declarations are enforced —
+touching an undeclared component raises rather than corrupting state. When two systems
+do write the same component on the same entity, the result is resolved when changes are
+applied: folded through `Combinable.__combine__` if the component defines it, and
+last-writer-wins otherwise.
+
+Declarations are also what a smarter scheduler will consume to order and separate
+systems. See [Scheduling](system/scheduling.md).
 
 ---
 
@@ -189,4 +198,5 @@ AgentECS enables workflows that are awkward or impossible in traditional framewo
 - **[Installation](start-up/installation.md)** - Get AgentECS running
 - **[Core Concepts](start-up/core-concepts.md)** - Understand the fundamentals
 - **[Cookbook](cookbook/index.md)** - Learn common patterns
-- **[Architecture](system/index.md)** - Deep dive into internals
+- **[System Documentation](system/index.md)** - The model you program against
+- **[Architecture Deep Dive](architecture/index.md)** - Internals, call stacks, and known gaps

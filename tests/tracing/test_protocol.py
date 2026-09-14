@@ -6,7 +6,8 @@ Why these tests exist:
 - Basic operations must work correctly
 """
 
-from agentecs.tracing import HistoryStore, TickRecord
+from agentecs.models.tracing import TickRecord
+from agentecs.protocols.history import HistoryStore
 
 
 class SimpleHistoryStore:

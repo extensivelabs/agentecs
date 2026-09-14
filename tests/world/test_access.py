@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import pytest
 
 from agentecs import EntityId, ScopedAccess, SystemMode, World, component, system
-from agentecs.world import AccessViolationError
+from agentecs.models.errors import AccessViolationError
 
 
 @component
