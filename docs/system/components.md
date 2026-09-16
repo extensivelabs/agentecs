@@ -227,6 +227,18 @@ AgentECS provides reserved singleton entities for global state:
 
 - **`SystemEntity.WORLD`**: Global world configuration and parameters
 - **`SystemEntity.CLOCK`**: Tick counter and timing information
+- **`SystemEntity.SCHEDULER`**: Reserved for scheduling state
+
+These are ordinary live entities, so a singleton component is also returned by a query
+for its type, paired with the entity holding it:
+
+```python
+world.set_singleton(GlobalConfig(temperature=0.7))
+list(world.query_copies(GlobalConfig))   # [(SystemEntity.WORLD, GlobalConfig(...))]
+```
+
+A query for a component type you only ever set as a singleton will therefore match
+`WORLD`. Exclude the reserved entities explicitly if a system should skip them.
 
 ```python
 from agentecs import SystemEntity

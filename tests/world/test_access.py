@@ -12,6 +12,7 @@ import pytest
 
 from agentecs import EntityId, ScopedAccess, SystemMode, World, component, system
 from agentecs.models.errors import AccessViolationError
+from agentecs.models.identity import SystemEntity
 
 
 @component
@@ -435,3 +436,51 @@ def test_scoped_spawn_duplicate_components_warns(world):
     world.tick()
 
     assert warned, "ScopedAccess.spawn() should warn on duplicate component types"
+
+
+# Singleton writes
+
+
+def test_update_singleton_matches_explicit_world_update(world):
+    """update_singleton() and update(SystemEntity.WORLD, ...) commit the same state.
+
+    Why: update_singleton() used to record straight into the buffer, skipping the
+    existence check that update() applies, because WORLD was not allocator-alive.
+    Neither path has had a test, which is how that divergence survived.
+    """
+
+    @system(writes=(TestValue,))
+    def via_singleton(access: ScopedAccess) -> None:
+        access.update_singleton(TestValue(7))
+
+    world.register_system(via_singleton)
+    world.tick()
+    singleton_result = world.singleton_copy(TestValue)
+
+    other = World()
+
+    @system(writes=(TestValue,))
+    def via_explicit_update(access: ScopedAccess) -> None:
+        access.update(SystemEntity.WORLD, TestValue(7))
+
+    other.register_system(via_explicit_update)
+    other.tick()
+
+    assert singleton_result == other.singleton_copy(TestValue) == TestValue(7)
+
+
+def test_update_singleton_enforces_the_write_contract(world):
+    """update_singleton() still rejects a component the system did not declare."""
+    violations = []
+
+    @system(writes=(OtherValue,))
+    def undeclared_singleton_write(access: ScopedAccess) -> None:
+        try:
+            access.update_singleton(TestValue(1))
+        except AccessViolationError as exc:
+            violations.append(exc)
+
+    world.register_system(undeclared_singleton_write)
+    world.tick()
+
+    assert len(violations) == 1

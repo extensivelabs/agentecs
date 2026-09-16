@@ -28,6 +28,10 @@ class EntityAllocator:
         self._next_index = SystemEntity._RESERVED_COUNT
         self._free_list: list[tuple[int, int]] = []  # (index, generation)
         self._generations: dict[int, int] = {}
+        # Seed system entities with generation
+        if shard == 0:
+            for entity in SystemEntity.RESERVED_ENTITIES:
+                self._generations[entity.index] = entity.generation
 
     def allocate(self) -> EntityId:
         """Allocate new entity ID, reusing recycled slots when available.
