@@ -402,8 +402,8 @@ world = World(storage=LocalStorage(shard=0))
 Uses `pickle` for snapshot/restore:
 
 ```python
-data = world.snapshot()  # Pickles _components dict
-world.restore(data)      # Unpickles and restores
+data = world.snapshot()  # Components, shared state, and allocator state
+world.restore(data)      # Restores all of it, entity liveness included
 ```
 
 !!! warning "Pickle Security"

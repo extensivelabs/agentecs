@@ -5,7 +5,7 @@ EntityAllocator is a stateful service that manages entity ID lifecycle.
 
 from __future__ import annotations
 
-from agentecs.models.identity import EntityId, SystemEntity
+from agentecs.models.identity import AllocatorState, EntityId, SystemEntity
 
 
 class EntityAllocator:
@@ -32,6 +32,35 @@ class EntityAllocator:
         if shard == 0:
             for entity in SystemEntity.RESERVED_ENTITIES:
                 self._generations[entity.index] = entity.generation
+
+    def dump(self) -> AllocatorState:
+        """Dump current allocator state for debugging or serialization.
+
+        Returns:
+            AllocatorState snapshot containing shard, next index, free list, and generations.
+        """
+        return AllocatorState(
+            shard=self._shard,
+            next_index=self._next_index,
+            free_list=tuple(self._free_list),
+            generations=dict(self._generations),
+        )
+
+    @classmethod
+    def load(cls, state: AllocatorState) -> EntityAllocator:
+        """Load allocator state from a snapshot.
+
+        Args:
+            state: AllocatorState snapshot to restore.
+
+        Returns:
+            Restored EntityAllocator instance.
+        """
+        allocator = cls(shard=state.shard)
+        allocator._next_index = state.next_index
+        allocator._free_list = list(state.free_list)
+        allocator._generations = dict(state.generations)
+        return allocator
 
     def allocate(self) -> EntityId:
         """Allocate new entity ID, reusing recycled slots when available.

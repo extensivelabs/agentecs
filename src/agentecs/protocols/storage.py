@@ -80,11 +80,16 @@ class Storage(Protocol):
         ...
 
     def snapshot(self) -> bytes:
-        """Serialize entire storage state."""
+        """Serialize entire storage state, entity liveness included."""
         ...
 
     def restore(self, data: bytes) -> None:
-        """Restore from snapshot."""
+        """Restore from snapshot.
+
+        A restored storage reports the same ``entity_exists`` for every entity as the
+        storage the snapshot came from, reserved entities included. Payloads are not
+        compatible across format changes.
+        """
         ...
 
     # Async variants for distributed/remote storage backends

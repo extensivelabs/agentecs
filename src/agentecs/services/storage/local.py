@@ -328,7 +328,7 @@ class LocalStorage:
             {
                 "shard": self._shard,
                 "components": self._components,
-                "allocator_next": self._allocator._next_index,
+                "allocator": self._allocator.dump(),
                 "shared_refs": self._shared_refs,
                 "shared_components": self._shared_components,
             }
@@ -343,9 +343,9 @@ class LocalStorage:
         state = pickle.loads(data)  # nosec B301 - Used only for local testing, not production
         self._shard = state["shard"]
         self._components = state["components"]
-        self._allocator._next_index = state["allocator_next"]
         self._shared_refs = state["shared_refs"]
         self._shared_components = state["shared_components"]
+        self._allocator = EntityAllocator.load(state["allocator"])
 
     # Async variants - for LocalStorage these just wrap sync methods
     # Future distributed storage backends can implement truly async versions

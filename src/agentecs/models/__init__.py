@@ -12,7 +12,7 @@ from agentecs.models.component import (
     get_type,
 )
 from agentecs.models.errors import AccessViolationError, ConflictError
-from agentecs.models.identity import EntityId, SystemEntity
+from agentecs.models.identity import AllocatorState, EntityId, SystemEntity
 from agentecs.models.llm import Message, MessageRole
 from agentecs.models.query import (
     AccessPattern,
@@ -56,6 +56,7 @@ __all__ = [
     "AccessViolationError",
     "ConflictError",
     # Identity
+    "AllocatorState",
     "EntityId",
     "SystemEntity",
     # LLM
