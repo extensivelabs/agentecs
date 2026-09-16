@@ -50,4 +50,6 @@ class SystemEntity:
     CLOCK = EntityId(shard=0, index=1, generation=0)
     SCHEDULER = EntityId(shard=0, index=2, generation=0)
 
+    RESERVED_ENTITIES = (WORLD, CLOCK, SCHEDULER)
+
     _RESERVED_COUNT = 1000  # First 1000 indices reserved

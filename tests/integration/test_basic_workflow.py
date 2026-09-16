@@ -6,6 +6,7 @@ from dataclasses import dataclass
 sys.path.insert(0, "src")
 
 from agentecs import ScopedAccess, World, component, system
+from agentecs.models.identity import SystemEntity
 
 
 @component
@@ -52,3 +53,17 @@ def test_membership_check():
 # TODO: Test parallel system execution via Scheduler
 # TODO: Test entity handle usage
 # TODO: Test system return value normalization
+
+
+def test_singleton_round_trips_through_query():
+    """set_singleton() is readable both as a singleton and as a query result.
+
+    Why: this is the user-visible shape of reserved entities being alive. Singletons
+    were previously reachable only through singleton_copy() — query_copies() filtered
+    the WORLD entity out because the allocator had no generation record for it.
+    """
+    world = World()
+    world.set_singleton(TestPosition(1.0, 2.0))
+
+    assert world.singleton_copy(TestPosition) == TestPosition(1.0, 2.0)
+    assert list(world.query_copies(TestPosition)) == [(SystemEntity.WORLD, TestPosition(1.0, 2.0))]

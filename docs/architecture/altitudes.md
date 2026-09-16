@@ -98,9 +98,10 @@ bumps the generation, so a stale handle to the old generation fails
 `shard` is reserved for distribution — every value is `0` today, and `is_local()` is the
 only consumer.
 
-`SystemEntity` reserves the first 1000 indices for singletons. Only `WORLD` and `CLOCK`
-are actually created (`services/world/world.py:65`); `SCHEDULER` is declared but never
-instantiated.
+`SystemEntity` reserves the first 1000 indices for singletons. Three of them are real:
+`WORLD`, `CLOCK` and `SCHEDULER` are registered generation-0 alive by `EntityAllocator`
+at construction. The remaining reserved indices are never allocated and never registered
+— `_RESERVED_COUNT` is the allocation floor, not a set of entities.
 
 ### `models/component.py` and `functions/component.py` — what data is
 

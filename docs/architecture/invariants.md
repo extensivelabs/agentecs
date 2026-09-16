@@ -61,32 +61,31 @@ These hold, and code may rely on them.
 
 Real behaviour that surprises people. All verified.
 
-### Singleton entities are invisible to queries
+### Singleton entities appear in query results
 
-`_ensure_system_entities()` (`services/world/world.py:65`) creates `WORLD` and `CLOCK` by writing
-`_storage._components[entity] = {}` directly, bypassing the allocator. The allocator
-therefore has no generation record for index 0 or 1, so `is_alive()` returns `False`
-for both.
-
-Consequences, all observable:
+`WORLD`, `CLOCK` and `SCHEDULER` are registered generation-0 alive by `EntityAllocator`
+at construction, so they are ordinary live entities. A singleton component is therefore
+returned by a query for its type, paired with the `WORLD` entity:
 
 ```python
-world._storage.entity_exists(SystemEntity.WORLD)   # False
+world._storage.entity_exists(SystemEntity.WORLD)   # True
 world.set_singleton(Cfg(5))
-world.singleton_copy(Cfg)                          # Cfg(n=5)   ← works
-list(world.query_copies(Cfg))                      # []         ← invisible
-list(world._storage.all_entities())                # []         ← invisible
+world.singleton_copy(Cfg)                          # Cfg(n=5)
+list(world.query_copies(Cfg))                      # [(SystemEntity.WORLD, Cfg(n=5))]
+list(world._storage.all_entities())                # the three reserved entities
 ```
 
-`get_component` works because it only checks dict membership, while `query` and
-`all_entities` additionally filter on `is_alive`.
+**A query for a component type you only ever set as a singleton will match `WORLD`.**
+Systems that iterate every entity carrying some component see the reserved entities
+alongside user entities; exclude them explicitly if that matters.
 
-The same asymmetry explains why `ScopedAccess` has a separate `update_singleton()`:
-`update(SystemEntity.WORLD, ...)` raises `KeyError: Entity ... does not exist`, whereas
-`update_singleton()` deliberately skips the existence check.
+Exactly three entities are registered, not the 1000 reserved indices. `_RESERVED_COUNT`
+is the allocation floor only — it bounds where `allocate()` starts and is never iterated.
 
-**Reach singletons through `singleton()` / `update_singleton()` only.** Never expect
-them in a query result.
+`ScopedAccess.update_singleton()` is a thin alias for `update(SystemEntity.WORLD, ...)`;
+both enforce the declared write contract and the entity existence check. Earlier versions
+had the two diverge, with `update_singleton()` skipping the existence check because the
+reserved entities were not allocator-alive.
 
 ### Reads fail differently inside and outside systems
 
@@ -171,7 +170,6 @@ anything yet.
 | `Query.excluding()` | `models/query.py:43` | Enforcement is type-level: `QueryAccess` is flattened via `.types()` before checks, so exclusions never restrict which entities you may write. |
 | Conflict detection | — | `build_single_group_plan` puts every non-dev system in one parallel group. No write-conflict analysis exists. Conflicts resolve at apply time by `__combine__` or LWW. |
 | Tick history | `protocols/history.py` | `HistoryStore` and `TickRecord` are protocol and model only. `World` neither counts ticks nor emits records. |
-| `SystemEntity.SCHEDULER` | `models/identity.py:46` | Reserved. `_ensure_system_entities` creates only `WORLD` and `CLOCK`. |
 | `ConflictError` | `models/errors.py:16` | Defined, never raised. |
 | `Access` enum | `models/system.py:21` | Defined, unused. |
 | `_rust/` | `_rust/__init__.py` | Empty placeholder for future PyO3 bindings. |

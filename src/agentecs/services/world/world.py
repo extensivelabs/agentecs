@@ -56,14 +56,6 @@ class World:
     ):
         self._storage = storage
         self._execution = execution
-        self._ensure_system_entities()
-
-    def _ensure_system_entities(self) -> None:
-        """Create reserved singleton entities if not present."""
-        for entity in [SystemEntity.WORLD, SystemEntity.CLOCK]:
-            if not self._storage.entity_exists(entity):
-                # Bypass allocator
-                self._storage._components[entity] = {}  # type: ignore
 
     def _check_entity_exists(self, entity: EntityId) -> bool:
         """Check if entity exists."""

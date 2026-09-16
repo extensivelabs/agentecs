@@ -16,7 +16,7 @@ from collections.abc import AsyncIterator, Iterator
 from typing import Any, TypeVar, cast
 
 from agentecs.models.component import Shared, WrappedComponent, get_component, get_type
-from agentecs.models.identity import EntityId
+from agentecs.models.identity import EntityId, SystemEntity
 from agentecs.models.types import Copy
 from agentecs.services.storage.allocator import EntityAllocator
 
@@ -48,6 +48,11 @@ class LocalStorage:
 
         self._shared_refs: dict[tuple[EntityId, type], int] = {}
         self._shared_components: dict[int, Any] = {}
+
+        if self._shard == 0:
+            # Reserve system entities for local shard
+            for reserved in SystemEntity.RESERVED_ENTITIES:
+                self._components[reserved] = {}
 
     def _locate_component(self, entity: EntityId, component_type: type) -> tuple[int | None, bool]:
         """Find where a component lives for an entity.
@@ -104,15 +109,18 @@ class LocalStorage:
             self._allocator.deallocate(entity)
 
     def entity_exists(self, entity: EntityId) -> bool:
-        """Check if an entity exists and is alive.
+        """Check if an entity is alive.
+
+        Existence is allocator liveness alone: every live entity has a component
+        bucket, so membership adds nothing.
 
         Args:
             entity: Entity to check.
 
         Returns:
-            True if entity exists and is alive, False otherwise.
+            True if entity is alive, False otherwise.
         """
-        return entity in self._components and self._allocator.is_alive(entity)
+        return self._allocator.is_alive(entity)
 
     def all_entities(self) -> Iterator[EntityId]:
         """Iterate over all alive entities.

@@ -493,8 +493,7 @@ class ScopedAccess:
 
     def update_singleton(self, component: Any) -> None:
         """Update/set singleton component on WORLD entity."""
-        self._check_writable(component)
-        self._buffer.record_update(entity=SystemEntity.WORLD, component=component)
+        self.update(SystemEntity.WORLD, component)
 
     def insert(self, entity: EntityId, component: Any) -> None:
         """Add new component to entity."""

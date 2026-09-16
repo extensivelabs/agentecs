@@ -62,7 +62,8 @@ world = World(
 
 - `_storage`: Storage backend (implements `Storage` protocol)
 - `_execution`: Execution strategy (implements `ExecutionStrategy` protocol)
-- Reserved entities: `SystemEntity.WORLD`, `SystemEntity.CLOCK` (created automatically)
+- Reserved entities: `SystemEntity.WORLD`, `SystemEntity.CLOCK`, `SystemEntity.SCHEDULER`
+  (registered alive by the allocator at construction)
 
 ## Tick Execution
 

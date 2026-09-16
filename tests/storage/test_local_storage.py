@@ -6,7 +6,7 @@ import pytest
 
 from agentecs import component
 from agentecs.models.component import Shared, WrappedComponent
-from agentecs.models.identity import EntityId
+from agentecs.models.identity import EntityId, SystemEntity
 from agentecs.services.storage.local import LocalStorage
 
 
@@ -313,3 +313,49 @@ def test_remove_component_from_all_removes_shared_type_everywhere(
 
     # Unrelated regular types are unaffected.
     assert storage.get_component(extra, Priority, copy=False) is not None
+
+
+# Reserved system entities
+
+
+def test_reserved_entities_exist_on_fresh_storage() -> None:
+    """entity_exists is True for the reserved entities with no allocation call.
+
+    Why: entity_exists is the storage-level liveness predicate the write policy
+    consults. Reserved entities were previously poked into _components directly,
+    leaving them dead to it.
+    """
+    storage = LocalStorage()
+
+    for reserved in SystemEntity.RESERVED_ENTITIES:
+        assert storage.entity_exists(reserved)
+
+
+def test_fresh_storage_lists_exactly_the_reserved_entities() -> None:
+    """all_entities() yields the three reserved entities, not the 1000 reserved indices."""
+    storage = LocalStorage()
+
+    assert list(storage.all_entities()) == list(SystemEntity.RESERVED_ENTITIES)
+
+
+def test_singleton_component_is_visible_to_query() -> None:
+    """A component on WORLD is returned by a query for its type.
+
+    Why: this is the semantic change the PR delivers. Previously WORLD was not
+    allocator-alive, so query() filtered it out and singletons were reachable only
+    through the dedicated singleton accessors.
+    """
+    storage = LocalStorage()
+    storage.set_component(SystemEntity.WORLD, Priority(level=3))
+
+    results = list(storage.query(Priority))
+
+    assert results == [(SystemEntity.WORLD, (Priority(level=3),))]
+
+
+def test_reserved_entities_absent_on_other_shards() -> None:
+    """A non-zero shard neither reports nor lists shard-0 reserved entities."""
+    storage = LocalStorage(shard=1)
+
+    assert not storage.entity_exists(SystemEntity.WORLD)
+    assert list(storage.all_entities()) == []
