@@ -2363,7 +2363,8 @@
 <ul>
 <li><code>_storage</code>: Storage backend (implements <code>Storage</code> protocol)</li>
 <li><code>_execution</code>: Execution strategy (implements <code>ExecutionStrategy</code> protocol)</li>
-<li>Reserved entities: <code>SystemEntity.WORLD</code>, <code>SystemEntity.CLOCK</code> (created automatically)</li>
+<li>Reserved entities: <code>SystemEntity.WORLD</code>, <code>SystemEntity.CLOCK</code>, <code>SystemEntity.SCHEDULER</code>
+  (registered alive by the allocator at construction)</li>
 </ul>
 <h2 id="tick-execution">Tick Execution<a class="headerlink" href="#tick-execution" title="Permanent link">&para;</a></h2>
 <p>Ticks are the fundamental unit of simulation time in AgentECS. Each tick executes execution groups sequentially, applying results at group boundaries:</p>

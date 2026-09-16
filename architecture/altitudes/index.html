@@ -2316,9 +2316,10 @@ bumps the generation, so a stale handle to the old generation fails
 <code>EntityAllocator.is_alive()</code> instead of silently addressing whoever took the slot.
 <code>shard</code> is reserved for distribution — every value is <code>0</code> today, and <code>is_local()</code> is the
 only consumer.</p>
-<p><code>SystemEntity</code> reserves the first 1000 indices for singletons. Only <code>WORLD</code> and <code>CLOCK</code>
-are actually created (<code>services/world/world.py:65</code>); <code>SCHEDULER</code> is declared but never
-instantiated.</p>
+<p><code>SystemEntity</code> reserves the first 1000 indices for singletons. Three of them are real:
+<code>WORLD</code>, <code>CLOCK</code> and <code>SCHEDULER</code> are registered generation-0 alive by <code>EntityAllocator</code>
+at construction. The remaining reserved indices are never allocated and never registered
+— <code>_RESERVED_COUNT</code> is the allocation floor, not a set of entities.</p>
 <h3 id="modelscomponentpy-and-functionscomponentpy-what-data-is"><code>models/component.py</code> and <code>functions/component.py</code> — what data is<a class="headerlink" href="#modelscomponentpy-and-functionscomponentpy-what-data-is" title="Permanent link">&para;</a></h3>
 <p>A component is any dataclass or Pydantic model that has passed through <code>@component</code>
 (<code>api/decorators.py:47</code>). The decorator validates the shape, computes a

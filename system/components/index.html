@@ -2242,16 +2242,24 @@
 <ul>
 <li><strong><code>SystemEntity.WORLD</code></strong>: Global world configuration and parameters</li>
 <li><strong><code>SystemEntity.CLOCK</code></strong>: Tick counter and timing information</li>
+<li><strong><code>SystemEntity.SCHEDULER</code></strong>: Reserved for scheduling state</li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Set global configuration</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">))</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># Read global configuration outside systems</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">)</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="k">if</span> <span class="n">config</span><span class="p">:</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temperature: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<p>These are ordinary live entities, so a singleton component is also returned by a query
+for its type, paired with the entity holding it:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">))</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">query_copies</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">))</span>   <span class="c1"># [(SystemEntity.WORLD, GlobalConfig(...))]</span>
+</span></code></pre></div>
+<p>A query for a component type you only ever set as a singleton will therefore match
+<code>WORLD</code>. Exclude the reserved entities explicitly if a system should skip them.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">agentecs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemEntity</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># Set global configuration</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">))</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># Read global configuration outside systems</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">config</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="p">)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temperature: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">temperature</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <pre class="mermaid"><code>graph TD
     A[World] --&gt;|SystemEntity.WORLD| B[Global Components]

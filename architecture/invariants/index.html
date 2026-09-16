@@ -1333,10 +1333,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#singleton-entities-are-invisible-to-queries" class="md-nav__link">
+  <a href="#singleton-entities-appear-in-query-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Singleton entities are invisible to queries
+        Singleton entities appear in query results
       
     </span>
   </a>
@@ -2004,10 +2004,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#singleton-entities-are-invisible-to-queries" class="md-nav__link">
+  <a href="#singleton-entities-appear-in-query-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Singleton entities are invisible to queries
+        Singleton entities appear in query results
       
     </span>
   </a>
@@ -2241,25 +2241,25 @@ implementation delivers. Every behaviour on this page was verified against the c
 <hr />
 <h2 id="sharp-edges">Sharp edges<a class="headerlink" href="#sharp-edges" title="Permanent link">&para;</a></h2>
 <p>Real behaviour that surprises people. All verified.</p>
-<h3 id="singleton-entities-are-invisible-to-queries">Singleton entities are invisible to queries<a class="headerlink" href="#singleton-entities-are-invisible-to-queries" title="Permanent link">&para;</a></h3>
-<p><code>_ensure_system_entities()</code> (<code>services/world/world.py:65</code>) creates <code>WORLD</code> and <code>CLOCK</code> by writing
-<code>_storage._components[entity] = {}</code> directly, bypassing the allocator. The allocator
-therefore has no generation record for index 0 or 1, so <code>is_alive()</code> returns <code>False</code>
-for both.</p>
-<p>Consequences, all observable:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">entity_exists</span><span class="p">(</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">)</span>   <span class="c1"># False</span>
+<h3 id="singleton-entities-appear-in-query-results">Singleton entities appear in query results<a class="headerlink" href="#singleton-entities-appear-in-query-results" title="Permanent link">&para;</a></h3>
+<p><code>WORLD</code>, <code>CLOCK</code> and <code>SCHEDULER</code> are registered generation-0 alive by <code>EntityAllocator</code>
+at construction, so they are ordinary live entities. A singleton component is therefore
+returned by a query for its type, paired with the <code>WORLD</code> entity:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">entity_exists</span><span class="p">(</span><span class="n">SystemEntity</span><span class="o">.</span><span class="n">WORLD</span><span class="p">)</span>   <span class="c1"># True</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">world</span><span class="o">.</span><span class="n">set_singleton</span><span class="p">(</span><span class="n">Cfg</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">Cfg</span><span class="p">)</span>                          <span class="c1"># Cfg(n=5)   ← works</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">query_copies</span><span class="p">(</span><span class="n">Cfg</span><span class="p">))</span>                      <span class="c1"># []         ← invisible</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">all_entities</span><span class="p">())</span>                <span class="c1"># []         ← invisible</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">world</span><span class="o">.</span><span class="n">singleton_copy</span><span class="p">(</span><span class="n">Cfg</span><span class="p">)</span>                          <span class="c1"># Cfg(n=5)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">query_copies</span><span class="p">(</span><span class="n">Cfg</span><span class="p">))</span>                      <span class="c1"># [(SystemEntity.WORLD, Cfg(n=5))]</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">list</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">all_entities</span><span class="p">())</span>                <span class="c1"># the three reserved entities</span>
 </span></code></pre></div>
-<p><code>get_component</code> works because it only checks dict membership, while <code>query</code> and
-<code>all_entities</code> additionally filter on <code>is_alive</code>.</p>
-<p>The same asymmetry explains why <code>ScopedAccess</code> has a separate <code>update_singleton()</code>:
-<code>update(SystemEntity.WORLD, ...)</code> raises <code>KeyError: Entity ... does not exist</code>, whereas
-<code>update_singleton()</code> deliberately skips the existence check.</p>
-<p><strong>Reach singletons through <code>singleton()</code> / <code>update_singleton()</code> only.</strong> Never expect
-them in a query result.</p>
+<p><strong>A query for a component type you only ever set as a singleton will match <code>WORLD</code>.</strong>
+Systems that iterate every entity carrying some component see the reserved entities
+alongside user entities; exclude them explicitly if that matters.</p>
+<p>Exactly three entities are registered, not the 1000 reserved indices. <code>_RESERVED_COUNT</code>
+is the allocation floor only — it bounds where <code>allocate()</code> starts and is never iterated.</p>
+<p><code>ScopedAccess.update_singleton()</code> is a thin alias for <code>update(SystemEntity.WORLD, ...)</code>;
+both enforce the declared write contract and the entity existence check. Earlier versions
+had the two diverge, with <code>update_singleton()</code> skipping the existence check because the
+reserved entities were not allocator-alive.</p>
 <h3 id="reads-fail-differently-inside-and-outside-systems">Reads fail differently inside and outside systems<a class="headerlink" href="#reads-fail-differently-inside-and-outside-systems" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2368,11 +2368,6 @@ anything yet.</p>
 <td>Tick history</td>
 <td><code>protocols/history.py</code></td>
 <td><code>HistoryStore</code> and <code>TickRecord</code> are protocol and model only. <code>World</code> neither counts ticks nor emits records.</td>
-</tr>
-<tr>
-<td><code>SystemEntity.SCHEDULER</code></td>
-<td><code>models/identity.py:46</code></td>
-<td>Reserved. <code>_ensure_system_entities</code> creates only <code>WORLD</code> and <code>CLOCK</code>.</td>
 </tr>
 <tr>
 <td><code>ConflictError</code></td>
