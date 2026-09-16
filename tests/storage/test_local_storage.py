@@ -359,3 +359,75 @@ def test_reserved_entities_absent_on_other_shards() -> None:
 
     assert not storage.entity_exists(SystemEntity.WORLD)
     assert list(storage.all_entities()) == []
+
+
+# Snapshot liveness
+
+
+def test_restore_preserves_entity_liveness() -> None:
+    """A restored storage reports live and destroyed entities correctly.
+
+    Why: snapshot() used to persist only the allocator's next index, so every entity
+    reported dead after restore (#71).
+    """
+    storage = LocalStorage()
+    live = storage.create_entity()
+    dead = storage.create_entity()
+    storage.destroy_entity(dead)
+
+    restored = LocalStorage()
+    restored.restore(storage.snapshot())
+
+    assert restored.entity_exists(live)
+    assert not restored.entity_exists(dead)
+
+
+def test_restore_preserves_query_results() -> None:
+    """A restored storage returns the same entities from a query as before the snapshot."""
+    storage = LocalStorage()
+    entity = storage.create_entity()
+    storage.set_component(entity, Priority(level=2))
+    before = list(storage.query(Priority))
+
+    restored = LocalStorage()
+    restored.restore(storage.snapshot())
+
+    assert list(restored.query(Priority)) == before
+
+
+def test_restore_preserves_the_free_list() -> None:
+    """A freed index is reused after restore rather than leaking.
+
+    Why: the free list was dropped alongside the generation map, so a restored storage
+    allocated past the recycled slot and lost it permanently.
+    """
+    storage = LocalStorage()
+    storage.create_entity()
+    recycled = storage.create_entity()
+    storage.destroy_entity(recycled)
+
+    restored = LocalStorage()
+    restored.restore(storage.snapshot())
+    reused = restored.create_entity()
+
+    assert reused.index == recycled.index
+    assert reused.generation == recycled.generation + 1
+
+
+def test_restored_reserved_liveness_comes_from_the_payload() -> None:
+    """The payload's view of a reserved entity wins over the constructor's re-seeding.
+
+    Why: a fresh LocalStorage seeds the reserved entities in __init__, so asserting they
+    are alive after a restore passes whether or not the payload carried them. Destroying
+    one first is what separates the two: a restore that merged instead of replacing would
+    resurrect it.
+    """
+    storage = LocalStorage()
+    storage.destroy_entity(SystemEntity.WORLD)
+
+    restored = LocalStorage()
+    restored.restore(storage.snapshot())
+
+    assert not restored.entity_exists(SystemEntity.WORLD)
+    assert restored.entity_exists(SystemEntity.CLOCK)
+    assert restored.entity_exists(SystemEntity.SCHEDULER)

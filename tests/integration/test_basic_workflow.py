@@ -67,3 +67,19 @@ def test_singleton_round_trips_through_query():
 
     assert world.singleton_copy(TestPosition) == TestPosition(1.0, 2.0)
     assert list(world.query_copies(TestPosition)) == [(SystemEntity.WORLD, TestPosition(1.0, 2.0))]
+
+
+def test_world_snapshot_round_trips_liveness():
+    """World.restore(World.snapshot()) preserves liveness through the composition root.
+
+    Why: the storage-level fix is only useful if it survives the surface users call.
+    """
+    world = World()
+    live = world.spawn(TestPosition(1.0, 2.0))
+    dead = world.spawn(TestPosition(3.0, 4.0))
+    world.destroy(dead)
+
+    restored = World()
+    restored.restore(world.snapshot())
+
+    assert list(restored.query_copies(TestPosition)) == [(live, TestPosition(1.0, 2.0))]

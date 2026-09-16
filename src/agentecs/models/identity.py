@@ -53,3 +53,13 @@ class SystemEntity:
     RESERVED_ENTITIES = (WORLD, CLOCK, SCHEDULER)
 
     _RESERVED_COUNT = 1000  # First 1000 indices reserved
+
+
+@dataclass(frozen=True, slots=True)
+class AllocatorState:
+    """Snapshot of the allocator state for serialization or debugging."""
+
+    shard: int
+    next_index: int
+    free_list: tuple[tuple[int, int], ...]  # (index, generation) pairs
+    generations: dict[int, int]  # Mapping of index to generation

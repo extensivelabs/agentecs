@@ -53,3 +53,53 @@ def test_reserved_entities_are_not_registered_on_other_shards() -> None:
 
     for reserved in SystemEntity.RESERVED_ENTITIES:
         assert not allocator.is_alive(reserved)
+
+
+# State export and import
+
+
+def test_load_round_trips_liveness() -> None:
+    """load(dump()) reports the same liveness for live, destroyed and reserved entities.
+
+    Why: the generation map is the sole liveness source. A snapshot that drops it makes
+    every restored entity report dead, which is the bug this closes (#71).
+    """
+    allocator = EntityAllocator()
+    live = allocator.allocate()
+    dead = allocator.allocate()
+    allocator.deallocate(dead)
+
+    restored = EntityAllocator.load(allocator.dump())
+
+    assert restored.is_alive(live)
+    assert not restored.is_alive(dead)
+    for reserved in SystemEntity.RESERVED_ENTITIES:
+        assert restored.is_alive(reserved)
+
+
+def test_dumped_state_is_isolated_from_later_mutation() -> None:
+    """A dumped state is unaffected by allocation or deallocation afterwards.
+
+    Why: AllocatorState is frozen, but that protects the field bindings, not the list and
+    dict behind them. Without copies the state is a live view of the allocator.
+    """
+    allocator = EntityAllocator()
+    entity = allocator.allocate()
+    state = allocator.dump()
+
+    allocator.allocate()
+    allocator.deallocate(entity)
+
+    restored = EntityAllocator.load(state)
+
+    assert restored.is_alive(entity)
+    assert restored.dump().next_index == state.next_index
+
+
+def test_loaded_allocator_adopts_the_state_shard() -> None:
+    """A loaded allocator is described by the state, not by how it was constructed."""
+    source = EntityAllocator(shard=1)
+
+    restored = EntityAllocator.load(source.dump())
+
+    assert restored.dump().shard == 1
