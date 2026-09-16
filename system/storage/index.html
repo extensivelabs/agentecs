@@ -2559,8 +2559,8 @@
 </span></code></pre></div>
 <p><strong>Serialization:</strong></p>
 <p>Uses <code>pickle</code> for snapshot/restore:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">data</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">snapshot</span><span class="p">()</span>  <span class="c1"># Pickles _components dict</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">world</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>      <span class="c1"># Unpickles and restores</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">data</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">snapshot</span><span class="p">()</span>  <span class="c1"># Components, shared state, and allocator state</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">world</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>      <span class="c1"># Restores all of it, entity liveness included</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Pickle Security</p>
